@@ -1,0 +1,27 @@
+server:
+  port: 8081
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: authentication-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/auth/**
+
+        - id: agendamiento-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/veterinarios/**
+
+
+        - id: agendamiento-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/propietarios/**
+
+
+
+
+
