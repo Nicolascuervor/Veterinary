@@ -1,8 +1,673 @@
-<nav>
-    <a href="dashboard.html">Dashboard</a>
-    <a href="productos.html">Productos</a>
-    <a href="carrito.html">Carrito</a>
-    <a href="perfil.html">Perfil</a>
-    <a href="citas.html">Citas</a>
-    <button id="logout">Cerrar Sesión</button>
-</nav>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VetCare Pro - Navbar publico</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+     <style>
+        /* Variables CSS para tema de usuario */
+        :root {
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --shadow-primary: 0 8px 32px rgba(102, 126, 234, 0.3);
+            --shadow-hover: 0 12px 40px rgba(102, 126, 234, 0.4);
+            --text-light: #f8fafc;
+            --text-muted: #cbd5e1;
+        }
+
+        /* Navbar principal */
+        #user-nav {
+            background: var(--primary-gradient) !important;
+            border: none;
+            box-shadow: var(--shadow-primary);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            position: relative;
+        
+            transition: all 0.4s ease;
+            padding: 0.75rem 0;
+        }
+
+        /* Efecto de partículas de fondo */
+        #user-nav::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="stars" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="0.5" fill="white" opacity="0.3"/></pattern></defs><rect width="100" height="100" fill="url(%23stars)"/></svg>');
+            opacity: 0.4;
+            animation: moveStars 20s linear infinite;
+        }
+
+        @keyframes moveStars {
+            0% { transform: translateX(0) translateY(0); }
+            100% { transform: translateX(-20px) translateY(-20px); }
+        }
+
+        /* Efecto hover para el navbar */
+        #user-nav:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-1px);
+        }
+
+        /* Logo/Brand mejorado */
+        .navbar-brand {
+            color: var(--text-light) !important;
+            font-weight: 800;
+            font-size: 1.6rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .navbar-brand:hover {
+            color: #fff !important;
+            transform: scale(1.05);
+        }
+
+        .navbar-brand i {
+            color: #fbbf24;
+            font-size: 1.4rem;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand:hover i {
+            transform: rotate(15deg) scale(1.1);
+            color: #fcd34d;
+        }
+
+        /* Enlaces de navegación */
+        .navbar-nav .nav-link {
+            color: var(--text-light) !important;
+            font-weight: 600;
+            padding: 0.75rem 1.25rem !important;
+            margin: 0 0.25rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            background: transparent;
+            border: 1px solid transparent;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .navbar-nav .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--light-overlay);
+            transition: left 0.4s ease;
+            border-radius: 12px;
+        }
+
+        .navbar-nav .nav-link:hover::before {
+            left: 0;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: #fff !important;
+            background: var(--glass-bg);
+            border-color: var(--light-overlay);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .navbar-nav .nav-link i {
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+        }
+
+        .navbar-nav .nav-link:hover i {
+            transform: scale(1.2);
+        }
+
+        /* Enlace activo */
+        .navbar-nav .nav-link.active {
+            background: var(--glass-bg) !important;
+            color: #fff !important;
+            border-color: var(--light-overlay);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .navbar-nav .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 3px;
+            background: #fbbf24;
+            border-radius: 2px;
+            box-shadow: 0 2px 8px rgba(251, 191, 36, 0.6);
+        }
+
+        /* Contador de carrito */
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--danger-color);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+        }
+
+        /* Notificaciones */
+        .notification-indicator {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background: var(--success-color);
+            border-radius: 50%;
+            width: 12px;
+            height: 12px;
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+        }
+
+        /* Dropdown del perfil */
+        .profile-dropdown {
+            background: none !important;
+            border: 2px solid var(--light-overlay) !important;
+            color: var(--text-light) !important;
+            padding: 0.5rem 1rem !important;
+            border-radius: 25px !important;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .profile-dropdown:hover {
+            background: var(--glass-bg) !important;
+            border-color: rgba(255, 255, 255, 0.3) !important;
+            color: #fff !important;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .profile-dropdown i {
+            font-size: 1.2rem;
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+        }
+
+        /* Avatar personalizado */
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            margin-right: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .profile-dropdown:hover .user-avatar {
+            border-color: #fff;
+            transform: scale(1.1);
+        }
+
+        /* Menú dropdown mejorado */
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            border-radius: 15px;
+            padding: 1rem 0;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            margin-top: 0.75rem;
+            min-width: 220px;
+            animation: dropdownSlideIn 0.3s ease;
+        }
+
+        @keyframes dropdownSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-15px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1.5rem;
+            color: #374151;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            margin: 0 0.75rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dropdown-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+            transition: left 0.4s ease;
+        }
+
+        .dropdown-item:hover::before {
+            left: 100%;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            transform: translateX(8px);
+        }
+
+        .dropdown-item.text-danger:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+        }
+
+        .dropdown-item i {
+            width: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-item:hover i {
+            transform: scale(1.2);
+        }
+
+        /* Separador mejorado */
+        .dropdown-divider {
+            margin: 0.75rem 1.5rem;
+            border-color: rgba(102, 126, 234, 0.2);
+            opacity: 0.6;
+        }
+
+        /* Status del usuario */
+        .user-status {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--success-color);
+            border-radius: 50%;
+            margin-left: 0.5rem;
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+        }
+
+        /* Botón hamburguesa mejorado */
+        .navbar-toggler {
+            border: 2px solid var(--light-overlay);
+            border-radius: 10px;
+            padding: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-toggler:hover {
+            background: var(--glass-bg);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+        }
+
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.8%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='m4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+
+        /* Responsive mejorado */
+        @media (max-width: 991.98px) {
+            .navbar-collapse {
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border-radius: 15px;
+                margin-top: 1rem;
+                padding: 1.5rem;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            }
+
+            .navbar-nav .nav-link {
+                color: #374151 !important;
+                margin: 0.25rem 0;
+                text-shadow: none;
+            }
+
+            .navbar-nav .nav-link:hover {
+                background: rgba(102, 126, 234, 0.1);
+                color: #667eea !important;
+            }
+
+            .navbar-nav .nav-link.active {
+                background: rgba(102, 126, 234, 0.15) !important;
+                color: #667eea !important;
+            }
+
+            .profile-dropdown {
+                background: rgba(102, 126, 234, 0.1) !important;
+                border-color: rgba(102, 126, 234, 0.3) !important;
+                color: #667eea !important;
+                text-shadow: none;
+            }
+
+            .dropdown-menu {
+                position: static !important;
+                box-shadow: none;
+                background: transparent;
+                margin-top: 1rem;
+                padding: 0;
+            }
+
+            .dropdown-item {
+                background: rgba(102, 126, 234, 0.05);
+                margin: 0.5rem 0;
+            }
+        }
+
+        /* Efectos adicionales */
+        .nav-section {
+            position: relative;
+        }
+
+        .nav-section::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1px;
+            height: 30px;
+            background: var(--light-overlay);
+            opacity: 0.5;
+        }
+
+        /* Animaciones de entrada */
+        .navbar-nav .nav-item {
+            animation: slideInFromTop 0.6s ease forwards;
+        }
+
+        .navbar-nav .nav-item:nth-child(1) { animation-delay: 0.1s; }
+        .navbar-nav .nav-item:nth-child(2) { animation-delay: 0.2s; }
+        .navbar-nav .nav-item:nth-child(3) { animation-delay: 0.3s; }
+        .navbar-nav .nav-item:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes slideInFromTop {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+      
+        .dashboard-card {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 500px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Mejorado para Usuario -->
+    <nav id="user-nav" class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="../pages/dashboard.html">
+                <i class="fas fa-paw me-2"></i>VetCare Pro
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto nav-section">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="../pages/dashboard.html">
+                            <i class="fas fa-home me-1"></i>Dashboard
+                            <span class="notification-indicator"></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../pages/productos.html">
+                            <i class="fas fa-shopping-bag me-1"></i>Productos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../pages/carrito.html" style="position: relative;">
+                            <i class="fas fa-shopping-cart me-1"></i>Carrito
+                            <span class="cart-badge" id="cart-count"></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../pages/citas.html">
+                            <i class="fas fa-calendar-alt me-1"></i>Citas
+                        </a>
+                    </li>
+                </ul>
+                
+                <div class="d-flex align-items-center">
+                    <!-- Indicador de notificaciones -->
+                    <div class="me-3">
+                        <button class="btn btn-link text-light p-2" title="Notificaciones">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-indicator"></span>
+                        </button>
+                    </div>
+                    
+                    <!-- Dropdown del perfil -->
+                    <div class="dropdown">
+                        <button class="btn profile-dropdown dropdown-toggle" type="button" 
+                                id="profile-button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="https://ui-avatars.com/api/?name=Usuario&background=667eea&color=fff&size=35" 
+                                 alt="Avatar" class="user-avatar">
+                            <span>Usuario</span>
+                            <span class="user-status"></span>
+                        </button>
+                        
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profile-button">
+                            <li>
+                                <a class="dropdown-item" href="../pages/perfil.html">
+                                    <i class="fas fa-user me-2"></i>Mi Perfil
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="../pages/mis-mascotas.html">
+                                    <i class="fas fa-paw me-2"></i>Mis Mascotas
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="../pages/configuracion.html">
+                                    <i class="fas fa-cog me-2"></i>Configuración
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="../pages/historial.html">
+                                    <i class="fas fa-history me-2"></i>Historial
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <button class="dropdown-item text-danger" id="logout">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Funcionalidad JavaScript para mejorar la experiencia
+        document.addEventListener('DOMContentLoaded', function() {
+            const navbar = document.getElementById('public-nav');
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            // Efecto de scroll para el navbar
+            function handleScroll() {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            }
+            
+            // Marcar enlace activo basado en la sección visible
+            function setActiveLink() {
+                const currentPage = window.location.pathname;
+                const currentHash = window.location.hash;
+                
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    
+                    // Verificar si el href coincide con la página actual
+                    const href = link.getAttribute('href');
+                    if (href === currentPage || href === currentHash) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+            
+            // Smooth scroll para enlaces internos
+            function smoothScroll(e) {
+                const href = e.target.getAttribute('href');
+                if (href && href.startsWith('#')) {
+                    e.preventDefault();
+                    const target = document.querySelector(href);
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                        
+                        // Cerrar navbar en móvil después del click
+                        const navbarCollapse = document.querySelector('.navbar-collapse');
+                        if (navbarCollapse.classList.contains('show')) {
+                            const bsCollapse = new bootstrap.Collapse(navbarCollapse);
+                            bsCollapse.hide();
+                        }
+                    }
+                }
+            }
+            
+            // Efecto de hover mejorado para items del dropdown
+            function enhanceDropdownItems() {
+                const dropdownItems = document.querySelectorAll('.dropdown-item');
+                dropdownItems.forEach(item => {
+                    item.addEventListener('mouseenter', function() {
+                        this.style.transform = 'translateX(5px)';
+                    });
+                    
+                    item.addEventListener('mouseleave', function() {
+                        this.style.transform = 'translateX(0)';
+                    });
+                });
+            }
+            
+            // Auto-cerrar dropdown al hacer click fuera
+            function handleDropdownClose() {
+                document.addEventListener('click', function(e) {
+                    const dropdowns = document.querySelectorAll('.dropdown-menu.show');
+                    dropdowns.forEach(dropdown => {
+                        if (!dropdown.contains(e.target) && !dropdown.previousElementSibling.contains(e.target)) {
+                            const bsDropdown = bootstrap.Dropdown.getInstance(dropdown.previousElementSibling);
+                            if (bsDropdown) {
+                                bsDropdown.hide();
+                            }
+                        }
+                    });
+                });
+            }
+            
+            // Indicador de carga para enlaces
+            function addLoadingIndicator() {
+                navLinks.forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        if (!this.getAttribute('href').startsWith('#')) {
+                            this.innerHTML += ' <i class="fas fa-spinner fa-spin ms-1"></i>';
+                        }
+                    });
+                });
+            }
+            
+            // Navegación por teclado mejorada
+            function enhanceKeyboardNavigation() {
+                navbar.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        const openDropdowns = document.querySelectorAll('.dropdown-menu.show');
+                        openDropdowns.forEach(dropdown => {
+                            const bsDropdown = bootstrap.Dropdown.getInstance(dropdown.previousElementSibling);
+                            if (bsDropdown) {
+                                bsDropdown.hide();
+                            }
+                        });
+                        
+                        // Cerrar navbar móvil si está abierto
+                        const navbarCollapse = document.querySelector('.navbar-collapse.show');
+                        if (navbarCollapse) {
+                            const bsCollapse = bootstrap.Collapse.getInstance(navbarCollapse);
+                            if (bsCollapse) {
+                                bsCollapse.hide();
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Inicializar todas las funcionalidades
+            window.addEventListener('scroll', handleScroll);
+            setActiveLink();
+            enhanceDropdownItems();
+            handleDropdownClose();
+            addLoadingIndicator();
+            enhanceKeyboardNavigation();
+            
+            // Agregar listeners para smooth scroll
+            navLinks.forEach(link => {
+                link.addEventListener('click', smoothScroll);
+            });
+            
+            // Efecto de entrada suave para el navbar
+            setTimeout(() => {
+                navbar.style.opacity = '1';
+                navbar.style.transform = 'translateY(0)';
+            }, 100);
+        });
+    </script>
+</body>
+</html>
