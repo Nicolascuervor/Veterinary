@@ -1,3 +1,4 @@
+// js/auth.js
 // Manejar el formulario de login
 document.getElementById('login-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -13,7 +14,7 @@ document.getElementById('login-form')?.addEventListener('submit', async (e) => {
             body: JSON.stringify({ username, password }),
         });
 
-        // Verificar si la respuesta es texto plano (token) en lugar de JSON
+        // Verificar si la respuesta es texto plano (token) o JSON
         const contentType = response.headers.get('Content-Type');
         let data;
         if (contentType && contentType.includes('application/json')) {
@@ -23,10 +24,20 @@ document.getElementById('login-form')?.addEventListener('submit', async (e) => {
         }
 
         if (response.ok) {
+            // Extraer el token dependiendo del formato de la respuesta
+            let token;
+            if (contentType && contentType.includes('application/json')) {
+                token = data.token; // Extraer el token del objeto JSON
+            } else {
+                token = data; // Usar el texto directamente
+            }
+            localStorage.setItem('token', token); // Guardar el token en localStorage
             alert('Login exitoso.');
-            window.location.href = 'dashboard.html'; // Redirigir al dashboard
+            // Agregar un pequeño retraso para asegurar que el token se guarde
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 100);
         } else {
-            // Si la respuesta es texto, mostrarla directamente; si es JSON, usar data.message
             errorMessage.textContent = typeof data === 'string' ? data : data.message || 'Error al iniciar sesión';
         }
     } catch (error) {
@@ -34,7 +45,6 @@ document.getElementById('login-form')?.addEventListener('submit', async (e) => {
         console.error('Error en login:', error);
     }
 });
-
 
 // Manejar el formulario de registro
 document.getElementById('register-form')?.addEventListener('submit', async (e) => {
@@ -58,7 +68,7 @@ document.getElementById('register-form')?.addEventListener('submit', async (e) =
             body: JSON.stringify({ username, password, role }),
         });
 
-        // Verificar si la respuesta es texto plano (token) en lugar de JSON
+        // Verificar si la respuesta es texto plano (token) o JSON
         const contentType = response.headers.get('Content-Type');
         let data;
         if (contentType && contentType.includes('application/json')) {
@@ -71,7 +81,6 @@ document.getElementById('register-form')?.addEventListener('submit', async (e) =
             alert('Registro exitoso. Por favor, inicia sesión.');
             window.location.href = 'login.html'; // Redirigir al login
         } else {
-            // Si la respuesta es texto, mostrarla directamente; si es JSON, usar data.message
             errorMessage.textContent = typeof data === 'string' ? data : data.message || 'Error al registrarse';
         }
     } catch (error) {
