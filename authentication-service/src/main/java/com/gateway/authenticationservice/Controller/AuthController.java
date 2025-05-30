@@ -36,7 +36,7 @@ public class AuthController {
         );
         User user = userService.loadUserByUsername(request.getUsername());
         String token = jwtService.generateToken(user);
-        return ResponseEntity.ok(new AuthResponse(token, String.valueOf(user.getRole())));
+        return ResponseEntity.ok(new AuthResponse(token, String.valueOf(user.getRole()), request.getUsername()));
     }
 
     @GetMapping("/admin/test")
