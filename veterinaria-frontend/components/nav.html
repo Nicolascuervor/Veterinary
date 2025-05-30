@@ -38,7 +38,7 @@
             opacity: 0.95;
             transform: translateY(-10px);
             transition: opacity 0.3s ease, transform 0.3s ease;
-            
+
         }
 
         /* Efecto al hacer scroll */
@@ -58,6 +58,18 @@
             display: flex;
             align-items: center;
         }
+
+        .navbar-brand:hover {
+            color: var(--secondary-color) !important;
+            transform: translateY(-1px);
+        }
+
+        .navbar-brand i {
+            color: var(--accent-color);
+            font-size: 1.3rem;
+            transition: transform 0.3s ease;
+        }
+
 
         .navbar-brand:hover {
             color: var(--secondary-color) !important;
@@ -131,7 +143,7 @@
             border: none;
             box-shadow: var(--shadow-medium);
             border-radius: 12px;
-            padding: 0.75rem 0;
+            padding: 0.5rem 0.5rem;
             background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
@@ -185,14 +197,17 @@
         /* Perfil de usuario */
         .user-profile {
             display: flex;
-            align-items: center;
-            padding: 0.5rem 1rem;
+            flex-direction: column;
+            align-items: center; /* Centrar horizontalmente */
+            padding: 0.5rem 1rem; /* Aumentar el padding para más espacio */
             margin: 0 0.25rem;
             border-radius: 25px;
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(5px);
             transition: all 0.3s ease;
             cursor: pointer;
+            position: relative;
+            min-width: 150px; /* Asegurar un ancho mínimo para simetría */
         }
 
         .user-profile:hover {
@@ -201,8 +216,8 @@
         }
 
         .user-avatar {
-            width: 35px;
-            height: 35px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             align-items: center;
@@ -210,9 +225,9 @@
             color: white;
             font-weight: 600;
             font-size: 0.9rem;
-            margin-right: 0.75rem;
             box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
             transition: all 0.3s ease;
+            position: relative; /* Para posicionar el status-indicator relativo al avatar */
         }
 
         .user-profile:hover .user-avatar {
@@ -223,7 +238,18 @@
         .user-info {
             display: flex;
             flex-direction: column;
-            min-width: 0;
+            align-items: center; /* Centrar contenido */
+            width: 100%;
+        }
+
+        .user-info-top {
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Centrar avatar y rol */
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+            margin-right: 1.3rem; /* Espacio entre user-info-top y el nombre */
+            position: relative; /* Para posicionar el status-indicator relativo a user-info-top */
         }
 
         .user-name {
@@ -231,6 +257,7 @@
             color: var(--dark-text);
             font-size: 0.9rem;
             line-height: 1.2;
+            text-align: center; /* Centrar texto */
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -243,49 +270,7 @@
             line-height: 1;
         }
 
-        /* Status indicator */
-        .status-indicator {
-            position: absolute;
-            bottom: 2px;
-            right: 2px;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--success-color);
-            border: 2px solid white;
-            animation: pulse 2s infinite;
-        }
-
-        /* Notificaciones */
-        .notification-icon {
-            position: relative;
-            padding: 0.5rem;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            color: var(--dark-text);
-        }
-
-        .notification-icon:hover {
-            background-color: rgba(37, 99, 235, 0.1);
-            color: var(--primary-color);
-        }
-
-        .notification-badge {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: #ef4444;
-            color: white;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            font-size: 0.7rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            animation: pulse 2s infinite;
-        }
+        
 
         /* Botón hamburguesa personalizado */
         .navbar-toggler {
@@ -373,14 +358,20 @@
                 margin: 1rem 0;
                 background: rgba(37, 99, 235, 0.1);
                 border-radius: 12px;
+                min-width: auto; /* Ajustar en móvil */
             }
 
             .user-info {
-                flex: 1;
+                align-items: flex-start; /* Alinear a la izquierda en móvil para mejor legibilidad */
+            }
+
+            .user-info-top {
+                justify-content: flex-start; /* Alinear a la izquierda en móvil */
             }
 
             .user-name {
                 max-width: none;
+                text-align: left; /* Alinear a la izquierda en móvil */
             }
         }
 
@@ -436,19 +427,18 @@
     </style>
 </head>
 <body>
-
     <!-- Navigation Mejorado para Usuario -->
     <nav id="user-nav" class="navbar navbar-expand-lg fixed-top">
         <div class="container">
             <a class="navbar-brand" href="../pages/dashboard.html">
-                <i class="fas fa-paw me-2"></i>VetCare Pro
+                <i class="fas fa-paw me-2"></i>VetCare
             </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            
+
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto nav-section">
                     <li class="nav-item">
@@ -474,20 +464,24 @@
                         </a>
                     </li>
                 </ul>
-                
+
                 <div class="d-flex align-items-center">
-                   
-                    
                     <!-- Dropdown del perfil -->
                     <div class="dropdown">
-                        <button class="btn profile-dropdown dropdown-toggle" type="button" 
-                                id="profile-button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="https://ui-avatars.com/api/?name=Usuario&background=667eea&color=fff&size=35" 
-                                 alt="Avatar" class="user-avatar">
-                            <span>Usuario</span>
-                            <span class="user-status"></span>
+                        <button class="btn user-profile dropdown-toggle" type="button" id="profile-button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="user-info">
+                                <div class="user-info-top">
+                                    <div class="avatar-wrapper">
+                                        <img src="https://ui-avatars.com/api/?name=Usuario&background=667eea&color=fff&size=35"
+                                            alt="Avatar" class="user-avatar" id="user-avatar">
+                                    </div>
+                                    <span class="user-role" id="user-role"></span>
+                                </div>
+                                <span id="user-name" style="margin-right: 0.4rem; padding-bottom: 0.4rem; position: relative; top: -10px;">Usuario</span>
+                            </div>
                         </button>
-                        
+
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profile-button">
                             <li>
                                 <a class="dropdown-item" href="../pages/perfil.html">
@@ -509,7 +503,9 @@
                                     <i class="fas fa-history me-2"></i>Historial
                                 </a>
                             </li>
-                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
                             <li>
                                 <button class="dropdown-item text-danger" id="logout">
                                     <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
@@ -524,168 +520,170 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Funcionalidad JavaScript para mejorar la experiencia
-        document.addEventListener('DOMContentLoaded', function() {
-            const navbar = document.getElementById('authenticated-nav');
-            const navLinks = document.querySelectorAll('.nav-link');
-            
-            // Efecto de scroll para el navbar
-            function handleScroll() {
-                if (window.scrollY > 50) {
-                    navbar.classList.add('scrolled');
-                } else {
-                    navbar.classList.remove('scrolled');
-                }
+    const navbar = document.getElementById('user-nav');
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    displayUserName();
+
+    function displayUserName() {
+        const userName = localStorage.getItem('userName') || 'Usuario';
+        let userRole = localStorage.getItem('userRole') || 'USER';
+        
+        // Cambiar "USER" a "PROPIETARIO" solo para visualización
+        const displayRole = userRole === 'USER' ? 'PROPIETARIO' : userRole;
+
+        const userNameElement = document.getElementById('user-name');
+        const userRoleElement = document.getElementById('user-role');
+        const userAvatarElement = document.getElementById('user-avatar');
+        
+        if (userNameElement) {
+            userNameElement.textContent = userName;
+        }
+        
+        if (userRoleElement) {
+            userRoleElement.textContent = displayRole;
+        }
+        
+        if (userAvatarElement) {
+            userAvatarElement.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=667eea&color=fff&size=35`;
+        }
+    }
+
+    function handleScroll() {
+        if (window.scrollY > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+    }
+    
+    function setActiveLink() {
+        const currentPage = window.location.pathname;
+        const currentHash = window.location.hash;
+        
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            const href = link.getAttribute('href');
+            if (href === currentPage || href === currentHash) {
+                link.classList.add('active');
             }
-            
-            // Marcar enlace activo basado en la sección visible
-            function setActiveLink() {
-                const currentPage = window.location.pathname;
-                const currentHash = window.location.hash;
-                
-                navLinks.forEach(link => {
-                    link.classList.remove('active');
-                    
-                    // Verificar si el href coincide con la página actual
-                    const href = link.getAttribute('href');
-                    if (href === currentPage || href === currentHash) {
-                        link.classList.add('active');
-                    }
-                });
-            }
-            
-            // Smooth scroll para enlaces internos
-            function smoothScroll(e) {
-                const href = e.target.getAttribute('href');
-                if (href && href.startsWith('#')) {
-                    e.preventDefault();
-                    const target = document.querySelector(href);
-                    if (target) {
-                        target.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                        
-                        // Cerrar navbar en móvil después del click
-                        const navbarCollapse = document.querySelector('.navbar-collapse');
-                        if (navbarCollapse.classList.contains('show')) {
-                            const bsCollapse = new bootstrap.Collapse(navbarCollapse);
-                            bsCollapse.hide();
-                        }
-                    }
-                }
-            }
-            
-            // Efecto de hover mejorado para items del dropdown
-            function enhanceDropdownItems() {
-                const dropdownItems = document.querySelectorAll('.dropdown-item');
-                dropdownItems.forEach(item => {
-                    item.addEventListener('mouseenter', function() {
-                        if (!this.classList.contains('dropdown-header')) {
-                            this.style.transform = 'translateX(5px)';
-                        }
-                    });
-                    
-                    item.addEventListener('mouseleave', function() {
-                        this.style.transform = 'translateX(0)';
-                    });
-                });
-            }
-            
-            // Auto-cerrar dropdown al hacer click fuera
-            function handleDropdownClose() {
-                document.addEventListener('click', function(e) {
-                    const dropdowns = document.querySelectorAll('.dropdown-menu.show');
-                    dropdowns.forEach(dropdown => {
-                        if (!dropdown.contains(e.target) && !dropdown.previousElementSibling.contains(e.target)) {
-                            const bsDropdown = bootstrap.Dropdown.getInstance(dropdown.previousElementSibling);
-                            if (bsDropdown) {
-                                bsDropdown.hide();
-                            }
-                        }
-                    });
-                });
-            }
-            
-            // Indicador de carga para enlaces
-            function addLoadingIndicator() {
-                navLinks.forEach(link => {
-                    link.addEventListener('click', function(e) {
-                        if (!this.getAttribute('href').startsWith('#')) {
-                            const originalContent = this.innerHTML;
-                            this.innerHTML += ' <i class="fas fa-spinner fa-spin ms-1"></i>';
-                            
-                            // Restaurar contenido después de un tiempo
-                            setTimeout(() => {
-                                this.innerHTML = originalContent;
-                            }, 2000);
-                        }
-                    });
-                });
-            }
-            
-            // Navegación por teclado mejorada
-            function enhanceKeyboardNavigation() {
-                navbar.addEventListener('keydown', function(e) {
-                    if (e.key === 'Escape') {
-                        const openDropdowns = document.querySelectorAll('.dropdown-menu.show');
-                        openDropdowns.forEach(dropdown => {
-                            const bsDropdown = bootstrap.Dropdown.getInstance(dropdown.previousElementSibling);
-                            if (bsDropdown) {
-                                bsDropdown.hide();
-                            }
-                        });
-                        
-                        // Cerrar navbar móvil si está abierto
-                        const navbarCollapse = document.querySelector('.navbar-collapse.show');
-                        if (navbarCollapse) {
-                            const bsCollapse = bootstrap.Collapse.getInstance(navbarCollapse);
-                            if (bsCollapse) {
-                                bsCollapse.hide();
-                            }
-                        }
-                    }
-                });
-            }
-            
-            // Simulación de actualizaciones en tiempo real para notificaciones
-            function updateNotifications() {
-                const badge = document.querySelector('.notification-badge');
-                if (badge) {
-                    // Simular cambios en las notificaciones
-                    setInterval(() => {
-                        const currentCount = parseInt(badge.textContent);
-                        if (Math.random() > 0.8) { // 20% de probabilidad
-                            badge.textContent = currentCount + 1;
-                            badge.style.animation = 'none';
-                            setTimeout(() => {
-                                badge.style.animation = 'pulse 2s infinite';
-                            }, 10);
-                        }
-                    }, 30000); // Cada 30 segundos
-                }
-            }
-            
-            // Inicializar todas las funcionalidades
-            window.addEventListener('scroll', handleScroll);
-            setActiveLink();
-            enhanceDropdownItems();
-            handleDropdownClose();
-            addLoadingIndicator();
-            enhanceKeyboardNavigation();
-            updateNotifications();
-            
-            // Agregar listeners para smooth scroll
-            navLinks.forEach(link => {
-                link.addEventListener('click', smoothScroll);
-            });
-            
-            // Efecto de entrada suave para el navbar
-            setTimeout(() => {
-                navbar.style.opacity = '1';
-                navbar.style.transform = 'translateY(0)';
-            }, 100);
         });
+    }
+    
+    function smoothScroll(e) {
+        const href = e.target.getAttribute('href');
+        if (href && href.startsWith('#')) {
+            e.preventDefault();
+            const target = document.querySelector(href);
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+                const navbarCollapse = document.querySelector('.navbar-collapse');
+                if (navbarCollapse.classList.contains('show')) {
+                    const bsCollapse = new bootstrap.Collapse(navbarCollapse);
+                    bsCollapse.hide();
+                }
+            }
+        }
+    }
+    
+    function enhanceDropdownItems() {
+        const dropdownItems = document.querySelectorAll('.dropdown-item');
+        dropdownItems.forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                if (!this.classList.contains('dropdown-header')) {
+                    this.style.transform = 'translateX(5px)';
+                }
+            });
+            item.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateX(0)';
+            });
+        });
+    }
+    
+    function handleDropdownClose() {
+        document.addEventListener('click', function(e) {
+            const dropdowns = document.querySelectorAll('.dropdown-menu.show');
+            dropdowns.forEach(dropdown => {
+                if (!dropdown.contains(e.target) && !dropdown.previousElementSibling.contains(e.target)) {
+                    const bsDropdown = bootstrap.Dropdown.getInstance(dropdown.previousElementSibling);
+                    if (bsDropdown) {
+                        bsDropdown.hide();
+                    }
+                }
+            });
+        });
+    }
+    
+    function addLoadingIndicator() {
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                if (!this.getAttribute('href').startsWith('#')) {
+                    const originalContent = this.innerHTML;
+                    this.innerHTML += ' <i class="fas fa-spinner fa-spin ms-1"></i>';
+                    setTimeout(() => {
+                        this.innerHTML = originalContent;
+                    }, 2000);
+                }
+            });
+        });
+    }
+    
+    function enhanceKeyboardNavigation() {
+        navbar.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const openDropdowns = document.querySelectorAll('.dropdown-menu.show');
+                openDropdowns.forEach(dropdown => {
+                    const bsDropdown = bootstrap.Dropdown.getInstance(dropdown.previousElementSibling);
+                    if (bsDropdown) {
+                        bsDropdown.hide();
+                    }
+                });
+                const navbarCollapse = document.querySelector('.navbar-collapse.show');
+                if (navbarCollapse) {
+                    const bsCollapse = bootstrap.Collapse.getInstance(navbarCollapse);
+                    if (bsCollapse) {
+                        bsCollapse.hide();
+                    }
+                }
+            }
+        });
+    }
+    
+    function updateNotifications() {
+        const badge = document.querySelector('.notification-badge');
+        if (badge) {
+            setInterval(() => {
+                const currentCount = parseInt(badge.textContent);
+                if (Math.random() > 0.8) {
+                    badge.textContent = currentCount + 1;
+                    badge.style.animation = 'none';
+                    setTimeout(() => {
+                        badge.style.animation = 'pulse 2s infinite';
+                    }, 10);
+                }
+            }, 30000);
+        }
+    }
+    
+    window.addEventListener('scroll', handleScroll);
+    setActiveLink();
+    enhanceDropdownItems();
+    handleDropdownClose();
+    addLoadingIndicator();
+    enhanceKeyboardNavigation();
+    updateNotifications();
+    
+    navLinks.forEach(link => {
+        link.addEventListener('click', smoothScroll);
+    });
+    
+    setTimeout(() => {
+        navbar.style.opacity = '1';
+        navbar.style.transform = 'translateY(0)';
+    }, 100);
     </script>
 </body>
 </html>

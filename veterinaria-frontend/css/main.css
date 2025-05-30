@@ -13,7 +13,7 @@ body {
 
 header {
     background-color: #333;
-    padding: 10px 0;
+    padding: 50px 0;
 }
 
 nav {
@@ -43,7 +43,7 @@ nav button {
 }
 
 .navbar {
-  background-color: #b8fbcc;
+    background-color: #b8fbcc;
 }
 
 .navbar-brand, .nav-link {

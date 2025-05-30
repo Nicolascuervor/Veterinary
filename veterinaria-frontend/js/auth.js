@@ -14,28 +14,31 @@ document.getElementById('login-form')?.addEventListener('submit', async (e) => {
             body: JSON.stringify({ username, password }),
         });
 
-        // Verificar si la respuesta es texto plano (token) o JSON
         const contentType = response.headers.get('Content-Type');
         let data;
         if (contentType && contentType.includes('application/json')) {
             data = await response.json();
         } else {
-            data = await response.text(); // Tratar la respuesta como texto (token)
+            data = await response.text();
         }
 
         if (response.ok) {
-            // Extraer el token dependiendo del formato de la respuesta
-            let token;
+            let token, userName, userRole;
             if (contentType && contentType.includes('application/json')) {
-                token = data.token; // Extraer el token del objeto JSON
+                token = data.token;
+                userName = data.username || 'Usuario'; // "Cuervo" en este caso
+                userRole = data.role || 'USER'; // "USER" en este caso
             } else {
-                token = data; // Usar el texto directamente
+                token = data;
+                userName = 'Usuario';
+                userRole = 'USER';
             }
-            localStorage.setItem('token', token); // Guardar el token en localStorage
+            localStorage.setItem('token', token); // Usar localStorage
+            localStorage.setItem('userName', userName);
+            localStorage.setItem('userRole', userRole);
             alert('Login exitoso.');
-            // Agregar un pequeño retraso para asegurar que el token se guarde
             setTimeout(() => {
-                window.location.href = 'dashboard.html';
+                window.location.href = 'index.html';
             }, 100);
         } else {
             errorMessage.textContent = typeof data === 'string' ? data : data.message || 'Error al iniciar sesión';
@@ -55,7 +58,6 @@ document.getElementById('register-form')?.addEventListener('submit', async (e) =
     const confirmPassword = document.getElementById('confirm-password').value;
     const errorMessage = document.getElementById('error-message');
 
-    // Validar que las contraseñas coincidan
     if (password !== confirmPassword) {
         errorMessage.textContent = 'Las contraseñas no coinciden';
         return;
@@ -68,18 +70,17 @@ document.getElementById('register-form')?.addEventListener('submit', async (e) =
             body: JSON.stringify({ username, password, role }),
         });
 
-        // Verificar si la respuesta es texto plano (token) o JSON
         const contentType = response.headers.get('Content-Type');
         let data;
         if (contentType && contentType.includes('application/json')) {
             data = await response.json();
         } else {
-            data = await response.text(); // Tratar la respuesta como texto (token)
+            data = await response.text();
         }
 
         if (response.ok) {
             alert('Registro exitoso. Por favor, inicia sesión.');
-            window.location.href = 'login.html'; // Redirigir al login
+            window.location.href = 'login.html';
         } else {
             errorMessage.textContent = typeof data === 'string' ? data : data.message || 'Error al registrarse';
         }

@@ -1,6 +1,5 @@
 // js/nav.js
 document.addEventListener('DOMContentLoaded', async () => {
-    // Función para cargar un componente HTML desde una URL
     async function loadComponent(url) {
         try {
             const response = await fetch(url);
@@ -12,13 +11,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Verificar validez del token
     async function checkTokenValidity() {
         const token = localStorage.getItem('token');
-        return !!token; // Devuelve true si hay un token, false si no
+        if (!token) return false;
+
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const currentTime = Math.floor(Date.now() / 1000);
+            if (payload.exp && payload.exp < currentTime) {
+                console.log('Token expirado');
+                localStorage.removeItem('token');
+                localStorage.removeItem('userName');
+                localStorage.removeItem('userRole');
+                return false;
+            }
+            return true;
+        } catch (error) {
+            console.error('Error al decodificar el token:', error);
+            localStorage.removeItem('token');
+            localStorage.removeItem('userName');
+            localStorage.removeItem('userRole');
+            return false;
+        }
     }
 
-    // Verificar si el usuario está autenticado
     async function isAuthenticated() {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -30,13 +46,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!isValid) {
             console.log('Token no válido, se eliminará');
             localStorage.removeItem('token');
+            localStorage.removeItem('userName');
+            localStorage.removeItem('userRole');
             return false;
         }
         console.log('Usuario autenticado correctamente');
         return true;
     }
 
-    // Cargar los navbars dinámicamente
     const navContainer = document.getElementById('nav-container');
     if (!navContainer) {
         console.error('No se encontró el contenedor nav-container');
@@ -44,25 +61,40 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-        // Cargar ambos navbars
         const publicNavHtml = await loadComponent('../components/nav-public.html');
         const userNavHtml = await loadComponent('../components/nav.html');
+        console.log('nav.html cargado correctamente'); // Mensaje simplificado
 
-        // Insertar los navbars en el contenedor
-        navContainer.innerHTML = publicNavHtml + userNavHtml;
+        // Crear un contenedor temporal para parsear el HTML
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = publicNavHtml + userNavHtml;
 
-        // Seleccionar los navbars después de insertarlos
+        // Insertar el HTML en el DOM antes de ejecutar los scripts
+        navContainer.appendChild(tempDiv);
+
+        // Ahora que el HTML está en el DOM, extraer y ejecutar los scripts
+        const scripts = tempDiv.querySelectorAll('script');
+        scripts.forEach(script => {
+            const scriptContent = script.textContent;
+            const newScript = document.createElement('script');
+            newScript.textContent = scriptContent;
+            document.head.appendChild(newScript);
+        });
+
+        // Eliminar los scripts del HTML original (ya los ejecutamos)
+        scripts.forEach(script => script.remove());
+
         const publicNav = document.getElementById('public-nav');
         const userNav = document.getElementById('user-nav');
+        console.log('Elementos del DOM:', { publicNav, userNav });
 
-        // Verificar que los elementos existan
         if (!publicNav || !userNav) {
             console.error('No se encontraron los navbars después de cargarlos');
             return;
         }
 
-        // Mostrar u ocultar navbars según autenticación
-        if (await isAuthenticated()) {
+        const isAuth = await isAuthenticated();
+        if (isAuth) {
             userNav.classList.remove('d-none');
             publicNav.classList.add('d-none');
         } else {
@@ -70,23 +102,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             userNav.classList.add('d-none');
         }
 
-        // Manejar cerrar sesión
         const logoutButton = document.getElementById('logout');
         if (logoutButton) {
             logoutButton.addEventListener('click', () => {
                 localStorage.removeItem('token');
+                localStorage.removeItem('userName');
+                localStorage.removeItem('userRole');
                 window.location.href = '../pages/login.html';
             });
         }
 
-        // Redirigir si el usuario ya está autenticado en login/register
-        if (await isAuthenticated() && (window.location.pathname.includes('login.html') || window.location.pathname.includes('register.html'))) {
+        if (isAuth && (window.location.pathname.includes('login.html') || window.location.pathname.includes('register.html'))) {
             window.location.href = '../pages/dashboard.html';
         }
 
-        // Redirigir a login si el usuario no está autenticado en páginas protegidas
         const protectedPages = ['dashboard.html', 'productos.html', 'carrito.html', 'citas.html', 'perfil.html', 'mis-mascotas.html'];
-        if (!(await isAuthenticated()) && protectedPages.some(page => window.location.pathname.includes(page))) {
+        if (!isAuth && protectedPages.some(page => window.location.pathname.includes(page))) {
             window.location.href = '../pages/login.html';
         }
     } catch (error) {
