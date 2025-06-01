@@ -526,7 +526,7 @@
     displayUserName();
 
     function displayUserName() {
-        const userName = localStorage.getItem('userName') || 'Usuario';
+        const nombre = localStorage.getItem('nombre') || 'Usuario';
         let userRole = localStorage.getItem('userRole') || 'USER';
         
         // Cambiar "USER" a "PROPIETARIO" solo para visualización
@@ -537,7 +537,7 @@
         const userAvatarElement = document.getElementById('user-avatar');
         
         if (userNameElement) {
-            userNameElement.textContent = userName;
+            userNameElement.textContent = nombre;
         }
         
         if (userRoleElement) {
@@ -545,7 +545,7 @@
         }
         
         if (userAvatarElement) {
-            userAvatarElement.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=667eea&color=fff&size=35`;
+            userAvatarElement.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(nombre)}&background=667eea&color=fff&size=35`;
         }
     }
 
