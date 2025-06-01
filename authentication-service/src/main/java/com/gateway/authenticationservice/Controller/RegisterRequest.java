@@ -8,5 +8,12 @@ import lombok.Data;
 class RegisterRequest {
     private String username;
     private String password;
+    private String nombre;
+    private String apellido;
+    private String telefono;
+    private String direccion;
     private Role role;
 }
+
+
+

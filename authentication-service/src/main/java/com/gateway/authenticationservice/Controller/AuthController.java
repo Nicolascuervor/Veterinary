@@ -21,7 +21,14 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
-        User user = userService.registerUser(request.getUsername(), request.getPassword(), String.valueOf(request.getRole()));
+        User user = userService.registerUser(
+                request.getUsername(),
+                request.getPassword(),
+                request.getNombre(),
+                request.getApellido(),
+                request.getTelefono(),
+                request.getDireccion(),
+                String.valueOf(request.getRole()));
         String token = jwtService.generateToken(user);
         return ResponseEntity.ok(token);
     }
@@ -32,11 +39,15 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(
                         request.getUsername(),
                         request.getPassword()
+
+
                 )
         );
         User user = userService.loadUserByUsername(request.getUsername());
         String token = jwtService.generateToken(user);
-        return ResponseEntity.ok(new AuthResponse(token, String.valueOf(user.getRole()), request.getUsername()));
+        String nombre = user.getNombre();
+
+        return ResponseEntity.ok(new AuthResponse(token, String.valueOf(user.getRole()), request.getUsername(), nombre));
     }
 
     @GetMapping("/admin/test")

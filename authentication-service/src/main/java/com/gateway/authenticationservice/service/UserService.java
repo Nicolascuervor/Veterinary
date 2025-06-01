@@ -23,11 +23,17 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
-    public User registerUser(String username, String password, String role) {
+    public User registerUser(String username, String password,String nombre, String apellido,String telefono,String direccion, String role) {
         User user = new User();
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(password));
+        user.setNombre(nombre);
+        user.setApellido(apellido);
+        user.setTelefono(telefono);
+        user.setDireccion(direccion);
         user.setRole(Role.valueOf(role.toUpperCase()));
         return userRepository.save(user);
     }
 }
+
+
