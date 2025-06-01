@@ -23,18 +23,18 @@ document.getElementById('login-form')?.addEventListener('submit', async (e) => {
         }
 
         if (response.ok) {
-            let token, userName, userRole;
+            let token, nombre, userRole;
             if (contentType && contentType.includes('application/json')) {
                 token = data.token;
-                userName = data.username || 'Usuario'; // "Cuervo" en este caso
+                nombre = data.nombre || 'Usuario'; // "Cuervo" en este caso
                 userRole = data.role || 'USER'; // "USER" en este caso
             } else {
                 token = data;
-                userName = 'Usuario';
+                nombre = 'Usuario';
                 userRole = 'USER';
             }
             localStorage.setItem('token', token); // Usar localStorage
-            localStorage.setItem('userName', userName);
+            localStorage.setItem('nombre', nombre);
             localStorage.setItem('userRole', userRole);
             alert('Login exitoso.');
             setTimeout(() => {
@@ -52,10 +52,16 @@ document.getElementById('login-form')?.addEventListener('submit', async (e) => {
 // Manejar el formulario de registro
 document.getElementById('register-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
+
+    const nombre = document.getElementById('nombre').value;
+    const apellido = document.getElementById('apellido').value;
+    const telefono = document.getElementById('telefono').value;
+    const direccion = document.getElementById('direccion').value;
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
-    const role = "USER";
     const confirmPassword = document.getElementById('confirm-password').value;
+    const role = "USER";
+
     const errorMessage = document.getElementById('error-message');
 
     if (password !== confirmPassword) {
@@ -67,7 +73,7 @@ document.getElementById('register-form')?.addEventListener('submit', async (e) =
         const response = await fetch('http://localhost:8081/auth/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password, role }),
+            body: JSON.stringify({nombre,apellido,telefono,direccion, username, password, role }),
         });
 
         const contentType = response.headers.get('Content-Type');

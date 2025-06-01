@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (payload.exp && payload.exp < currentTime) {
                 console.log('Token expirado');
                 localStorage.removeItem('token');
-                localStorage.removeItem('userName');
+                localStorage.removeItem('nombre');
                 localStorage.removeItem('userRole');
                 return false;
             }
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch (error) {
             console.error('Error al decodificar el token:', error);
             localStorage.removeItem('token');
-            localStorage.removeItem('userName');
+            localStorage.removeItem('nombre');
             localStorage.removeItem('userRole');
             return false;
         }
@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!isValid) {
             console.log('Token no válido, se eliminará');
             localStorage.removeItem('token');
-            localStorage.removeItem('userName');
+            localStorage.removeItem('nombre');
             localStorage.removeItem('userRole');
             return false;
         }
@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (logoutButton) {
             logoutButton.addEventListener('click', () => {
                 localStorage.removeItem('token');
-                localStorage.removeItem('userName');
+                localStorage.removeItem('nombre');
                 localStorage.removeItem('userRole');
                 window.location.href = '../pages/login.html';
             });
