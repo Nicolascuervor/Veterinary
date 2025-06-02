@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Perfil - VetCare Pro</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <!-- Estilos personalizados -->
+  <link rel="stylesheet" href="../css/main.css">
+  <style>
+    .profile-container {
+      margin-top: 100px;
+      min-height: calc(100vh - 200px);
+    }
+
+    .profile-card {
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border-radius: 15px;
+      overflow: hidden;
+    }
+
+    .profile-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 2rem;
+    }
+
+    .profile-avatar {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border: 4px solid white;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .completion-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 0.5rem 1rem;
+      border-radius: 25px;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .completion-badge.complete {
+      background: rgba(40, 167, 69, 0.9);
+    }
+
+    .completion-badge.incomplete {
+      background: rgba(255, 193, 7, 0.9);
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .contact-card {
+      border-left: 4px solid #667eea;
+      transition: all 0.3s ease;
+    }
+
+    .contact-card:hover {
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+    }
+
+    .contact-card.primary {
+      border-left-color: #28a745;
+    }
+
+    .preference-item {
+      padding: 1rem;
+      border-radius: 8px;
+      background: #f8f9fa;
+      margin-bottom: 0.5rem;
+      transition: background 0.3s ease;
+    }
+
+    .preference-item:hover {
+      background: #e9ecef;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 24px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #667eea;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      display: none;
+    }
+
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+<!-- Barra de navegación -->
+<header id="nav-container"></header>
+
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loading-overlay">
+  <div class="loading-spinner"></div>
+</div>
+
+<!-- Contenido principal -->
+<main class="profile-container">
+  <div class="container">
+    <!-- Mensaje de bienvenida -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="alert alert-info fade-in" role="alert">
+          <i class="fas fa-info-circle me-2"></i>
+          <strong>¡Bienvenido a tu perfil!</strong> Mantén tu información actualizada para recibir un mejor servicio.
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenedor principal del perfil -->
+    <div id="perfil-container" class="fade-in">
+      <!-- El contenido se carga dinámicamente aquí -->
+    </div>
+
+    <!-- Contenedor de contactos de emergencia -->
+    <div id="contactos-emergencia-container" class="fade-in">
+      <!-- Los contactos se cargan dinámicamente aquí -->
+    </div>
+
+    <!-- Contenedor de preferencias de privacidad -->
+    <div id="preferencias-container" class="mt-4 fade-in">
+      <div class="card">
+        <div class="card-header">
+          <h4><i class="fas fa-shield-alt me-2"></i>Preferencias de Privacidad</h4>
+        </div>
+        <div class="card-body">
+          <div id="preferencias-list">
+            <!-- Las preferencias se cargan dinámicamente aquí -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección de estadísticas rápidas -->
+    <div class="row mt-4 fade-in">
+      <div class="col-md-3">
+        <div class="stat-card text-center">
+          <i class="fas fa-user-check fa-2x text-success mb-3"></i>
+          <h5>Perfil</h5>
+          <p class="text-muted" id="perfil-status">Cargando...</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card text-center">
+          <i class="fas fa-phone fa-2x text-info mb-3"></i>
+          <h5>Contactos</h5>
+          <p class="text-muted" id="contactos-count">0</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card text-center">
+          <i class="fas fa-calendar fa-2x text-warning mb-3"></i>
+          <h5>Última Act.</h5>
+          <p class="text-muted" id="ultima-actualizacion">-</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card text-center">
+          <i class="fas fa-shield-alt fa-2x text-primary mb-3"></i>
+          <h5>Privacidad</h5>
+          <p class="text-muted" id="privacidad-status">Configurada</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Modal para agregar contacto de emergencia -->
+<div class="modal fade" id="contactoModal" tabindex="-1" aria-labelledby="contactoModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="contactoModalLabel">
+          <i class="fas fa-user-plus me-2"></i>Agregar Contacto de Emergencia
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="contacto-form">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="contacto-nombre" class="form-label">Nombre *</label>
+            <input type="text" class="form-control" id="contacto-nombre" required>
+          </div>
+          <div class="mb-3">
+            <label for="contacto-telefono" class="form-label">Teléfono *</label>
+            <input type="tel" class="form-control" id="contacto-telefono" pattern="[0-9]{10}" required>
+          </div>
+          <div class="mb-3">
+            <label for="contacto-relacion" class="form-label">Relación *</label>
+            <select class="form-control" id="contacto-relacion" required>
+              <option value="">Seleccionar...</option>
+              <option value="Madre">Madre</option>
+              <option value="Padre">Padre</option>
+              <option value="Hermano/a">Hermano/a</option>
+              <option value="Hijo/a">Hijo/a</option>
+              <option value="Cónyuge">Cónyuge</option>
+              <option value="Amigo/a">Amigo/a</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="contacto-email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="contacto-email">
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="contacto-principal">
+            <label class="form-check-label" for="contacto-principal">
+              Marcar como contacto principal
+            </label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save me-2"></i>Guardar Contacto
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para editar perfil -->
+<div class="modal fade" id="editarPerfilModal" tabindex="-1" aria-labelledby="editarPerfilModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editarPerfilModalLabel">
+          <i class="fas fa-edit me-2"></i>Editar Perfil
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="editar-perfil-form">
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="edit-nombre" class="form-label">Nombre</label>
+                <input type="text" class="form-control" id="edit-nombre">
+              </div>
+              <div class="mb-3">
+                <label for="edit-apellido" class="form-label">Apellido</label>
+                <input type="text" class="form-control" id="edit-apellido">
+              </div>
+              <div class="mb-3">
+                <label for="edit-email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="edit-email">
+              </div>
+              <div class="mb-3">
+                <label for="edit-telefono" class="form-label">Teléfono</label>
+                <input type="tel" class="form-control" id="edit-telefono" pattern="[0-9]{10}">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="edit-direccion" class="form-label">Dirección</label>
+                <input type="text" class="form-control" id="edit-direccion">
+              </div>
+              <div class="mb-3">
+                <label for="edit-fechaNacimiento" class="form-label">Fecha de Nacimiento</label>
+                <input type="date" class="form-control" id="edit-fechaNacimiento">
+              </div>
+              <div class="mb-3">
+                <label for="edit-genero" class="form-label">Género</label>
+                <select class="form-control" id="edit-genero">
+                  <option value="">Seleccionar...</option>
+                  <option value="MASCULINO">Masculino</option>
+                  <option value="FEMENINO">Femenino</option>
+                  <option value="OTRO">Otro</option>
+                  <option value="PREFIERO_NO_DECIR">Prefiero no decir</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="edit-ocupacion" class="form-label">Ocupación</label>
+                <input type="text" class="form-control" id="edit-ocupacion">
+              </div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="edit-biografia" class="form-label">Biografía</label>
+            <textarea class="form-control" id="edit-biografia" rows="3" maxlength="500"></textarea>
+            <div class="form-text">Máximo 500 caracteres</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save me-2"></i>Guardar Cambios
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Toast para notificaciones -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="notification-toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header">
+      <i class="fas fa-info-circle me-2 text-primary"></i>
+      <strong class="me-auto">Notificación</strong>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body" id="toast-message">
+      <!-- Mensaje del toast -->
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/nav.js"></script>
+<script src="../js/perfil.js"></script>
+
+<script>
+  // Extensiones específicas para esta página
+  class PerfilPageUI extends PerfilUI {
+    constructor() {
+      super();
+      this.setupModals();
+      this.setupToasts();
+    }
+
+    setupModals() {
+      // Configurar modales de Bootstrap
+      this.contactoModal = new bootstrap.Modal(document.getElementById('contactoModal'));
+      this.editarPerfilModal = new bootstrap.Modal(document.getElementById('editarPerfilModal'));
+
+      // Configurar eventos de formularios en modales
+      document.getElementById('contacto-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        this.guardarContactoEmergencia();
+      });
+
+      document.getElementById('editar-perfil-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        this.guardarEdicionPerfil();
+      });
+    }
+
+    setupToasts() {
+      this.toastElement = document.getElementById('notification-toast');
+      this.toast = new bootstrap.Toast(this.toastElement);
+    }
+
+    mostrarFormularioContacto() {
+      this.contactoModal.show();
+    }
+
+    editarPerfil() {
+      // Llenar el formulario con los datos actuales
+      this.cargarDatosEdicion();
+      this.editarPerfilModal.show();
+    }
+
+    async cargarDatosEdicion() {
+      try {
+        const perfil = await this.perfilService.obtenerMiPerfil();
+        if (perfil) {
+          document.getElementById('edit-nombre').value = perfil.nombre || '';
+          document.getElementById('edit-apellido').value = perfil.apellido || '';
+          document.getElementById('edit-email').value = perfil.email || '';
+          document.getElementById('edit-telefono').value = perfil.telefono || '';
+          document.getElementById('edit-direccion').value = perfil.direccion || '';
+          document.getElementById('edit-fechaNacimiento').value = perfil.fechaNacimiento || '';
+          document.getElementById('edit-genero').value = perfil.genero || '';
+          document.getElementById('edit-ocupacion').value = perfil.ocupacion || '';
+          document.getElementById('edit-biografia').value = perfil.biografia || '';
+        }
+      } catch (error) {
+        this.mostrarError('Error al cargar datos para edición');
+      }
+    }
+
+    async guardarContactoEmergencia() {
+      try {
+        this.mostrarLoading(true);
+
+        const contacto = {
+          nombre: document.getElementById('contacto-nombre').value,
+          telefono: document.getElementById('contacto-telefono').value,
+          relacion: document.getElementById('contacto-relacion').value,
+          email: document.getElementById('contacto-email').value,
+          esContactoPrincipal: document.getElementById('contacto-principal').checked
+        };
+
+        await this.perfilService.agregarContactoEmergencia(contacto);
+        this.contactoModal.hide();
+        await this.cargarContactosEmergencia();
+        this.mostrarToast('Contacto agregado exitosamente', 'success');
+
+        // Limpiar formulario
+        document.getElementById('contacto-form').reset();
+      } catch (error) {
+        this.mostrarToast(error.message, 'error');
+      } finally {
+        this.mostrarLoading(false);
+      }
+    }
+
+    async guardarEdicionPerfil() {
+      try {
+        this.mostrarLoading(true);
+
+        const datosActualizacion = {
+          nombre: document.getElementById('edit-nombre').value,
+          apellido: document.getElementById('edit-apellido').value,
+          email: document.getElementById('edit-email').value,
+          telefono: document.getElementById('edit-telefono').value,
+          direccion: document.getElementById('edit-direccion').value,
+          fechaNacimiento: document.getElementById('edit-fechaNacimiento').value,
+          genero: document.getElementById('edit-genero').value,
+          ocupacion: document.getElementById('edit-ocupacion').value,
+          biografia: document.getElementById('edit-biografia').value
+        };
+
+        // Filtrar campos vacíos
+        Object.keys(datosActualizacion).forEach(key => {
+          if (datosActualizacion[key] === '') {
+            delete datosActualizacion[key];
+          }
+        });
+
+        await this.perfilService.actualizarPerfil(datosActualizacion);
+        this.editarPerfilModal.hide();
+        await this.cargarPerfil();
+        this.mostrarToast('Perfil actualizado exitosamente', 'success');
+      } catch (error) {
+        this.mostrarToast(error.message, 'error');
+      } finally {
+        this.mostrarLoading(false);
+      }
+    }
+
+    mostrarLoading(show) {
+      const overlay = document.getElementById('loading-overlay');
+      overlay.style.display = show ? 'flex' : 'none';
+    }
+
+    mostrarToast(mensaje, tipo = 'info') {
+      const toastMessage = document.getElementById('toast-message');
+      const toastHeader = this.toastElement.querySelector('.toast-header i');
+
+      toastMessage.textContent = mensaje;
+
+      // Cambiar ícono según el tipo
+      toastHeader.className = `fas me-2 ${
+              tipo === 'success' ? 'fa-check-circle text-success' :
+                      tipo === 'error' ? 'fa-exclamation-circle text-danger' :
+                              'fa-info-circle text-primary'
+      }`;
+
+      this.toast.show();
+    }
+
+    mostrarExito(mensaje) {
+      this.mostrarToast(mensaje, 'success');
+    }
+
+    mostrarError(mensaje) {
+      this.mostrarToast(mensaje, 'error');
+    }
+  }
+
+  // Reemplazar la instancia global
+  document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('perfil-container')) {
+      window.perfilUI = new PerfilPageUI();
+    }
+  });
+</script>
+</body>
+</html>

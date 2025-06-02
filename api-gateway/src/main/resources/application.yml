@@ -20,11 +20,15 @@ spring:
             - Path=/veterinarios/**
 
 
-        - id: agendamiento-service
+        - id: agendamiento-service-propietarios
           uri: http://localhost:8083
           predicates:
             - Path=/propietarios/**
 
+        - id: perfil-service
+          uri: http://localhost:8085
+          predicates:
+              - Path=/perfil/**
 
         - id: email-service
           uri: http://localhost:8084
