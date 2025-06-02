@@ -13,6 +13,41 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <!-- Estilos personalizados -->
   <link rel="stylesheet" href="css/main.css">
+  
+  <style>
+    .auth-links {
+      text-align: center;
+      margin-top: 20px;
+    }
+    
+    .auth-links a {
+      color: #007bff;
+      text-decoration: none;
+      margin: 0 10px;
+      font-size: 14px;
+      transition: color 0.3s ease;
+    }
+    
+    .auth-links a:hover {
+      color: #0056b3;
+      text-decoration: underline;
+    }
+    
+    .auth-links .separator {
+      color: #6c757d;
+      margin: 0 5px;
+    }
+    
+    .forgot-password {
+      display: block;
+      margin-top: 15px;
+      font-size: 13px;
+    }
+    
+    .register-link {
+      font-weight: 500;
+    }
+  </style>
 </head>
 <body>
  
@@ -30,8 +65,23 @@
             <button type="submit">Iniciar Sesión</button>
         </form>
         <p id="error-message" class="error"></p>
+        
+        <!-- Enlaces de autenticación -->
+        <div class="auth-links">
+            <a href="forgot-password.html" class="forgot-password">
+                <i class="fas fa-key"></i> ¿Olvidaste tu contraseña?
+            </a>
+            <div style="margin-top: 10px;">
+                <span>¿No tienes cuenta?</span>
+                <span class="separator">|</span>
+                <a href="register.html" class="register-link">
+                    <i class="fas fa-user-plus"></i> Regístrate aquí
+                </a>
+            </div>
+        </div>
     </section>
 </main>
+
 <script src="../js/auth.js"></script>
 
 <!-- Bootstrap JS -->
