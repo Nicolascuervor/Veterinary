@@ -38,30 +38,3 @@ public interface PerfilUsuarioRepository extends JpaRepository<PerfilUsuario, Lo
     boolean existsByUserId(Long userId);
 }
 
-@Repository
-public interface ContactoEmergenciaRepository extends JpaRepository<ContactoEmergencia, Long> {
-
-    List<ContactoEmergencia> findByPerfilUsuarioId(Long perfilUsuarioId);
-
-    List<ContactoEmergencia> findByPerfilUsuarioIdAndEsContactoPrincipal(Long perfilUsuarioId, Boolean esContactoPrincipal);
-
-    Optional<ContactoEmergencia> findByPerfilUsuarioIdAndId(Long perfilUsuarioId, Long contactoId);
-
-    @Query("SELECT c FROM ContactoEmergencia c WHERE c.perfilUsuario.id = :perfilUsuarioId ORDER BY c.esContactoPrincipal DESC, c.nombre ASC")
-    List<ContactoEmergencia> findByPerfilUsuarioIdOrdenado(@Param("perfilUsuarioId") Long perfilUsuarioId);
-
-    void deleteByPerfilUsuarioIdAndId(Long perfilUsuarioId, Long contactoId);
-}
-
-@Repository
-public interface PreferenciaPrivacidadRepository extends JpaRepository<PreferenciaPrivacidad, Long> {
-
-    List<PreferenciaPrivacidad> findByPerfilUsuarioId(Long perfilUsuarioId);
-
-    Optional<PreferenciaPrivacidad> findByPerfilUsuarioIdAndTipoPreferencia(Long perfilUsuarioId, String tipoPreferencia);
-
-    @Query("SELECT p FROM PreferenciaPrivacidad p WHERE p.perfilUsuario.id = :perfilUsuarioId AND p.valor = true")
-    List<PreferenciaPrivacidad> findPreferenciasActivasByPerfilUsuarioId(@Param("perfilUsuarioId") Long perfilUsuarioId);
-
-    void deleteByPerfilUsuarioIdAndTipoPreferencia(Long perfilUsuarioId, String tipoPreferencia);
-}
