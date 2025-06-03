@@ -11,6 +11,7 @@
 		<module>api-gateway</module>
 		<module>agendamiento-service</module>
 		<module>authentication-service</module>
+		<module>perfil-service</module>
 
 	</modules>
 
