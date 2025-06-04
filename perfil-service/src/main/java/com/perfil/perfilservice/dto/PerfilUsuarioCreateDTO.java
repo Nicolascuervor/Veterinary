@@ -7,15 +7,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PerfilUsuarioDTO {
+public class PerfilUsuarioCreateDTO {
 
-    private Long id;
+    @NotNull(message = "El ID del usuario es obligatorio")
+    private Long userId;
 
     @NotBlank(message = "El nombre es obligatorio")
     @Size(min = 2, max = 50, message = "El nombre debe tener entre 2 y 50 caracteres")
@@ -31,7 +30,6 @@ public class PerfilUsuarioDTO {
     @Pattern(regexp = "\\d{10}", message = "El teléfono debe tener 10 dígitos")
     private String telefono;
 
-    @Size(max = 200, message = "La dirección no puede exceder 200 caracteres")
     private String direccion;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -42,24 +40,4 @@ public class PerfilUsuarioDTO {
     private String ocupacion;
 
     private String cedula;
-
-    private String fotoPerfilUrl;
-
-    @Size(max = 500, message = "La biografía no puede exceder 500 caracteres")
-    private String biografia;
-
-    private String estadoPerfil;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime fechaUltimaActualizacion;
-
-    private List<ContactoEmergenciaDTO> contactosEmergencia;
-
-    private List<PreferenciaPrivacidadDTO> preferenciasPrivacidad;
-
-    // Campo calculado
-    private String nombreCompleto;
-
-    private Boolean perfilCompleto;
 }
-

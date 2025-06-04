@@ -5,12 +5,9 @@ import com.perfil.perfilservice.model.*;
 import com.perfil.perfilservice.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -312,19 +309,3 @@ public class PerfilUsuarioService {
     }
 }
 
-@Service
-@RequiredArgsConstructor
-class EmailService {
-
-    // Simulación del servicio de email - deberías integrarlo con tu email-service
-    public void enviarEmailBienvenidaPerfil(PerfilUsuario perfil) {
-        // Aquí implementarías la llamada a tu email-service
-        System.out.println("📧 Enviando email de bienvenida a: " + perfil.getEmail());
-        System.out.println("👋 Hola " + perfil.getNombreCompleto() + ", tu perfil ha sido creado exitosamente.");
-    }
-
-    public void enviarNotificacionCambioPerfil(PerfilUsuario perfil, String tipoCambio) {
-        System.out.println("📧 Enviando notificación de cambio de perfil a: " + perfil.getEmail());
-        System.out.println("🔄 Tipo de cambio: " + tipoCambio);
-    }
-}

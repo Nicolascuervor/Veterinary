@@ -19,7 +19,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class PerfilUsuarioServiceTest {
+public class PerfilUsuarioServiceTest {
 
     @Mock
     private PerfilUsuarioRepository perfilUsuarioRepository;
