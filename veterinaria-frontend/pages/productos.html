@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Productos - VetCare</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="../css/productos.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-vetcare">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html"><i id="paw" class="fa fa-paw"></i>VetCare</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html"><i class="fas fa-home"></i> Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-stethoscope me-1"></i> Servicios</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="lista_productos.html"><i class="fas fa-box me-1"></i> Productos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-envelope"></i> Contacto</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPortal" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle"></i> Portal
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownPortal">
+                            <li><a class="dropdown-item" href="#">Mi Cuenta</a></li>
+                            <li><a class="dropdown-item" href="#">Mis Mascotas</a></li>
+                            <li><a class="dropdown-item" href="#">Historial de Citas</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="login.html">Cerrar Sesión</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <a href="carrito.html" class="btn btn-outline-success me-2" title="Ver Carrito">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="badge bg-danger rounded-pill" id="contador-carrito">0</span>
+                    </a>
+                    <button class="btn btn-cita-rapida" type="button">Cita Rápida</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container container-productos">
+        <h1 class="mb-4 text-center">Nuestros Productos <i class="fas fa-tags"></i></h1>
+
+        <div class="categorias-section">
+            <h4>Categorías:</h4>
+            <button class="btn btn-categoria active" onclick="filtrarProductos('todos')">Todos</button>
+            <button class="btn btn-categoria" onclick="filtrarProductos('juguetes')">Juguetes</button>
+            <button class="btn btn-categoria" onclick="filtrarProductos('medicamentos')">Medicamentos</button>
+            <button class="btn btn-categoria" onclick="filtrarProductos('accesorios')">Accesorios</button>
+            <button class="btn btn-categoria" onclick="filtrarProductos('snacks')">Snacks</button>
+        </div>
+
+        <div class="row justify-content-center search-bar">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="barraBusqueda" placeholder="Buscar producto por nombre...">
+                    <button class="btn btn-outline-secondary" type="button" onclick="buscarProductos()">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" id="lista-productos-body">
+            </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/productos.js"></script>
+</body>
+</html>
+<!--
+Instrucciones
+tabla 1:
+Categorias:juguetes medicamentos accesorios snack (solo hay esas 4 por ahora)
+tabla 2:
+tabla en donde se muestran todos lso productos que se pueden encontrar. sus precios, La Imagen de los productos.
+y en esa misma tabla, una zona para poder buscar,la tipica barra de busqueda
+ -->
