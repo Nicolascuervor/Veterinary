@@ -8,11 +8,20 @@ jwt:
 spring:
   cloud:
     gateway:
+      default-filters:
+        - PreserveHostHeader
       routes:
         - id: authentication-service
           uri: http://localhost:8082
           predicates:
             - Path=/auth/**
+
+
+
+        - id: agendamiento-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/servicios/**
 
         - id: agendamiento-service
           uri: http://localhost:8083
@@ -24,6 +33,45 @@ spring:
           uri: http://localhost:8083
           predicates:
             - Path=/propietarios/**
+
+
+        - id: agendamiento-service-mascotas
+          uri: http://localhost:8083
+          predicates:
+            - Path=/mascota/**
+
+
+        - id: agendamiento-service-especialidad
+          uri: http://localhost:8083
+          predicates:
+            - Path=/especialidad/**
+
+
+        - id: agendamiento-service-disponibilidad
+          uri: http://localhost:8083
+          predicates:
+            - Path=/disponibilidad/**
+
+
+        - id: agendamiento-service-citas
+          uri: http://localhost:8083
+          predicates:
+            - Path=/cita/**
+
+
+        - id: agendamiento-service-areas-clinicas
+          uri: http://localhost:8083
+          predicates:
+            - Path=/AreaClinica/**
+
+
+        - id: agendamiento-service-agendas
+          uri: http://localhost:8083
+          predicates:
+            - Path=/agenda/**
+
+
+
 
         - id: perfil-service
           uri: http://localhost:8085

@@ -1,18 +1,18 @@
 package com.agend.agendamientoservice.model;
 
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 
 @Setter
 @Getter
 @Entity
-@Table(name = "Propietario")
-public class Propietario {
+@Table(name = "Servicio")
+public class Servicio {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,29 +22,11 @@ public class Propietario {
     @Column(name = "nombre")
     private String nombre;
 
-    @Column(name = "apellido")
-    private String apellido;
+    @Column(name = "descripcion")
+    private String descripcion;
 
-    @Column(name = "Cedula")
-    private String dni;
-
-    @Column(name = "telefono")
-    private String telefono;
-
-    @Column(name = "direccion")
-    private String direccion;
-
-    @Column(name = "usuario_id")
-    private Long usuarioId;
-
-
-
-    @OneToMany(mappedBy = "propietario", cascade = CascadeType.ALL)
-    private List<Mascota> mascotas;
-
-
-    @OneToMany(mappedBy = "propietario")
-    private List<Cita> citas;
+    @Column(name = "Precio")
+    private Double precio;
 
 
     @Column(name = "created_at", updatable = false)
