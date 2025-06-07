@@ -12,6 +12,7 @@ class RegisterRequest {
     private String apellido;
     private String telefono;
     private String direccion;
+    private String cedula;
     private Role role;
 }
 

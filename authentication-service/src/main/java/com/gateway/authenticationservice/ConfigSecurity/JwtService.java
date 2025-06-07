@@ -1,6 +1,7 @@
 package com.gateway.authenticationservice.ConfigSecurity;
 
 
+import com.gateway.authenticationservice.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -45,6 +46,7 @@ public class JwtService {
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("authorities", userDetails.getAuthorities().iterator().next().getAuthority());
+        claims.put("usuarioId", ((User) userDetails).getId());
         return generateToken(claims, userDetails);
     }
 
