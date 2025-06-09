@@ -2,7 +2,9 @@ package com.agend.agendamientoservice.service;
 
 
 import com.agend.agendamientoservice.model.Servicio;
+import com.agend.agendamientoservice.model.Veterinario;
 import com.agend.agendamientoservice.repository.ServicioRepository;
+import com.agend.agendamientoservice.repository.VeterinarioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,17 @@ import java.util.Optional;
 public class ServicioService {
     @Autowired
     private ServicioRepository ServicioRepository;
+
+    @Autowired
+    private VeterinarioRepository veterinarioRepository;
+
+    public List<Servicio> obtenerServiciosPorVeterinario(Long veterinarioId) {
+        Veterinario vet = veterinarioRepository.findById(veterinarioId)
+                .orElseThrow(() -> new RuntimeException("Veterinario no encontrado"));
+
+        return ServicioRepository.findByEspecialidad(vet.getEspecialidad());
+    }
+
 
     @Transactional
     public List<Servicio> findAllServicios() {

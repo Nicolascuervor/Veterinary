@@ -252,10 +252,17 @@
                             </select>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="areaClinica" class="form-label">Área Clínica</label>
-                            <select class="form-select" id="areaClinica" required>
-                                <option value="">Selecciona el área</option>
-                            </select>
+                           <label for="imagenSintoma" class="block font-semibold text-sm mt-4 mb-2">
+  Foto opcional del síntoma:
+</label>
+<input 
+  type="file" 
+  id="imagenSintoma" 
+  name="imagenSintoma" 
+  accept="image/*"
+  class="border p-2 w-full rounded"
+/>
+
                         </div>
                     </div>
                     
@@ -459,18 +466,22 @@
         }
 
         function selectService(servicio) {
-            // Remover selección anterior
-            document.querySelectorAll('.service-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-            
-            // Seleccionar nuevo servicio
-            document.querySelector(`[data-service-id="${servicio.id}"]`).classList.add('selected');
-            selectedService = servicio;
-            
-            // Habilitar botón siguiente
-            document.getElementById('nextStep1').disabled = false;
-        }
+    // Remover selección anterior
+    document.querySelectorAll('.service-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+
+    // Seleccionar nuevo servicio
+    document.querySelector(`[data-service-id="${servicio.id}"]`).classList.add('selected');
+    selectedService = servicio;
+
+    // Habilitar botón siguiente
+    document.getElementById('nextStep1').disabled = false;
+
+    // ✅ Filtrar veterinarios según servicio
+    loadVeterinariosPorServicio(servicio.id);
+}
+
 
         async function loadVeterinarios() {
             try {
@@ -488,6 +499,26 @@
                 console.error('Error loading veterinarios:', error);
             }
         }
+
+
+        async function loadVeterinariosPorServicio(servicioId) {
+    try {
+        const veterinarios = await makeRequest(`${API_BASE}/veterinarios/servicio/${servicioId}`);
+        const select = document.getElementById('veterinario');
+
+        select.innerHTML = '<option value="">Selecciona un veterinario</option>';
+        veterinarios.forEach(vet => {
+            const option = document.createElement('option');
+            option.value = vet.id;
+            option.textContent = `Dr. ${vet.nombre}`;
+            select.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Error al filtrar veterinarios:', error);
+        showAlert('No se pudieron cargar los veterinarios para el servicio seleccionado.', 'warning');
+    }
+}
+
 
         async function loadAreasClinicas() {
             try {
@@ -721,6 +752,26 @@
                 }
             }, 5000);
         }
+
+
+        document.getElementById('serviciosLoading').addEventListener('change', async function () {
+    const servicioId = this.value;
+    if (!servicioId) return;
+
+    const url = `http://localhost:8081/veterinarios/servicio/${servicioId}`;
+    const veterinarios = await makeRequest(url);
+
+    const selectVet = document.getElementById('veterinario');
+    selectVet.innerHTML = '<option value="">Selecciona un veterinario</option>';
+
+    veterinarios.forEach(vet => {
+        const option = document.createElement('option');
+        option.value = vet.id;
+        option.textContent = `Dr. ${vet.nombre}`;
+        selectVet.appendChild(option);
+    });
+});
+
     </script>
 </body>
 </html>
