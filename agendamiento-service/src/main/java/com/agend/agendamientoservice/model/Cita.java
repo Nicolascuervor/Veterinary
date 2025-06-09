@@ -19,6 +19,7 @@ public class Cita {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
     @ManyToOne
     @JoinColumn(name = "propietario_id", nullable = false)
     private Propietario propietario;

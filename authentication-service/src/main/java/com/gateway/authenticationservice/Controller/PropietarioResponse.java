@@ -14,7 +14,7 @@ public class PropietarioResponse {
     private String direccion;
     private String telefono;
     private String cedula;
-    private Long usuarioId;
+    private Long id;
 
 
 }

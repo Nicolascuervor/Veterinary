@@ -1,5 +1,6 @@
 package com.agend.agendamientoservice.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -43,6 +44,7 @@ public class Propietario {
     private List<Mascota> mascotas;
 
 
+    @JsonIgnore
     @OneToMany(mappedBy = "propietario")
     private List<Cita> citas;
 

@@ -38,7 +38,7 @@ spring:
         - id: agendamiento-service-mascotas
           uri: http://localhost:8083
           predicates:
-            - Path=/mascota/**
+            - Path=/mascotas/**
 
 
         - id: agendamiento-service-especialidad

@@ -12,4 +12,7 @@ public class AuthResponse {
     private String role;
     private String username;
     private String nombre; // ✅ Agregado para mostrar el nombre del propietario
+    private Long id; 
+
+   
 }
