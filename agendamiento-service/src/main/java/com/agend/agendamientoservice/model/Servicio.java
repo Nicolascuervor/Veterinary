@@ -28,6 +28,11 @@ public class Servicio {
     @Column(name = "Precio")
     private Double precio;
 
+    @ManyToOne
+    @JoinColumn(name = "especialidad_id", nullable = false)
+    private Especialidad especialidad;
+
+
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

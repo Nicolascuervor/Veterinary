@@ -21,6 +21,14 @@ public class ServicioController {
     @Autowired
     private ServicioService servicioService;
 
+
+
+    @GetMapping("/veterinario/{id}")
+    public ResponseEntity<List<Servicio>> obtenerServiciosPorVeterinario(@PathVariable Long id) {
+        List<Servicio> servicios = servicioService.obtenerServiciosPorVeterinario(id);
+        return ResponseEntity.ok(servicios);
+    }
+
     @GetMapping
     public List<Servicio> findAll() {
         return servicioService.findAllServicios();
