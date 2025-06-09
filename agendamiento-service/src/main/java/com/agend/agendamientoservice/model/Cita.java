@@ -6,7 +6,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Date;
 
 @Setter
@@ -34,19 +36,25 @@ public class Cita {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @Temporal(TemporalType.DATE)
     @Column(name = "fecha")
-    private Date fecha;
+    private LocalDate fecha;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
     @Temporal(TemporalType.TIME)
+
     @Column(name = "hora")
-    private Date hora;
+    private LocalTime hora;
 
     @ManyToOne
     @JoinColumn(name = "veterinario_id")
     private Veterinario veterinario;
 
-    @Column(name = "estado")
-    private String estado; // Ej: "Pendiente", "Confirmada", "Cancelada"
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private EstadoCita estado;
+
+    public enum EstadoCita {
+        ACTIVO, CANCELADA, COMPLETADA
+    }
 
 
 
