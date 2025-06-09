@@ -1,5 +1,6 @@
 package com.agend.agendamientoservice.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -40,13 +41,12 @@ public class Veterinario {
     @JoinColumn(name = "especialidad_id", referencedColumnName = "id")
     private Especialidad especialidad;
 
+    @JsonIgnore // Evita serializar agendas dentro del veterinario
     @OneToMany(mappedBy = "veterinario", cascade = CascadeType.ALL)
     private List<AgendaVeterinario> agendas;
 
-    @OneToMany(mappedBy = "veterinario", cascade = CascadeType.ALL)
-    private List<DisponibilidadVeterinario> disponibilidades;
 
-
+    @JsonIgnore
     @OneToMany(mappedBy = "veterinario")
     private List<Cita> citas;
 

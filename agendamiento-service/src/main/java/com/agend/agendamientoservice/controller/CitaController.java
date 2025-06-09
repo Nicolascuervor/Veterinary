@@ -1,5 +1,6 @@
 package com.agend.agendamientoservice.controller;
 
+import com.agend.agendamientoservice.DTOs.CitaRequest;
 import com.agend.agendamientoservice.model.Cita;
 import com.agend.agendamientoservice.service.CitaService;
 import jakarta.persistence.EntityNotFoundException;
@@ -24,9 +25,11 @@ public class CitaController {
     }
 
     @PostMapping("/registrar")
-    public Cita guardarCita(@RequestBody Cita cita) {
-        return citaService.guardar(cita);
+    public ResponseEntity<Cita> guardarCita(@RequestBody CitaRequest request) {
+        Cita cita = citaService.convertirYGuardar(request);
+        return ResponseEntity.ok(cita);
     }
+
 
     @GetMapping("/{id}")
     public Optional<Cita> findCitaById(@PathVariable Long id) {

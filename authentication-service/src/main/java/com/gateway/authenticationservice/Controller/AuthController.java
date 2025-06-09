@@ -54,8 +54,9 @@ public class AuthController {
         PropietarioResponse propietario = obtenerDatosPropietario(user.getId(), token);
 
         String nombre = (propietario != null) ? propietario.getNombre() : "usuario";
+        Long propietarioId = (propietario != null) ? propietario.getId() : null;
 
-        return ResponseEntity.ok(new AuthResponse(token, String.valueOf(user.getRole()), request.getUsername(), nombre));
+        return ResponseEntity.ok(new AuthResponse(token, String.valueOf(user.getRole()), request.getUsername(), nombre, propietarioId));
     }
 
     @PostMapping("/forgot-password")

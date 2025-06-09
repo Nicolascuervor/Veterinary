@@ -1,5 +1,6 @@
 package com.agend.agendamientoservice.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -19,40 +20,44 @@ public class AgendaVeterinario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String fecha;
+    private LocalDate fecha;
 
-    @Column(name = "hora_llegada", nullable = false)
-    private LocalTime horaLlegada;
+    @Column(name = "hora_inicio", nullable = false)
+    private LocalTime horaInicio;
 
-    @Column(name = "hora_salida", nullable = false)
-    private LocalTime horaSalida;
+    @Column(name = "hora_fin", nullable = false)
+    private LocalTime horaFin;
 
-    @Column(length = 1)
-    private String estado; // A = (Activo), I = (Inactivo)
+    // Estados: DISPONIBLE, OCUPADO, CANCELADO
+    @Enumerated(EnumType.STRING)
+    private EstadoAgenda estado = EstadoAgenda.ACTIVO;
 
-    @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "empleado_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "veterinario_id")
+    @JsonBackReference
     private Veterinario veterinario;
 
     @ManyToOne
     @JoinColumn(name = "area_clinica_id")
     private AreaClinica areaClinica;
 
-    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     @PrePersist
-    public void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+    public void prePersist() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate
-    public void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
+    public enum EstadoAgenda {
+        ACTIVO,
+        OCUPADO,
+        CANCELADO
     }
 }

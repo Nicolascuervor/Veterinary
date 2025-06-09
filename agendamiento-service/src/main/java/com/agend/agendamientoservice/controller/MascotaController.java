@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/mascota")
+@RequestMapping("/mascotas")
 public class MascotaController {
     @Autowired
     private MascotaService mascotaService;
@@ -21,6 +21,16 @@ public class MascotaController {
     @GetMapping
     public List<Mascota> findAll() {
         return mascotaService.findAllMascotas();
+    }
+
+
+    @GetMapping("/propietario/{propietarioId}")
+    public ResponseEntity<List<Mascota>> findByPropietarioId(@PathVariable Long propietarioId) {
+        List<Mascota> mascotas = mascotaService.findByPropietarioId(propietarioId);
+        if (mascotas.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(mascotas);
     }
 
     @PostMapping("/registrar")

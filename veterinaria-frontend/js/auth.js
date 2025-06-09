@@ -28,14 +28,17 @@ document.getElementById('login-form')?.addEventListener('submit', async (e) => {
                 token = data.token;
                 nombre = data.nombre || 'Usuario'; // "Cuervo" en este caso
                 userRole = data.role || 'USER'; // "USER" en este caso
+                id = data.id || '1'; // Asignar un id por defecto si no se proporciona
             } else {
                 token = data;
                 nombre = 'Usuario';
                 userRole = 'USER';
+                id = data.id || '1'; // Asignar un id por defecto si no se proporciona
             }
             localStorage.setItem('token', token); // Usar localStorage
             localStorage.setItem('nombre', nombre);
             localStorage.setItem('userRole', userRole);
+            localStorage.setItem('id', id); // Guardar el id
             alert('Login exitoso.');
             setTimeout(() => {
                 window.location.href = 'index.html';
@@ -57,6 +60,7 @@ document.getElementById('register-form')?.addEventListener('submit', async (e) =
     const apellido = document.getElementById('apellido').value;
     const telefono = document.getElementById('telefono').value;
     const direccion = document.getElementById('direccion').value;
+    const cedula = document.getElementById('cedula').value;
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirm-password').value;
@@ -73,7 +77,7 @@ document.getElementById('register-form')?.addEventListener('submit', async (e) =
         const response = await fetch('http://localhost:8081/auth/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({nombre,apellido,telefono,direccion, username, password, role }),
+            body: JSON.stringify({nombre,apellido,telefono,direccion,cedula, username, password, role }),
         });
 
         const contentType = response.headers.get('Content-Type');

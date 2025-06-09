@@ -38,4 +38,9 @@ public class MascotaService {
         mascotaRepository.deleteById(id);
     }
 
+    @Transactional
+    public List<Mascota> findByPropietarioId(Long propietarioId) {
+        return mascotaRepository.findByPropietarioId(propietarioId);
+    }
+
 }
