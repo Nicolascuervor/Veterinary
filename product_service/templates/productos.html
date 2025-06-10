@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Productos - VetCare</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/productos.css') }}">
+  
+
+  <style>
+    .product-img {
+      height: 200px;
+      object-fit: cover;
+    }
+  </style>
+</head>
+
+<body class="bg-light">
+   <header id="nav-container"></header>
+   
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand" href="#">Productos - VetCare</a>
+      <form class="d-flex ms-auto" role="search">
+        <input id="searchBar" class="form-control me-2" type="search" placeholder="Buscar productos...">
+      </form>
+    </div>
+  </nav>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <div class="container py-5">
+    <h1 class="text-center mb-4">Productos disponibles</h1>
+    <div class="row" id="productList">
+      <!-- Productos dinámicos -->
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const API_URL = "http://localhost:5001/productos";
+
+    // Función para cargar productos
+    async function cargarProductos() {
+      try {
+        const res = await fetch(API_URL);
+        const productos = await res.json();
+
+        const container = document.getElementById("productList");
+        container.innerHTML = "";
+
+        productos.forEach(producto => {
+          const card = document.createElement("div");
+          card.className = "col-md-4 product-item";
+          card.innerHTML = `
+            <div class="card mb-4 shadow-sm">
+              <img src="${producto.image}" class="card-img-top product-img" alt="${producto.name}">
+              <div class="card-body">
+                <h5 class="card-title">${producto.name}</h5>
+                <p class="card-text text-muted">$${producto.price}</p>
+                <p class="card-text">${producto.description || ""}</p>
+                <button class="btn btn-primary">Agregar al carrito</button>
+              </div>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      } catch (error) {
+        console.error("Error al cargar productos:", error);
+      }
+    }
+
+    // Filtro en tiempo real
+    document.getElementById("searchBar").addEventListener("keyup", function () {
+      const filtro = this.value.toLowerCase();
+      const productos = document.querySelectorAll(".product-item");
+
+      productos.forEach(producto => {
+        const nombre = producto.querySelector(".card-title").textContent.toLowerCase();
+        producto.style.display = nombre.includes(filtro) ? "" : "none";
+      });
+    });
+
+    // Ejecutar al cargar
+    cargarProductos();
+  </script>
+  <script>
+  document.addEventListener("DOMContentLoaded", async () => {
+    const API_URL = "http://127.0.0.1:5001/productos";
+
+    async function cargarProductos() {
+      try {
+        const res = await fetch(API_URL);
+        const productos = await res.json();
+
+        const container = document.getElementById("productList");
+        container.innerHTML = "";
+
+        productos.forEach(p => {
+          const card = document.createElement("div");
+          card.className = "col-md-4 product-item";
+          card.innerHTML = `
+            <div class="card mb-4 shadow-sm h-100">
+              <img src="${p.image}" class="card-img-top product-img" alt="${p.name}">
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title">${p.name}</h5>
+                <p class="card-text text-muted">$${p.price}</p>
+                <p class="card-text small">${p.description || ""}</p>
+                <button class="btn btn-primary mt-auto">Agregar al carrito</button>
+              </div>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      } catch (err) {
+        console.error("Error al cargar productos:", err);
+      }
+    }
+
+    cargarProductos();
+  });
+</script>
+
+</body>
+</html>

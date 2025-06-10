@@ -1,0 +1,58 @@
+/* Fondo general */
+body {
+  background-color: #f8f9fa;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Título principal */
+h1 {
+  font-weight: bold;
+  color: #007bff;
+  margin-bottom: 2rem;
+}
+
+/* Tarjetas de producto */
+.card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 10px;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Imagen del producto */
+.card-img-top {
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  height: 200px;
+  object-fit: cover;
+}
+
+/* Botón de agregar */
+.card .btn-primary {
+  background-color: #007bff;
+  border: none;
+  width: 100%;
+}
+
+.card .btn-primary:hover {
+  background-color: #0056b3;
+}
+
+/* Input de búsqueda */
+#searchBar {
+  border-radius: 50px;
+  padding-left: 20px;
+  border: 1px solid #ced4da;
+  width: 300px;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  #searchBar {
+    width: 100%;
+    margin-top: 1rem;
+  }
+}
