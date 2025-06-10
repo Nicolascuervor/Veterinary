@@ -40,7 +40,7 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
                 // ✅ Usa el authority tal como está en el token (ya incluye ROLE_)
                 String rol = claims.get("authorities").toString();
 
-                String id = String.valueOf(claims.get("id"));
+                String id = String.valueOf(claims.get("usuarioId"));
 
                 System.out.println("✅ Claims parseados correctamente:");
                 System.out.println(" - username: " + username);
@@ -51,7 +51,7 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
                         .request(r -> r.headers(h -> {
                             h.add("username", username);
                             h.add("role", rol);
-                            h.add("X-User-Id", id);
+                            h.add("x-user-Id", id);
                         }))
                         .build();
 

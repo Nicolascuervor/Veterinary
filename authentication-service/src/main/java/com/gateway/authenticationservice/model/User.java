@@ -24,22 +24,11 @@ public class User implements UserDetails {
     @Column(name = "password_encrip")
     private String password;
 
-    @Column(name = "nombre")
-    private String nombre;
-
-    @Column(name = "apellido")
-    private String apellido;
-
-    @Column(name = "telefono")
-    private String telefono;
-
-    @Column(name = "direccion")
-    private String direccion;
-
-
     @Column(name = "rol_usuario")
     @Enumerated(EnumType.STRING)
     private Role role;
+
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

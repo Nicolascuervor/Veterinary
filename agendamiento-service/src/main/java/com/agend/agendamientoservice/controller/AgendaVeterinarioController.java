@@ -4,10 +4,12 @@ import com.agend.agendamientoservice.model.AgendaVeterinario;
 import com.agend.agendamientoservice.service.AgendaVeterinarioService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -19,6 +21,17 @@ public class AgendaVeterinarioController {
 
     @Autowired
     private AgendaVeterinarioService agendaveterinarioService;
+
+    @GetMapping("/veterinario/{id}/fecha")
+    public ResponseEntity<List<AgendaVeterinario>> buscarDisponibilidad(
+            @PathVariable Long id,
+            @RequestParam("fecha") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
+
+        List<AgendaVeterinario> disponibles = agendaveterinarioService.findDisponibles(id, fecha);
+        return disponibles.isEmpty()
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(disponibles);
+    }
 
     @GetMapping
     public List<AgendaVeterinario> findAll() {
@@ -56,4 +69,7 @@ public class AgendaVeterinarioController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+
+
 }

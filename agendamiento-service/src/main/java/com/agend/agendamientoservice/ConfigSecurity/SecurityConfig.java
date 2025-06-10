@@ -24,6 +24,21 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/veterinarios/registrar").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/propietarios/registrar").permitAll()
+                        .requestMatchers("/servicios/registrar").permitAll()
+
+
+                        .requestMatchers("/servicios").permitAll()
+                        .requestMatchers("/propietarios/**").permitAll()
+                        .requestMatchers("/veterinarios/**").permitAll()
+                        .requestMatchers("/AreaClinica/**").permitAll()
+                        .requestMatchers("/mascotas/**").permitAll()
+                        .requestMatchers("/disponibilidad/**").permitAll()
+                        .requestMatchers("/agenda/**").permitAll()
+                        .requestMatchers("/cita/**").permitAll()
+
+
+
 
                         .requestMatchers("/**").hasAuthority("ROLE_ADMIN")
 

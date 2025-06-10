@@ -1,0 +1,149 @@
+/* =========================================
+   ESTILOS GENERALES
+   ========================================= */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7f6;
+}
+
+/* =========================================
+   BARRA DE NAVEGACIÓN (NAVBAR) - BASE UNIFICADA Y CORREGIDA
+   ========================================= */
+#paw {
+    color: #f59e0b; /* Color amarillo unificado para el logo de la pata */
+}
+
+.navbar-collapse {
+    position: relative;
+    right: 11.5em;
+}
+
+.navbar-vetcare {
+    background-color: #b8fbcc;
+    /* AJUSTE: Altura de la barra (padding). Es igual en los 3 archivos. */
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.navbar-vetcare .navbar-brand {
+    color: #2E8B57; /* CAMBIO: Color del texto "VetCare" cambiado a verde. */
+    font-weight: bold;
+    font-size: 1.8rem;
+    /* CAMBIO: Se añadió para que el logo y el texto siempre estén en la misma línea. */
+    display: flex;
+    align-items: center;
+}
+
+.navbar-brand {
+    position: relative;
+    left: 3em;
+}
+
+.navbar-vetcare .nav-link {
+    color: #333;
+    margin-left: 15px;
+    margin-right: 15px;
+    font-size: 1.1rem;
+}
+
+.navbar-vetcare .nav-link:hover,
+.navbar-vetcare .nav-link.active {
+    color: #2E8B57;
+    font-weight: 500;
+}
+
+.btn-cita-rapida, .btn-cesta {
+    background-color: #FF8C00;
+    border-color: #FF8C00;
+    color: white;
+    font-weight: bold;
+    margin-left: 8px;
+}
+
+.btn-cita-rapida{
+    position: relative;
+    left: 6em;
+}
+
+.btn-cita-rapida:hover, .btn-cesta:hover {
+    background-color: #FFA500;
+    border-color: #FFA500;
+}
+
+/* =========================================
+   ESTILOS ESPECÍFICOS DE LA PÁGINA CARRITO
+   ========================================= */
+.container-carrito {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    margin-top: 30px;
+}
+
+.table th,
+.table td {
+    vertical-align: middle;
+    text-align: center;
+}
+
+.table thead th {
+    background-color: #A9A9A9;
+    color: white;
+}
+
+.btn-eliminar,
+.btn-cantidad {
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    font-size: 1.2rem;
+}
+
+.btn-eliminar {
+    color: #dc3545;
+}
+
+.btn-eliminar:hover {
+    color: #a71d2a;
+}
+
+.btn-cantidad {
+    color: #0d6efd;
+    padding: 0.2rem 0.5rem;
+}
+
+.btn-cantidad:hover {
+    color: #0a58ca;
+}
+
+.input-cantidad {
+    width: 60px;
+    text-align: center;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    margin: 0 5px;
+}
+
+.total-section {
+    margin-top: 20px;
+    text-align: right;
+    font-size: 1.2rem;
+}
+
+.total-section p {
+    margin-bottom: 0.5rem;
+}
+
+.btn-proceder-pago {
+    background-color: #28a745;
+    color: white;
+    padding: 10px 20px;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 5px;
+}
+
+.btn-proceder-pago:hover {
+    background-color: #218838;
+}

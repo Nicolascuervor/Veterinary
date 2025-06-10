@@ -1,37 +1,38 @@
 package com.agend.agendamientoservice.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Getter
+
 @Setter
+@Getter
 @Entity
-@Table(name = "disponibilidades_veterinario")
-public class DisponibilidadVeterinario {
+@Table(name = "Servicio")
+public class Servicio {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(unique = true, nullable = false)
     private Long id;
 
-    private LocalDate dia;
+    @Column(name = "nombre")
+    private String nombre;
 
-    @JsonIgnore
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "veterinario_id")
-    private Veterinario veterinario;
+    @Column(name = "descripcion")
+    private String descripcion;
 
-    @JsonIgnore
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "agenda_id")
-    private AgendaVeterinario agenda; // bloque de horario en ese día
+    @Column(name = "Precio")
+    private Double precio;
 
-    @Column(length = 1)
-    private String estado = "1"; // 1 = Disponible, 0 = Ocupado
+    @ManyToOne
+    @JoinColumn(name = "especialidad_id", nullable = false)
+    private Especialidad especialidad;
+
+
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -49,4 +50,6 @@ public class DisponibilidadVeterinario {
     public void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
+
 }

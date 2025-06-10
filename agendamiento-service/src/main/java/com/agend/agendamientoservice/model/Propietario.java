@@ -1,5 +1,6 @@
 package com.agend.agendamientoservice.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,17 +35,16 @@ public class Propietario {
     @Column(name = "direccion")
     private String direccion;
 
-    @Column(name = "correo")
-    private String correo;
+    @Column(name = "usuario_id")
+    private Long usuarioId;
 
-    @Column(name = "usuario")
-    private String usuario;
 
 
     @OneToMany(mappedBy = "propietario", cascade = CascadeType.ALL)
     private List<Mascota> mascotas;
 
 
+    @JsonIgnore
     @OneToMany(mappedBy = "propietario")
     private List<Cita> citas;
 
