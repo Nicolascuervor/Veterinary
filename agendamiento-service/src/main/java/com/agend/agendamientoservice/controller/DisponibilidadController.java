@@ -27,4 +27,11 @@ public class DisponibilidadController {
         System.out.println("[DisponibilidadController] Resultados devueltos: " + disponibles.size());
         return disponibles;
     }
+
+
+    @GetMapping("/veterinario/{id}/proximos-dias-disponibles")
+    public List<LocalDate> obtenerProximosDiasDisponibles(@PathVariable Long id) {
+        // Escaneamos los próximos 30 días por defecto.
+        return disponibilidadService.obtenerProximosDiasDisponibles(id, 30);
+    }
 }

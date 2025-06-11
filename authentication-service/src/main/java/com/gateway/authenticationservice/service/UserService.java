@@ -40,40 +40,14 @@ public class UserService implements UserDetailsService {
 
         user.setRole(Role.valueOf(role.toUpperCase()));
 
-        PropietarioResponse propietario = obtenerDatosPropietario(user.getId());
-        String nombre = (propietario != null) ? propietario.getNombre() : "usuario";
 
-
-        // Enviar correo al usuario
-        emailClient.enviarEmail(
-                new String[]{user.getUsername()},
-                "¡Bienvenido/a a la Veterinaria de la CUE Alexander von Humboldt!",
-                "Hola " + nombre + "\n" +
-                        "Nos alegra contar contigo como parte de nuestra comunidad. Desde ahora podrás acceder fácilmente a nuestros servicios, agendar citas, consultar el historial médico de tus mascotas, recibir recordatorios importantes y mucho más, todo desde un mismo lugar.\n" +
-                        "\n" +
-                        "Estamos comprometidos con el bienestar animal y con ofrecerte una atención de calidad, respaldada por profesionales y estudiantes capacitados de nuestra universidad.\n" +
-                        "\n" +
-                        "Si tienes alguna duda o necesitas asistencia, no dudes en contactarnos.\n" +
-                        "¡Esperamos poder ayudarte a cuidar de tus compañeros peludos!"
-        );
 
 
         return userRepository.save(user);
     }
 
 
-    private PropietarioResponse obtenerDatosPropietario(Long usuarioId) {
-        try {
-            ResponseEntity<PropietarioResponse> response = restTemplate.getForEntity(
-                    "http://localhost:8081/propietarios/usuario/" + usuarioId,
-                    PropietarioResponse.class
-            );
-            return response.getBody();
-        } catch (Exception e) {
-            System.out.println("❌ No se pudo obtener el propietario para usuarioId: " + usuarioId);
-            return null;
-        }
-    }
+
 
 
 

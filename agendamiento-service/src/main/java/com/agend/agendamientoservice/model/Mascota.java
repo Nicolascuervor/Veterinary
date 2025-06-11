@@ -6,7 +6,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Setter
 @Getter
@@ -30,6 +32,24 @@ public class Mascota {
 
     @Column(name = "edad")
     private String edad;
+
+    @Column(name = "peso")
+    private Double peso;
+
+    @Column(name = "color")
+    private String color;
+
+    @Column(name = "image_url") // Nueva columna
+    private String imageUrl;
+
+    @Column(name = "fecha_nacimiento")
+    private LocalDate fechaNacimiento;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "mascota", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<HistorialClinico> historialClinico;
+
+
 
 
     @JsonIgnore

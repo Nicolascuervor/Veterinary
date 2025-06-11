@@ -36,6 +36,7 @@ public class SecurityConfig {
                         .requestMatchers("/disponibilidad/**").permitAll()
                         .requestMatchers("/agenda/**").permitAll()
                         .requestMatchers("/cita/**").permitAll()
+                        .requestMatchers("/historial/**").permitAll()
 
 
 

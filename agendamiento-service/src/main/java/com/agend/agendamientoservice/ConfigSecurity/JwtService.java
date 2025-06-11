@@ -26,4 +26,6 @@ public class JwtService {
     private Key getSignInKey() {
         return Keys.hmacShaKeyFor(secret.getBytes());
     }
+
+
 }
