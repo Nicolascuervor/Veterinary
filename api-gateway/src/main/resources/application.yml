@@ -59,6 +59,12 @@ spring:
             - Path=/cita/**
 
 
+        - id: agendamiento-service-historial
+          uri: http://localhost:8083
+          predicates:
+            - Path=/historial/**
+
+
         - id: agendamiento-service-areas-clinicas
           uri: http://localhost:8083
           predicates:

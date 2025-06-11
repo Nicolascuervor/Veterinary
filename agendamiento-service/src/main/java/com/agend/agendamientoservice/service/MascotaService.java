@@ -2,6 +2,7 @@ package com.agend.agendamientoservice.service;
 
 import com.agend.agendamientoservice.model.Mascota;
 import com.agend.agendamientoservice.repository.MascotaRepository;
+import com.agend.agendamientoservice.repository.PropietarioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,9 @@ import java.util.Optional;
 public class MascotaService {
     @Autowired
     private MascotaRepository mascotaRepository;
+
+    @Autowired
+    private PropietarioRepository propietarioRepository;
 
     @Transactional
     public List<Mascota> findAllMascotas() {

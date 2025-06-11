@@ -1,6 +1,7 @@
 package com.gateway.authenticationservice.Controller;
 
 import com.gateway.authenticationservice.ConfigSecurity.JwtService;
+import com.gateway.authenticationservice.DTOs.UserDTO;
 import com.gateway.authenticationservice.Emails.EmailClient;
 import com.gateway.authenticationservice.model.*;
 import com.gateway.authenticationservice.repository.PasswordResetTokenRepository;
@@ -29,6 +30,8 @@ public class AuthController {
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
+
+
     private final EmailClient emailClient;
     private final PasswordEncoder passwordEncoder;
     private final RestTemplate restTemplate;
@@ -166,6 +169,24 @@ public class AuthController {
                     String.class
             );
 
+
+
+            String nombre = (propietario != null) ? propietario.getNombre() : "usuario";
+
+
+            // Enviar correo al usuario
+            emailClient.enviarEmail(
+                    new String[]{user.getUsername()},
+                    "¡Bienvenido/a a la Veterinaria de la CUE Alexander von Humboldt!",
+                    "Hola " + nombre + "\n" +
+                            "Nos alegra contar contigo como parte de nuestra comunidad. Desde ahora podrás acceder fácilmente a nuestros servicios, agendar citas, consultar el historial médico de tus mascotas, recibir recordatorios importantes y mucho más, todo desde un mismo lugar.\n" +
+                            "\n" +
+                            "Estamos comprometidos con el bienestar animal y con ofrecerte una atención de calidad, respaldada por profesionales y estudiantes capacitados de nuestra universidad.\n" +
+                            "\n" +
+                            "Si tienes alguna duda o necesitas asistencia, no dudes en contactarnos.\n" +
+                            "¡Esperamos poder ayudarte a cuidar de tus compañeros peludos!"
+            );
+
             System.out.println("✅ Propietario creado: " + response.getStatusCode());
 
         } catch (Exception e) {
@@ -177,6 +198,8 @@ public class AuthController {
 
         return user;
     }
+
+
 
     private PropietarioResponse obtenerDatosPropietario(Long usuarioId, String token) {
         try {
@@ -195,6 +218,27 @@ public class AuthController {
             System.out.println("❌ No se pudo obtener el propietario para usuarioId: " + usuarioId);
             return null;
         }
+    }
+
+    /**
+     * Endpoint interno para obtener datos básicos de un usuario por su ID.
+     * Protegido por la autenticación del gateway.
+     * @param id El ID del usuario a buscar.
+     * @return Un DTO con la información del usuario.
+     */
+    @GetMapping("/internal/user/{id}")
+    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
+        return userRepository.findById(id)
+                .map(user -> {
+                    // Mapeamos la entidad User a nuestro UserDTO
+                    UserDTO userDTO = new UserDTO(
+                            user.getId(),
+                            user.getUsername(), // El username es el email
+                            user.getRole().name()
+                    );
+                    return ResponseEntity.ok(userDTO);
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/admin/test")

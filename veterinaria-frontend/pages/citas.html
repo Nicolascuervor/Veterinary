@@ -3,775 +3,421 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agendar Cita - Clínica Veterinaria</title>
+    <title>Agendar Cita - VetCare</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        
-
+        :root {
+            --primary-color: #4A90E2;
+            --secondary-color: #333A45;
+            --accent-color: #F5A623;
+            --bg-light: #f8f9fa;
+            --border-color: #EAEAEA;
+        }
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: var(--bg-light);
+        }
         .main-container {
+            background: #ffffff;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
             margin: 2rem auto;
-            overflow: hidden;
             max-width: 900px;
-            padding-top: 0rem;
-             background: #ffffff;
+            overflow: hidden;
         }
-
-        .progress-container {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            padding: 2rem;
+        .progress-header {
+            background: linear-gradient(135deg, #4A90E2, #3A7BC8);
+            padding: 2.5rem 2rem;
             color: white;
-            margin-top: 2rem;
-
+            text-align: center;
         }
-
-        .progress-steps {
+        .step-content { display: none; }
+        .step-content.active { display: block; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .form-section {
+            padding: 2.5rem 3rem;
+        }
+        .section-title {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 1rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.75rem;
         }
-
-        .step-circle {
-            width: 50px;
-            height: 50px;
+        .section-title .icon {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-right: 0.75rem;
+            width: 40px;
+            height: 40px;
+            background: rgba(74, 144, 226, 0.1);
             border-radius: 50%;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            font-size: 1.2rem;
-            position: relative;
-            background: rgba(255, 255, 255, 0.3);
-            color: white;
-            transition: all 0.3s ease;
         }
-
-        .step-circle.active {
-            background: white;
-            color: var(--primary-color);
-            transform: scale(1.1);
-        }
-
-        .step-circle.completed {
-            background: var(--secondary-color);
-            color: white;
-        }
-
-        .step-line {
-            flex: 1;
-            height: 3px;
-            background: rgba(255, 255, 255, 0.3);
-            margin: 0 1rem;
-            border-radius: 2px;
-        }
-
-        .step-line.completed {
-            background: var(--secondary-color);
-        }
-
-        .form-container {
-            padding: 3rem;
-        }
-
-        .step-content {
-            display: none;
-        }
-
-        .step-content.active {
-            display: block;
-        }
-
         .service-card {
-            border: 2px solid #e9ecef;
+            border: 2px solid var(--border-color);
             border-radius: 12px;
             padding: 1.5rem;
-            margin-bottom: 1rem;
             cursor: pointer;
             transition: all 0.3s ease;
+            text-align: center;
         }
-
         .service-card:hover {
             border-color: var(--primary-color);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
         }
-
         .service-card.selected {
             border-color: var(--primary-color);
             background: rgba(74, 144, 226, 0.1);
-        }
-
-        .horario-btn {
-            margin: 0.25rem;
-            border-radius: 20px;
-            transition: all 0.3s ease;
-        }
-
-        .horario-btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border: none;
-            border-radius: 25px;
-            padding: 0.75rem 2rem;
+            color: var(--primary-color);
             font-weight: 600;
-            transition: all 0.3s ease;
         }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        .day-scroller {
+            display: flex;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-color) var(--bg-light);
         }
-
-        .loading-spinner {
-            display: none;
+        .day-scroller::-webkit-scrollbar { height: 6px; }
+        .day-scroller::-webkit-scrollbar-track { background: var(--bg-light); border-radius: 3px; }
+        .day-scroller::-webkit-scrollbar-thumb { background-color: #ced4da; border-radius: 3px; }
+        .day-scroller::-webkit-scrollbar-thumb:hover { background-color: #adb5bd; }
+        .day-chip {
+            flex: 0 0 auto;
+            min-width: 90px;
+            padding: 0.5rem 1rem;
+            margin-right: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 20px;
             text-align: center;
-            padding: 2rem;
-        }
-
-        .confirmation-card {
-            background: var(--bg-light);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .alert {
-            border-radius: 12px;
-            border: none;
-        }
-
-        .form-control, .form-select {
-            border-radius: 10px;
-            border: 2px solid #e9ecef;
-            padding: 0.75rem 1rem;
+            cursor: pointer;
             transition: all 0.3s ease;
         }
-
-        .form-control:focus, .form-select:focus {
+        .day-chip:hover {
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
+            background: rgba(74, 144, 226, 0.05);
         }
+        .day-chip.selected {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+        }
+        .day-chip .day-name { font-size: 0.8rem; text-transform: uppercase; line-height: 1.2; }
+        .day-chip .day-num { font-size: 1.5rem; font-weight: 700; line-height: 1.1; margin: 2px 0; }
+        .day-chip .month-name { font-size: 0.8rem; text-transform: capitalize; line-height: 1.2; font-weight: 600; opacity: 0.7; }
 
-        .pet-icon {
-            color: var(--accent-color);
-            font-size: 3rem;
-            margin-bottom: 1rem;
+        .horarios-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 0.75rem;
+        }
+        .horario-btn {
+            border-radius: 50px;
+            border-width: 2px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        .loading-container {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            min-height: 100px;
+            flex-direction: column;
+            color: #6c757d;
+        }
+        .form-select, .form-control { border-radius: 8px; padding: 0.75rem 1rem; }
+        .form-select:focus, .form-control:focus { border-color: var(--primary-color); box-shadow: 0 0 0 0.25rem rgba(74, 144, 226, 0.2); }
+        .btn-main {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 28px;
+            font-weight: 700;
+            border-radius: 50px;
+            border: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.2);
+        }
+        .btn-main:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(74, 144, 226, 0.3);
         }
     </style>
-    <link rel="stylesheet" href="../css/main.css">
-  <link rel="stylesheet" href="../css/index.css">
 </head>
 <body>
-    <!-- Barra de navegacion traida de nav-public.html -->
-  <header id="nav-container"></header>
+<header id="nav-container"></header>
 
+<div class="container my-5">
+    <div class="main-container">
+        <div class="progress-header">
+            <i class="fas fa-calendar-plus" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+            <h2 class="mb-0">Agenda Tu Cita</h2>
+            <p class="mb-0 opacity-75">Sigue estos sencillos pasos para el bienestar de tu mascota.</p>
+        </div>
 
-    <!-- Main Container -->
-    <div class="container">
-        <div class="main-container">
-            <!-- Progress Header -->
-            <div class="progress-container">
-                <div class="text-center mb-3">
-                    <i class="fas fa-calendar-plus pet-icon"></i>
-                    <h2 class="mb-0">Agendar Nueva Cita</h2>
-                    <p class="mb-0 opacity-75">Programa la consulta para tu mascota en 3 sencillos pasos</p>
+        <div class="form-section">
+            <div id="alertContainer"></div>
+
+            <div id="step1">
+                <h4 class="section-title"><span class="icon">1</span>Elige un Servicio</h4>
+                <div id="serviciosContainer" class="row"></div>
+                <div class="loading-container" id="serviciosLoading"><div class="spinner-border text-primary"></div><p class="mt-2">Cargando servicios...</p></div>
+            </div>
+
+            <div id="step2" class="mt-4" style="display: none;">
+                <h4 class="section-title"><span class="icon">2</span>Completa los Detalles</h4>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="mascota" class="form-label fw-bold">Tu Mascota</label>
+                        <select class="form-select" id="mascota" required></select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="veterinario" class="form-label fw-bold">Veterinario</label>
+                        <select class="form-select" id="veterinario" required></select>
+                    </div>
                 </div>
-                
-                <div class="progress-steps">
-                    <div class="step-circle active" id="step1Circle">1</div>
-                    <div class="step-line" id="line1"></div>
-                    <div class="step-circle" id="step2Circle">2</div>
-                    <div class="step-line" id="line2"></div>
-                    <div class="step-circle" id="step3Circle">3</div>
+
+                <div id="diasSection" class="mb-3" style="display: none;">
+                    <label class="form-label fw-bold">Elige un Día</label>
+                    <div id="diasDisponiblesContainer" class="day-scroller"></div>
+                    <div class="loading-container" id="diasLoading"><div class="spinner-border text-primary"></div><p class="mt-2">Buscando días disponibles...</p></div>
                 </div>
-                
-                <div class="text-center">
-                    <small id="stepDescription">Selecciona el servicio que necesitas</small>
+
+                <div id="horariosSection" class="mb-3" style="display: none;">
+                    <label class="form-label fw-bold">Elige una Hora</label>
+                    <div id="horariosContainer" class="horarios-grid"></div>
+                    <div class="loading-container" id="horariosLoading"><div class="spinner-border text-primary"></div></div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="comentarios" class="form-label fw-bold">Motivo de la Consulta</label>
+                    <textarea class="form-control" id="comentarios" rows="3" placeholder="Describe brevemente los síntomas o el motivo de la visita..."></textarea>
                 </div>
             </div>
 
-            <!-- Form Container -->
-            <div class="form-container">
-                <!-- Alerts -->
-                <div id="alertContainer"></div>
-
-                <!-- Step 1: Selección de Servicio -->
-                <div class="step-content active" id="step1">
-                    <h4 class="mb-4">
-                        <i class="fas fa-stethoscope text-primary me-2"></i>
-                        Selecciona el Servicio
-                    </h4>
-                    
-                    <div class="loading-spinner" id="serviciosLoading">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Cargando servicios...</span>
-                        </div>
-                        <p class="mt-2">Cargando servicios disponibles...</p>
-                    </div>
-                    
-                    <div id="serviciosContainer" class="row"></div>
-                    
-                    <div class="text-end mt-4">
-                        <button type="button" class="btn btn-primary" id="nextStep1" disabled>
-                            Siguiente <i class="fas fa-arrow-right ms-1"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Step 2: Selección de Fecha y Detalles -->
-                <div class="step-content" id="step2">
-                    <h4 class="mb-4">
-                        <i class="fas fa-calendar-alt text-primary me-2"></i>
-                        Detalles de la Cita
-                    </h4>
-                    
+            <div id="step3" class="mt-4" style="display: none;">
+                <h4 class="section-title"><span class="icon"><i class="fas fa-check"></i></span>Confirma tu Cita</h4>
+                <div class="card card-body bg-light">
+                    <h5 class="text-primary mb-3">Resumen de tu Cita</h5>
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="fecha" class="form-label">Fecha de la Cita</label>
-                            <input type="date" class="form-control" id="fecha" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="mascota" class="form-label">Mascota</label>
-                            <select class="form-select" id="mascota" required>
-                                <option value="">Selecciona tu mascota</option>
-                            </select>
-                        </div>
+                        <div class="col-md-6"><p><strong>Mascota:</strong> <span id="confirmMascota"></span></p></div>
+                        <div class="col-md-6"><p><strong>Servicio:</strong> <span id="confirmServicio"></span></p></div>
+                        <div class="col-md-6"><p><strong>Fecha:</strong> <span id="confirmFecha"></span></p></div>
+                        <div class="col-md-6"><p><strong>Hora:</strong> <span id="confirmHora"></span></p></div>
+                        <div class="col-12"><p><strong>Veterinario:</strong> <span id="confirmVeterinario"></span></p></div>
                     </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="veterinario" class="form-label">Veterinario</label>
-                            <select class="form-select" id="veterinario" required>
-                                <option value="">Selecciona un veterinario</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                           <label for="imagenSintoma" class="block font-semibold text-sm mt-4 mb-2">
-  Foto opcional del síntoma:
-</label>
-<input 
-  type="file" 
-  id="imagenSintoma" 
-  name="imagenSintoma" 
-  accept="image/*"
-  class="border p-2 w-full rounded"
-/>
-
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Horarios Disponibles</label>
-                        <div class="loading-spinner" id="horariosLoading">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Cargando horarios...</span>
-                            </div>
-                        </div>
-                        <div id="horariosContainer" class="mt-2"></div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="comentarios" class="form-label">Comentarios Adicionales</label>
-                        <textarea class="form-control" id="comentarios" rows="3" placeholder="Describe los síntomas o motivo de la consulta..."></textarea>
-                    </div>
-                    
-                    <div class="d-flex justify-content-between mt-4">
-                        <button type="button" class="btn btn-outline-secondary" id="prevStep2">
-                            <i class="fas fa-arrow-left me-1"></i> Anterior
-                        </button>
-                        <button type="button" class="btn btn-primary" id="nextStep2" disabled>
-                            Siguiente <i class="fas fa-arrow-right ms-1"></i>
-                        </button>
-                    </div>
+                    <div class="mt-2"><p><strong>Comentarios:</strong> <span class="text-muted" id="confirmComentarios"></span></p></div>
                 </div>
+            </div>
 
-                <!-- Step 3: Confirmación -->
-                <div class="step-content" id="step3">
-                    <h4 class="mb-4">
-                        <i class="fas fa-check-circle text-success me-2"></i>
-                        Confirmar Cita
-                    </h4>
-                    
-                    <div class="confirmation-card">
-                        <h5 class="text-primary mb-3">Resumen de tu Cita</h5>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p><strong>Fecha:</strong> <span id="confirmFecha"></span></p>
-                                <p><strong>Hora:</strong> <span id="confirmHora"></span></p>
-                                <p><strong>Mascota:</strong> <span id="confirmMascota"></span></p>
-                            </div>
-                            <div class="col-md-6">
-                                <p><strong>Veterinario:</strong> <span id="confirmVeterinario"></span></p>
-                                <p><strong>Área:</strong> <span id="confirmArea"></span></p>
-                                <p><strong>Servicio:</strong> <span id="confirmServicio"></span></p>
-                            </div>
-                        </div>
-                        <div class="mt-3">
-                            <p><strong>Comentarios:</strong></p>
-                            <p class="text-muted" id="confirmComentarios"></p>
-                        </div>
-                    </div>
-                    
-                    <div class="d-flex justify-content-between mt-4">
-                        <button type="button" class="btn btn-outline-secondary" id="prevStep3">
-                            <i class="fas fa-arrow-left me-1"></i> Anterior
-                        </button>
-                        <button type="button" class="btn btn-success btn-lg" id="confirmarCita">
-                            <i class="fas fa-calendar-check me-2"></i>
-                            Confirmar Cita
-                        </button>
-                    </div>
-                </div>
+            <div class="d-flex justify-content-end mt-4">
+                <button type="button" class="btn btn-main" id="submitButton">
+                    Confirmar Cita <i class="fas fa-arrow-right ms-1"></i>
+                </button>
             </div>
         </div>
     </div>
+</div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-      <script src="../js/nav.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="../js/nav.js"></script>
+<script>
+    let state = { service: null, mascotaId: null, veterinarioId: null, fecha: null, hora: null, comentarios: '' };
+    const API_BASE = 'http://localhost:8081';
+    const token = localStorage.getItem('token');
+    const authHeaders = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
 
-    <script>
-        // Variables globales
-        let currentStep = 1;
-        let selectedService = null;
-        let selectedHorario = null;
-        let citaData = {};
-
-        // Configuración de API
-        const API_BASE = 'http://localhost:8081';
-        const token = localStorage.getItem('token');
-
-        // Headers para peticiones autenticadas
-        const authHeaders = {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        };
-
-        // Inicialización
-        document.addEventListener('DOMContentLoaded', init);
-
-        function init() {
-            // Verificar autenticación
-            if (!token) {
-                alert('Debes iniciar sesión para agendar una cita');
-                window.location.href = 'login.html';
-                return;
-            }
-
-           
-
-            // Configurar fecha mínima (hoy)
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('fecha').min = today;
-
-            // Cargar datos iniciales
-            loadServicios();
-            loadVeterinarios();
-            loadAreasClinicas();
-            loadMascotas();
-
-            // Event listeners
-            setupEventListeners();
+    document.addEventListener('DOMContentLoaded', () => {
+        if (!token) {
+            alert('Debes iniciar sesión para agendar una cita');
+            window.location.href = 'login.html';
+            return;
         }
-
-        function setupEventListeners() {
-    // Navegación entre pasos
-    document.getElementById('nextStep1').addEventListener('click', () => goToStep(2));
-    document.getElementById('nextStep2').addEventListener('click', () => goToStep(3));
-    document.getElementById('prevStep2').addEventListener('click', () => goToStep(1));
-    document.getElementById('prevStep3').addEventListener('click', () => goToStep(2));
-
-    // Eventos del formulario
-    document.getElementById('fecha').addEventListener('change', function() {
-
-    
-        const veterinarioId = document.getElementById('veterinario').value;
-        const fecha = this.value;
-        loadHorarios(veterinarioId, fecha);
+        loadServicios();
+        loadMascotas();
+        setupEventListeners();
+        updateUI();
     });
-    document.getElementById('veterinario').addEventListener('change', function() {
-        const veterinarioId = this.value;
-        const fecha = document.getElementById('fecha').value;
-        loadHorarios(veterinarioId, fecha);
-    });
-    document.getElementById('confirmarCita').addEventListener('click', submitCita);
 
-    // Validación en tiempo real
-    ['fecha', 'mascota', 'veterinario', 'areaClinica'].forEach(id => {
-        document.getElementById(id).addEventListener('change', validateStep2);
-    });
-}
-
-
-        async function makeRequest(url, options = {}) {
-    try {
-        const response = await fetch(url, {
-            headers: authHeaders,
-            ...options
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`HTTP error! status: ${response.status} - ${errorText || 'No details'}`);
-        }
-
-        return await response.json();
-    } catch (error) {
-        console.error('Request failed:', error);
-        showAlert('Error de conexión. Por favor intenta nuevamente.', 'danger');
-        throw error;
+    function setupEventListeners() {
+        document.getElementById('veterinario').addEventListener('change', e => handleSelectChange('veterinarioId', e.target.value));
+        document.getElementById('mascota').addEventListener('change', e => handleSelectChange('mascotaId', e.target.value));
+        document.getElementById('submitButton').addEventListener('click', handleSubmit);
     }
-}
-        async function loadServicios() {
-            const loading = document.getElementById('serviciosLoading');
+
+    function setState(newState) {
+        state = { ...state, ...newState };
+        updateUI();
+    }
+
+    function updateUI() {
+        document.getElementById('step2').style.display = state.service ? 'block' : 'none';
+        document.getElementById('diasSection').style.display = state.veterinarioId ? 'block' : 'none';
+        document.getElementById('horariosSection').style.display = state.fecha ? 'block' : 'none';
+        document.getElementById('step3').style.display = state.hora ? 'block' : 'none';
+        document.getElementById('submitButton').style.display = state.hora ? 'block' : 'none';
+        if (state.hora) prepareConfirmation();
+    }
+
+    function handleSelectChange(key, value) {
+        const newState = { [key]: value };
+        if (key === 'veterinarioId') {
+            newState.fecha = null;
+            newState.hora = null;
+            document.getElementById('horariosContainer').innerHTML = '';
+            document.getElementById('diasDisponiblesContainer').innerHTML = '';
+            if(value) loadDiasDisponibles(value);
+        }
+        setState(newState);
+    }
+
+    async function loadServicios() {
+        toggleLoading('serviciosLoading', true);
+        try {
+            const servicios = await makeRequest(`${API_BASE}/servicios`);
             const container = document.getElementById('serviciosContainer');
-            
-            loading.style.display = 'block';
-            
-            try {
-                const servicios = await makeRequest(`${API_BASE}/servicios`);
-                
-                container.innerHTML = '';
-                servicios.forEach(servicio => {
-                    const serviceCard = createServiceCard(servicio);
-                    container.appendChild(serviceCard);
-                });
-                
-                loading.style.display = 'none';
-            } catch (error) {
-                loading.style.display = 'none';
-                container.innerHTML = '<div class="col-12 text-center text-muted">Error al cargar servicios</div>';
-            }
+            container.innerHTML = servicios.map(s => `
+                    <div class="col-md-6 mb-3">
+                        <div class="service-card" data-service-id="${s.id}">
+                            <h5 class="mb-1">${s.nombre}</h5>
+                            <p class="text-muted mb-0 small">${s.descripcion || 'Servicio profesional'}</p>
+                        </div>
+                    </div>
+                `).join('');
+            document.querySelectorAll('.service-card').forEach(card => card.addEventListener('click', () => selectService(card.dataset.serviceId, servicios)));
+        } finally {
+            toggleLoading('serviciosLoading', false);
         }
+    }
 
-        function createServiceCard(servicio) {
-            const col = document.createElement('div');
-            col.className = 'col-md-6 mb-3';
-            
-            col.innerHTML = `
-                <div class="service-card" data-service-id="${servicio.id}">
-                    <h5 class="mb-2">${servicio.nombre}</h5>
-                    <p class="text-muted mb-0">${servicio.descripcion || 'Servicio veterinario profesional'}</p>
-                </div>
-            `;
-            
-            col.querySelector('.service-card').addEventListener('click', () => selectService(servicio));
-            
-            return col;
-        }
+    async function loadMascotas() {
+        try {
+            const propietarioId = localStorage.getItem('id');
+            const mascotas = await makeRequest(`${API_BASE}/mascotas/propietario/${propietarioId}`);
+            const select = document.getElementById('mascota');
+            select.innerHTML = '<option value="">Selecciona tu mascota</option>' + mascotas.map(m => `<option value="${m.id}">${m.nombre}</option>`).join('');
+        } catch(e) { showAlert('No se pudieron cargar tus mascotas.', 'danger'); }
+    }
 
-        function selectService(servicio) {
-    // Remover selección anterior
-    document.querySelectorAll('.service-card').forEach(card => {
-        card.classList.remove('selected');
-    });
-
-    // Seleccionar nuevo servicio
-    document.querySelector(`[data-service-id="${servicio.id}"]`).classList.add('selected');
-    selectedService = servicio;
-
-    // Habilitar botón siguiente
-    document.getElementById('nextStep1').disabled = false;
-
-    // ✅ Filtrar veterinarios según servicio
-    loadVeterinariosPorServicio(servicio.id);
-}
-
-
-        async function loadVeterinarios() {
-            try {
-                const veterinarios = await makeRequest(`${API_BASE}/veterinarios`);
-                const select = document.getElementById('veterinario');
-                
-                select.innerHTML = '<option value="">Selecciona un veterinario</option>';
-                veterinarios.forEach(vet => {
-                    const option = document.createElement('option');
-                    option.value = vet.id;
-                    option.textContent = `Dr. ${vet.nombre}`;
-                    select.appendChild(option);
-                });
-            } catch (error) {
-                console.error('Error loading veterinarios:', error);
-            }
-        }
-
-
-        async function loadVeterinariosPorServicio(servicioId) {
-    try {
-        const veterinarios = await makeRequest(`${API_BASE}/veterinarios/servicio/${servicioId}`);
+    async function loadVeterinariosPorServicio(servicioId) {
         const select = document.getElementById('veterinario');
-
-        select.innerHTML = '<option value="">Selecciona un veterinario</option>';
-        veterinarios.forEach(vet => {
-            const option = document.createElement('option');
-            option.value = vet.id;
-            option.textContent = `Dr. ${vet.nombre}`;
-            select.appendChild(option);
-        });
-    } catch (error) {
-        console.error('Error al filtrar veterinarios:', error);
-        showAlert('No se pudieron cargar los veterinarios para el servicio seleccionado.', 'warning');
+        select.innerHTML = '<option value="">Cargando...</option>';
+        try {
+            const veterinarios = await makeRequest(`${API_BASE}/veterinarios/servicio/${servicioId}`);
+            select.innerHTML = '<option value="">Selecciona un veterinario</option>' + veterinarios.map(v => `<option value="${v.id}">Dr. ${v.nombre}</option>`).join('');
+        } catch (e) { select.innerHTML = '<option value="">Error al cargar</option>'; }
     }
-}
 
-
-        async function loadAreasClinicas() {
-            try {
-                const areas = await makeRequest(`${API_BASE}/AreaClinica`);
-                const select = document.getElementById('areaClinica');
-                
-                select.innerHTML = '<option value="">Selecciona el área</option>';
-                areas.forEach(area => {
-                    const option = document.createElement('option');
-                    option.value = area.id;
-                    option.textContent = area.nombre;
-                    select.appendChild(option);
-                });
-            } catch (error) {
-                console.error('Error loading areas clinicas:', error);
-            }
+    async function loadDiasDisponibles(veterinarioId) {
+        toggleLoading('diasLoading', true);
+        try {
+            const dias = await makeRequest(`${API_BASE}/disponibilidad/veterinario/${veterinarioId}/proximos-dias-disponibles`);
+            const container = document.getElementById('diasDisponiblesContainer');
+            container.innerHTML = dias.length > 0 ? dias.map(d => createDayChip(new Date(d + 'T00:00:00'))).join('') : '<p class="text-muted text-center col-12">No hay días disponibles.</p>';
+            document.querySelectorAll('.day-chip').forEach(c => c.addEventListener('click', () => selectDay(c.dataset.date)));
+        } finally {
+            toggleLoading('diasLoading', false);
         }
-
-        async function loadMascotas() {
-    try {
-        const propietarioId = localStorage.getItem('id'); // Obtener id desde localStorage
-        if (!propietarioId) {
-            throw new Error('ID del propietario no encontrado en localStorage');
-        }
-
-        const mascotas = await makeRequest(`${API_BASE}/mascotas/propietario/${propietarioId}`);
-        const select = document.getElementById('mascota');
-
-        select.innerHTML = '<option value="">Selecciona tu mascota</option>';
-        mascotas.forEach(mascota => {
-            const option = document.createElement('option');
-            option.value = mascota.id;
-            option.textContent = mascota.nombre;
-            select.appendChild(option);
-        });
-    } catch (error) {
-        console.error('Error loading mascotas:', error);
-        showAlert('Error al cargar las mascotas. Verifica que tengas mascotas registradas o tu sesión.', 'warning');
     }
-}
 
-
-        async function loadHorarios(veterinarioId, fecha) {
-            try {
-                const url = `${API_BASE}/disponibilidad/veterinario/${veterinarioId}?fecha=${fecha}`;
-                console.log('Solicitando disponibilidad:', url);
-
-                const horarios = await makeRequest(url);
-                const container = document.getElementById('horariosContainer');
-                container.innerHTML = '';
-
-                if (Array.isArray(horarios) && horarios.length > 0) {
-                    horarios.forEach(horario => {
-                        const btn = document.createElement('button');
-                        btn.className = 'btn btn-outline-primary horario-btn';
-                        btn.textContent = `${horario.horaInicio} - ${horario.horaFin}`;
-                        btn.addEventListener('click', () => selectHorario(horario.horaInicio, btn));
-                        container.appendChild(btn);
-                    });
-                } else {
-                    showAlert('No hay disponibilidad para esta fecha.', 'warning');
-                }
-            } catch (error) {
-                console.error('Error al cargar disponibilidad:', error);
-                showAlert('Error al cargar horarios disponibles.', 'danger');
-            }
-        }
-
-
-
-
-    
-
-        function selectHorario(horario, btn) {
-            // Remover selección anterior
-            document.querySelectorAll('.horario-btn').forEach(b => {
-                b.classList.remove('btn-primary');
-                b.classList.add('btn-outline-primary');
-            });
-            
-            // Seleccionar nuevo horario
-            btn.classList.remove('btn-outline-primary');
-            btn.classList.add('btn-primary');
-            selectedHorario = horario;
-            
-            validateStep2();
-        }
-
-        function validateStep2() {
-            const fecha = document.getElementById('fecha').value;
-            const mascota = document.getElementById('mascota').value;
-            const veterinario = document.getElementById('veterinario').value;
-            const areaClinica = document.getElementById('areaClinica').value;
-            
-            const isValid = fecha && mascota && veterinario && areaClinica && selectedHorario;
-            document.getElementById('nextStep2').disabled = !isValid;
-        }
-
-        function goToStep(step) {
-            // Ocultar paso actual
-            document.querySelectorAll('.step-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            
-            // Mostrar nuevo paso
-            document.getElementById(`step${step}`).classList.add('active');
-            
-            // Actualizar indicadores visuales
-            updateStepIndicators(step);
-            
-            // Si es el paso 3, mostrar confirmación
-            if (step === 3) {
-                showConfirmation();
-            }
-            
-            currentStep = step;
-        }
-
-        function updateStepIndicators(step) {
-            const descriptions = [
-                '',
-                'Selecciona el servicio que necesitas',
-                'Programa fecha, hora y detalles',
-                'Confirma los datos de tu cita'
-            ];
-            
-            // Actualizar círculos
-            for (let i = 1; i <= 3; i++) {
-                const circle = document.getElementById(`step${i}Circle`);
-                circle.classList.remove('active', 'completed');
-                
-                if (i < step) {
-                    circle.classList.add('completed');
-                } else if (i === step) {
-                    circle.classList.add('active');
-                }
-            }
-            
-            // Actualizar líneas
-            for (let i = 1; i <= 2; i++) {
-                const line = document.getElementById(`line${i}`);
-                line.classList.toggle('completed', i < step);
-            }
-            
-            // Actualizar descripción
-            document.getElementById('stepDescription').textContent = descriptions[step];
-        }
-
-        function showConfirmation() {
-            const fecha = document.getElementById('fecha').value;
-            const mascotaSelect = document.getElementById('mascota');
-            const veterinarioSelect = document.getElementById('veterinario');
-            const areaSelect = document.getElementById('areaClinica');
-            const comentarios = document.getElementById('comentarios').value;
-            
-            // Formatear fecha
-            const fechaObj = new Date(fecha + 'T00:00:00');
-            const fechaFormateada = fechaObj.toLocaleDateString('es-ES', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-            
-            // Actualizar elementos de confirmación
-            document.getElementById('confirmFecha').textContent = fechaFormateada;
-            document.getElementById('confirmHora').textContent = selectedHorario;
-            document.getElementById('confirmMascota').textContent = mascotaSelect.options[mascotaSelect.selectedIndex].text;
-            document.getElementById('confirmVeterinario').textContent = veterinarioSelect.options[veterinarioSelect.selectedIndex].text;
-            document.getElementById('confirmArea').textContent = areaSelect.options[areaSelect.selectedIndex].text;
-            document.getElementById('confirmServicio').textContent = selectedService.nombre;
-            document.getElementById('confirmComentarios').textContent = comentarios || 'Sin comentarios adicionales';
-        }
-
-        async function submitCita() {
-    const btn = document.getElementById('confirmarCita');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Procesando...';
-
-    try {
-        const propietarioId = parseInt(localStorage.getItem('id')); // Asegúrate que esté en localStorage
-        if (!propietarioId) throw new Error('ID de propietario no disponible.');
-
-        const citaData = {
-            fecha: document.getElementById('fecha').value,
-            hora: selectedHorario,
-            motivo: document.getElementById('comentarios').value || '',
-            estado: 'ACTIVO', // o el valor por defecto que esperas
-            mascotaId: parseInt(document.getElementById('mascota').value),
-            propietarioId: propietarioId,
-            veterinarioId: parseInt(document.getElementById('veterinario').value)
-        };
-
-        const response = await makeRequest(`${API_BASE}/cita/registrar`, {
-            method: 'POST',
-            body: JSON.stringify(citaData)
-        });
-
-        showAlert('¡Cita agendada exitosamente!', 'success');
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 3000);
-
-    } catch (error) {
-        showAlert('Error al agendar la cita. Por favor intenta nuevamente.', 'danger');
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-calendar-check me-2"></i>Confirmar Cita';
+    function createDayChip(date) {
+        const dateString = date.toISOString().split('T')[0];
+        const dayName = date.toLocaleDateString('es-ES', { weekday: 'short' });
+        const dayNum = date.getDate();
+        const monthName = date.toLocaleDateString('es-ES', { month: 'short' });
+        return `<div class="day-chip" data-date="${dateString}"><div class="day-name">${dayName.replace('.', '')}</div><div class="day-num">${dayNum}</div><div class="month-name">${monthName.replace('.','')}</div></div>`;
     }
-}
 
-
-        function showAlert(message, type) {
-            const alertContainer = document.getElementById('alertContainer');
-            const alertId = 'alert_' + Date.now();
-            
-            const alertHTML = `
-                <div class="alert alert-${type} alert-dismissible fade show" id="${alertId}" role="alert">
-                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
-                    ${message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            `;
-            
-            alertContainer.innerHTML = alertHTML;
-            
-            // Auto-remove alert after 5 seconds
-            setTimeout(() => {
-                const alert = document.getElementById(alertId);
-                if (alert) {
-                    alert.remove();
-                }
-            }, 5000);
+    async function loadHorarios(veterinarioId, fecha) {
+        toggleLoading('horariosLoading', true);
+        try {
+            const horarios = await makeRequest(`${API_BASE}/disponibilidad/veterinario/${veterinarioId}?fecha=${fecha}`);
+            const container = document.getElementById('horariosContainer');
+            container.innerHTML = horarios.length > 0 ? horarios.map(h => `<button class="btn btn-outline-secondary horario-btn">${h.horaInicio.substring(0, 5)}</button>`).join('') : '<p class="text-muted text-center">No hay horarios para este día.</p>';
+            document.querySelectorAll('.horario-btn').forEach(btn => btn.addEventListener('click', () => selectHorario(btn.textContent, btn)));
+        } finally {
+            toggleLoading('horariosLoading', false);
         }
+    }
 
+    function selectService(serviceId, servicios) {
+        setState({ service: servicios.find(s => s.id == serviceId), veterinarioId: null, fecha: null, hora: null });
+        document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
+        document.querySelector(`[data-service-id="${serviceId}"]`).classList.add('selected');
+        loadVeterinariosPorServicio(serviceId);
+    }
 
-        document.getElementById('serviciosLoading').addEventListener('change', async function () {
-    const servicioId = this.value;
-    if (!servicioId) return;
+    function selectDay(dateString) {
+        setState({ fecha: dateString, hora: null });
+        document.querySelectorAll('.day-chip').forEach(c => c.classList.remove('selected'));
+        document.querySelector(`[data-date="${dateString}"]`).classList.add('selected');
+        loadHorarios(state.veterinarioId, dateString);
+    }
 
-    const url = `http://localhost:8081/veterinarios/servicio/${servicioId}`;
-    const veterinarios = await makeRequest(url);
+    function selectHorario(hora, btn) {
+        setState({ hora });
+        document.querySelectorAll('.horario-btn').forEach(b => b.classList.replace('btn-primary', 'btn-outline-secondary'));
+        btn.classList.replace('btn-outline-secondary', 'btn-primary');
+    }
 
-    const selectVet = document.getElementById('veterinario');
-    selectVet.innerHTML = '<option value="">Selecciona un veterinario</option>';
+    function prepareConfirmation() {
+        const fechaObj = new Date(state.fecha + 'T00:00:00');
+        document.getElementById('confirmFecha').textContent = fechaObj.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        document.getElementById('confirmHora').textContent = state.hora;
+        document.getElementById('confirmMascota').textContent = document.getElementById('mascota').options[document.getElementById('mascota').selectedIndex].text;
+        document.getElementById('confirmVeterinario').textContent = document.getElementById('veterinario').options[document.getElementById('veterinario').selectedIndex].text;
+        document.getElementById('confirmServicio').textContent = state.service.nombre;
+        document.getElementById('confirmComentarios').textContent = document.getElementById('comentarios').value || 'Ninguno';
+    }
 
-    veterinarios.forEach(vet => {
-        const option = document.createElement('option');
-        option.value = vet.id;
-        option.textContent = `Dr. ${vet.nombre}`;
-        selectVet.appendChild(option);
-    });
-});
+    async function handleSubmit() {
+        const btn = document.getElementById('submitButton');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Confirmando...';
+        try {
+            const citaData = { fecha: state.fecha, hora: state.hora, motivo: document.getElementById('comentarios').value || state.service.nombre, mascotaId: parseInt(state.mascotaId), veterinarioId: parseInt(state.veterinarioId) };
+            await makeRequest(`${API_BASE}/cita/registrar`, { method: 'POST', body: JSON.stringify(citaData) });
+            showAlert('¡Cita agendada con éxito! Serás redirigido al inicio.', 'success');
+            setTimeout(() => window.location.href = 'index.html', 3000);
+        } catch (error) {
+            showAlert('Error al agendar la cita. Intenta de nuevo.', 'danger');
+            btn.disabled = false;
+            btn.innerHTML = 'Confirmar Cita <i class="fas fa-arrow-right ms-1"></i>';
+        }
+    }
 
-    </script>
+    async function makeRequest(url, options = {}) {
+        try {
+            const response = await fetch(url, { headers: authHeaders, ...options });
+            if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+            return response.json();
+        } catch (error) {
+            showAlert(`Error de red: ${error.message}`, 'danger');
+            throw error;
+        }
+    }
+
+    function showAlert(message, type) {
+        const container = document.getElementById('alertContainer');
+        const alertId = 'alert_' + Date.now();
+        container.innerHTML = `<div class="alert alert-${type} alert-dismissible fade show" id="${alertId}" role="alert">${message}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>`;
+        setTimeout(() => document.getElementById(alertId)?.remove(), 5000);
+    }
+
+    function toggleLoading(elementId, show) {
+        document.getElementById(elementId).style.display = show ? 'flex' : 'none';
+    }
+</script>
 </body>
 </html>

@@ -24,3 +24,8 @@ jwt:
   secret:   845901478c39728dd8e43a08173831bccf0cc10a86e2d854de11bd1b4a8d0623
   expiration: 3600000 # 1 hora
 
+
+
+email:
+  service:
+    url: http://localhost:8081/email-service

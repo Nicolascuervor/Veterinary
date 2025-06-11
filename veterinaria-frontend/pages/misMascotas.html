@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Mascotas - VetCare</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4A90E2;
+            --secondary-color: #333A45;
+            --accent-color: #50E3C2;
+            --bg-light: #f8f9fa;
+            --border-color: #EAEAEA;
+        }
+        body { background-color: var(--bg-light); font-family: 'Manrope', sans-serif; }
+        .main-container { padding-top: 80px; }
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .page-header h1 {
+            font-weight: 800;
+            color: var(--secondary-color);
+        }
+        .pets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+        .pet-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+        .pet-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        }
+        .pet-card .pet-image-container {
+            height: 200px;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+        }
+        .pet-card .pet-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .pet-card-body { padding: 1.5rem; }
+        .pet-card-footer {
+            padding: 1rem 1.5rem;
+            background-color: var(--bg-light);
+            border-top: 1px solid var(--border-color);
+        }
+        .add-pet-card {
+            border: 3px dashed var(--border-color);
+            background-color: transparent;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            min-height: 400px;
+        }
+        .add-pet-card:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        .image-preview {
+            width: 120px;
+            height: 120px;
+            border: 2px dashed var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            cursor: pointer;
+            background-size: cover;
+            background-position: center;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+<header id="nav-container"></header>
+
+<div class="container main-container">
+    <div class="page-header">
+        <h1><i class="fas fa-paw text-primary"></i> Mis Mascotas</h1>
+        <p class="lead text-muted">Aquí puedes ver y gestionar la información de tus compañeros.</p>
+    </div>
+    <div id="petsContainer" class="pets-grid">
+    </div>
+</div>
+
+<div class="modal fade" id="petModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="petModalTitle"></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="petForm">
+                    <input type="hidden" id="petId">
+                    <div class="mb-3">
+                        <label for="petImage" class="form-label">Foto de la Mascota</label>
+                        <div id="imagePreview" class="image-preview" onclick="document.getElementById('petImage').click();">
+                            <i class="fas fa-camera fa-2x"></i>
+                        </div>
+                        <input type="file" class="form-control d-none" id="petImage" accept="image/*">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="petName" class="form-label">Nombre *</label>
+                            <input type="text" class="form-control" id="petName" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="petSpecies" class="form-label">Especie *</label>
+                            <select class="form-select" id="petSpecies" required>
+                                <option value="Perro">Perro</option>
+                                <option value="Gato">Gato</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="petBreed" class="form-label">Raza</label>
+                            <input type="text" class="form-control" id="petBreed">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="petAge" class="form-label">Edad (años)</label>
+                            <input type="number" class="form-control" id="petAge" min="0">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="savePetBtn">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="../js/nav.js"></script> <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const propietarioId = localStorage.getItem('id');
+        const token = localStorage.getItem('token');
+        const apiBase = 'http://localhost:8081';
+        const petModal = new bootstrap.Modal(document.getElementById('petModal'));
+
+        if (!propietarioId) {
+            // Manejar caso sin sesión
+            return;
+        }
+
+        const loadPets = async () => {
+            try {
+                const response = await fetch(`${apiBase}/mascotas/propietario/${propietarioId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const pets = await response.json();
+                displayPets(pets);
+            } catch (error) {
+                console.error("Error al cargar mascotas:", error);
+            }
+        };
+
+        const displayPets = (pets) => {
+            const container = document.getElementById('petsContainer');
+            container.innerHTML = ''; // Limpiar
+
+            // Tarjetas de mascotas existentes
+            if (pets && pets.length > 0) {
+                pets.forEach(pet => {
+                    const card = document.createElement('div');
+                    card.className = 'pet-card';
+                    card.innerHTML = `
+                            <div class="pet-image-container">
+                                ${pet.imageUrl ? `<img src="${apiBase}${pet.imageUrl}" alt="${pet.nombre}" class="pet-image">` : '<i class="fas fa-paw fa-3x"></i>'}
+                            </div>
+                            <div class="pet-card-body">
+                                <h3 class="card-title">${pet.nombre}</h3>
+                                <p class="card-text text-muted">${pet.especie} - ${pet.raza || 'Sin raza'}</p>
+                                <p><strong>Edad:</strong> ${pet.edad || 'N/A'} años</p>
+                            </div>
+                            <div class="pet-card-footer d-flex justify-content-end">
+                                <button class="btn btn-sm btn-outline-primary me-2" onclick="window.openEditModal(${pet.id})">Editar</button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="window.deletePet(${pet.id})">Eliminar</button>
+                            </div>
+                        `;
+                    container.appendChild(card);
+                });
+            }
+
+            // Tarjeta para agregar nueva mascota
+            const addCard = document.createElement('div');
+            addCard.className = 'pet-card add-pet-card';
+            addCard.innerHTML = `<div class="text-center"><i class="fas fa-plus-circle fa-3x mb-3"></i><h5>Registrar Mascota</h5></div>`;
+            addCard.onclick = () => openEditModal(null);
+            container.appendChild(addCard);
+        };
+
+        window.openEditModal = async (petId) => {
+            const form = document.getElementById('petForm');
+            form.reset();
+            document.getElementById('petId').value = petId || '';
+            document.getElementById('imagePreview').style.backgroundImage = 'none';
+
+            if (petId) {
+                // Modo edición
+                document.getElementById('petModalTitle').textContent = 'Editar Mascota';
+                const response = await fetch(`${apiBase}/mascotas/${petId}`, { headers: { 'Authorization': `Bearer ${token}` }});
+                const pet = await response.json();
+                document.getElementById('petName').value = pet.nombre;
+                document.getElementById('petSpecies').value = pet.especie;
+                document.getElementById('petBreed').value = pet.raza;
+                document.getElementById('petAge').value = pet.edad;
+                if(pet.imageUrl){
+                    document.getElementById('imagePreview').style.backgroundImage = `url(${apiBase}${pet.imageUrl})`;
+                }
+            } else {
+                // Modo creación
+                document.getElementById('petModalTitle').textContent = 'Registrar Nueva Mascota';
+            }
+            petModal.show();
+        };
+
+        document.getElementById('petImage').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    document.getElementById('imagePreview').style.backgroundImage = `url(${event.target.result})`;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('savePetBtn').addEventListener('click', async () => {
+            const petId = document.getElementById('petId').value;
+            const url = petId ? `${apiBase}/mascotas/${petId}` : `${apiBase}/mascotas/registrar`;
+            const method = petId ? 'PUT' : 'POST';
+
+            const mascotaData = {
+                nombre: document.getElementById('petName').value,
+                especie: document.getElementById('petSpecies').value,
+                raza: document.getElementById('petBreed').value,
+                edad: document.getElementById('petAge').value,
+                propietario: { id: propietarioId }
+            };
+
+            const formData = new FormData();
+            formData.append('mascota', JSON.stringify(mascotaData));
+            const imageFile = document.getElementById('petImage').files[0];
+            if (imageFile) {
+                formData.append('file', imageFile);
+            }
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+                if (!response.ok) throw new Error('Error al guardar la mascota');
+
+                petModal.hide();
+                loadPets();
+            } catch (error) {
+                console.error('Error al guardar:', error);
+            }
+        });
+
+        window.deletePet = async (petId) => {
+            if(confirm('¿Estás seguro de que quieres eliminar esta mascota?')) {
+                try {
+                    const response = await fetch(`${apiBase}/mascotas/${petId}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (!response.ok) throw new Error('Error al eliminar');
+                    loadPets();
+                } catch (error) {
+                    console.error('Error al eliminar:', error);
+                }
+            }
+        };
+
+        // Carga inicial
+        loadPets();
+    });
+</script>
+</body>
+</html>
