@@ -29,3 +29,9 @@ jwt:
 email:
   service:
     url: http://localhost:8081/email-service
+
+
+
+app:
+  upload:
+    dir: C:/veterinaria_uploads/pet-images

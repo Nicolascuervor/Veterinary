@@ -1,6 +1,7 @@
 package com.agend.agendamientoservice.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,6 +42,7 @@ public class Propietario {
 
 
     @OneToMany(mappedBy = "propietario", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Mascota> mascotas;
 
 

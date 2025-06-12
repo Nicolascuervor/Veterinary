@@ -1,6 +1,7 @@
 package com.agend.agendamientoservice.model;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -39,7 +40,7 @@ public class Mascota {
     @Column(name = "color")
     private String color;
 
-    @Column(name = "image_url") // Nueva columna
+    @Column(name = "image_url")
     private String imageUrl;
 
     @Column(name = "fecha_nacimiento")
@@ -51,10 +52,10 @@ public class Mascota {
 
 
 
-
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "propietario_id", nullable = false)
+    @JsonBackReference
     private Propietario propietario;
 
     @Column(name = "estado")
