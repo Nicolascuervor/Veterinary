@@ -37,6 +37,7 @@ public class SecurityConfig {
                         .requestMatchers("/agenda/**").permitAll()
                         .requestMatchers("/cita/**").permitAll()
                         .requestMatchers("/historial/**").permitAll()
+                        .requestMatchers("/imagenes/mascotas/**").permitAll()
 
 
 

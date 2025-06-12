@@ -142,6 +142,22 @@
                             <input type="number" class="form-control" id="petAge" min="0">
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="petWeight" class="form-label">Peso (kg)</label>
+                            <input type="number" class="form-control" id="petWeight" min="0" step="0.1" placeholder="Ej: 5.5">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="petColor" class="form-label">Color</label>
+                            <input type="text" class="form-control" id="petColor" placeholder="Ej: Negro con blanco">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="petBirthdate" class="form-label">Fecha de Nacimiento</label>
+                            <input type="date" class="form-control" id="petBirthdate">
+                        </div>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -153,15 +169,17 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-<script src="../js/nav.js"></script> <script>
+<script src="../js/nav.js"></script>
+<script>
     document.addEventListener('DOMContentLoaded', () => {
         const propietarioId = localStorage.getItem('id');
         const token = localStorage.getItem('token');
-        const apiBase = 'http://localhost:8081';
+        const apiBase = 'http://localhost:8081'; // URL del API Gateway
         const petModal = new bootstrap.Modal(document.getElementById('petModal'));
 
-        if (!propietarioId) {
-            // Manejar caso sin sesión
+        if (!propietarioId || !token) {
+            alert("No has iniciado sesión. Serás redirigido.");
+            window.location.href = 'login.html';
             return;
         }
 
@@ -170,10 +188,26 @@
                 const response = await fetch(`${apiBase}/mascotas/propietario/${propietarioId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
+
+
+                if (response.status === 204) {
+                    displayPets([]); // Llama a la función de renderizado con una lista vacía
+                    return;
+                }
+
+                // Si la respuesta no fue exitosa (ej: 401, 403, 500), lanzamos un error.
+                if (!response.ok) {
+                    throw new Error(`Error del servidor: ${response.status}`);
+                }
+
+                // Solo si la respuesta es OK (200) y tiene contenido, la convertimos a JSON.
                 const pets = await response.json();
                 displayPets(pets);
+
             } catch (error) {
                 console.error("Error al cargar mascotas:", error);
+                // Opcional: Mostrar un mensaje de error en la página
+                document.getElementById('petsContainer').innerHTML = `<p class="text-center text-danger">No se pudieron cargar los datos de las mascotas.</p>`;
             }
         };
 
@@ -181,30 +215,28 @@
             const container = document.getElementById('petsContainer');
             container.innerHTML = ''; // Limpiar
 
-            // Tarjetas de mascotas existentes
             if (pets && pets.length > 0) {
                 pets.forEach(pet => {
                     const card = document.createElement('div');
                     card.className = 'pet-card';
                     card.innerHTML = `
-                            <div class="pet-image-container">
-                                ${pet.imageUrl ? `<img src="${apiBase}${pet.imageUrl}" alt="${pet.nombre}" class="pet-image">` : '<i class="fas fa-paw fa-3x"></i>'}
-                            </div>
-                            <div class="pet-card-body">
-                                <h3 class="card-title">${pet.nombre}</h3>
-                                <p class="card-text text-muted">${pet.especie} - ${pet.raza || 'Sin raza'}</p>
-                                <p><strong>Edad:</strong> ${pet.edad || 'N/A'} años</p>
-                            </div>
-                            <div class="pet-card-footer d-flex justify-content-end">
-                                <button class="btn btn-sm btn-outline-primary me-2" onclick="window.openEditModal(${pet.id})">Editar</button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="window.deletePet(${pet.id})">Eliminar</button>
-                            </div>
-                        `;
+                        <div class="pet-image-container">
+                            ${pet.imageUrl ? `<img src="${apiBase}${pet.imageUrl}" alt="${pet.nombre}" class="pet-image">` : '<i class="fas fa-paw fa-3x text-muted"></i>'}
+                        </div>
+                        <div class="pet-card-body">
+                            <h3 class="card-title">${pet.nombre}</h3>
+                            <p class="card-text text-muted">${pet.especie} - ${pet.raza || 'Sin raza'}</p>
+                            <p><strong>Edad:</strong> ${pet.edad || 'N/A'} años</p>
+                            <p><strong>Peso:</strong> ${pet.peso ? pet.peso + ' kg' : 'N/A'}</p>
+                        </div>
+                        <div class="pet-card-footer d-flex justify-content-end">
+                            <button class="btn btn-sm btn-outline-primary me-2" onclick="window.openEditModal(${pet.id})">Editar</button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="window.deletePet(${pet.id})">Eliminar</button>
+                        </div>`;
                     container.appendChild(card);
                 });
             }
 
-            // Tarjeta para agregar nueva mascota
             const addCard = document.createElement('div');
             addCard.className = 'pet-card add-pet-card';
             addCard.innerHTML = `<div class="text-center"><i class="fas fa-plus-circle fa-3x mb-3"></i><h5>Registrar Mascota</h5></div>`;
@@ -217,32 +249,66 @@
             form.reset();
             document.getElementById('petId').value = petId || '';
             document.getElementById('imagePreview').style.backgroundImage = 'none';
+            document.getElementById('imagePreview').innerHTML = '<i class="fas fa-camera fa-2x"></i>';
 
             if (petId) {
                 // Modo edición
                 document.getElementById('petModalTitle').textContent = 'Editar Mascota';
-                const response = await fetch(`${apiBase}/mascotas/${petId}`, { headers: { 'Authorization': `Bearer ${token}` }});
-                const pet = await response.json();
-                document.getElementById('petName').value = pet.nombre;
-                document.getElementById('petSpecies').value = pet.especie;
-                document.getElementById('petBreed').value = pet.raza;
-                document.getElementById('petAge').value = pet.edad;
-                if(pet.imageUrl){
-                    document.getElementById('imagePreview').style.backgroundImage = `url(${apiBase}${pet.imageUrl})`;
+
+                try {
+                    // --- ¡AQUÍ ESTÁ LA SOLUCIÓN! ---
+                    const response = await fetch(`${apiBase}/mascotas/${petId}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    // Si la respuesta no es OK (ej: 404 No Encontrado, 500 Error de Servidor), lanza un error.
+                    if (!response.ok) {
+                        throw new Error(`No se pudo cargar la información de la mascota. Estado: ${response.status}`);
+                    }
+
+                    // Ahora que sabemos que la respuesta es buena, la convertimos a JSON.
+                    const pet = await response.json();
+
+                    // Verificamos que pet no sea null (aunque con response.ok, es poco probable).
+                    if (!pet) {
+                        throw new Error("La mascota no fue encontrada.");
+                    }
+
+                    // Rellenamos el formulario.
+                    document.getElementById('petName').value = pet.nombre;
+                    document.getElementById('petSpecies').value = pet.especie;
+                    document.getElementById('petBreed').value = pet.raza || '';
+                    document.getElementById('petAge').value = pet.edad || '';
+                    document.getElementById('petWeight').value = pet.peso || '';
+                    document.getElementById('petColor').value = pet.color || '';
+                    document.getElementById('petBirthdate').value = pet.fechaNacimiento || '';
+
+                    if (pet.imageUrl) {
+                        document.getElementById('imagePreview').style.backgroundImage = `url(${apiBase}${pet.imageUrl})`;
+                        document.getElementById('imagePreview').innerHTML = '';
+                    }
+
+                } catch (error) {
+                    console.error("Error al abrir el modal de edición:", error);
+                    alert("Error: No se pudo cargar la información de la mascota para editar.");
+                    return; // Detenemos la ejecución para no mostrar un modal vacío.
                 }
+
             } else {
                 // Modo creación
                 document.getElementById('petModalTitle').textContent = 'Registrar Nueva Mascota';
             }
+
             petModal.show();
         };
 
         document.getElementById('petImage').addEventListener('change', (e) => {
             const file = e.target.files[0];
-            if(file) {
+            if (file) {
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     document.getElementById('imagePreview').style.backgroundImage = `url(${event.target.result})`;
+                    document.getElementById('imagePreview').innerHTML = '';
                 }
                 reader.readAsDataURL(file);
             }
@@ -250,7 +316,8 @@
 
         document.getElementById('savePetBtn').addEventListener('click', async () => {
             const petId = document.getElementById('petId').value;
-            const url = petId ? `${apiBase}/mascotas/${petId}` : `${apiBase}/mascotas/registrar`;
+            // --- ¡CORRECCIÓN CLAVE! La URL se ajusta aquí.
+            const url = petId ? `${apiBase}/mascotas/${petId}` : `${apiBase}/mascotas`;
             const method = petId ? 'PUT' : 'POST';
 
             const mascotaData = {
@@ -258,6 +325,9 @@
                 especie: document.getElementById('petSpecies').value,
                 raza: document.getElementById('petBreed').value,
                 edad: document.getElementById('petAge').value,
+                peso: parseFloat(document.getElementById('petWeight').value) || null,
+                color: document.getElementById('petColor').value,
+                fechaNacimiento: document.getElementById('petBirthdate').value,
                 propietario: { id: propietarioId }
             };
 
@@ -274,17 +344,21 @@
                     headers: { 'Authorization': `Bearer ${token}` },
                     body: formData
                 });
-                if (!response.ok) throw new Error('Error al guardar la mascota');
+                if (!response.ok) {
+                    const errorData = await response.text();
+                    throw new Error(errorData || 'Error al guardar la mascota');
+                }
 
                 petModal.hide();
                 loadPets();
             } catch (error) {
                 console.error('Error al guardar:', error);
+                alert('Hubo un error al guardar: ' + error.message);
             }
         });
 
         window.deletePet = async (petId) => {
-            if(confirm('¿Estás seguro de que quieres eliminar esta mascota?')) {
+            if (confirm('¿Estás seguro de que quieres eliminar esta mascota?')) {
                 try {
                     const response = await fetch(`${apiBase}/mascotas/${petId}`, {
                         method: 'DELETE',

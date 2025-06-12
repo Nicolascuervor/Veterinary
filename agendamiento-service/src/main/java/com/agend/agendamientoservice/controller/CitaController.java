@@ -56,7 +56,6 @@ public class CitaController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se pudieron obtener los datos del usuario desde el servicio de autenticación.");
         }
 
-        // 5. Preparar y enviar el correo de confirmación
         try {
             String nombrePropietario = propietario.getNombre();
             String nombreMascota = (mascota != null) ? mascota.getNombre() : "Tu mascota";

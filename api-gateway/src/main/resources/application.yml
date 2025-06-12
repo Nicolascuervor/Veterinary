@@ -77,6 +77,12 @@ spring:
             - Path=/agenda/**
 
 
+        - id: agendamiento-service-imagenes
+          uri: http://localhost:8083
+          predicates:
+            - Path=/imagenes/mascotas/**
+
+
 
 
         - id: perfil-service
