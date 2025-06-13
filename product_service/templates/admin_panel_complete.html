@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrativo - Veterinaria</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <link rel="stylesheet" href="../static/css/Admin_style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <div class="admin-title">
+                <i class="fas fa-user-md" style="color: #4A90E2; font-size: 2rem;"></i>
+                <h1>Panel Administrativo</h1>
+            </div>
+            <div class="user-info">
+                <i class="fas fa-user-circle" style="font-size: 1.5rem;"></i>
+                <span id="userInfo">Dr. Juan Pérez (Veterinario)</span>
+                <button class="btn btn-secondary btn-small" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Salir
+                </button>
+            </div>
+        </div>
+
+        <div id="authWarning" class="auth-warning" style="display: none;">
+            <i class="fas fa-exclamation-triangle"></i>
+            Solo veterinarios y administradores pueden acceder a este panel
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('dashboard')">
+                <i class="fas fa-chart-bar"></i> Dashboard
+            </button>
+            <button class="nav-tab" onclick="showTab('categories')">
+                <i class="fas fa-tags"></i> Categorías
+            </button>
+            <button class="nav-tab" onclick="showTab('products')">
+                <i class="fas fa-box"></i> Productos
+            </button>
+        </div>
+
+        <div id="messages"></div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <i class="fas fa-box"></i>
+                    <div class="stat-number" id="totalProducts">0</div>
+                    <div class="stat-label">Total Productos</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);">
+                    <i class="fas fa-tags"></i>
+                    <div class="stat-number" id="totalCategories">0</div>
+                    <div class="stat-label">Categorías</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div class="stat-number" id="lowStockProducts">0</div>
+                    <div class="stat-label">Stock Bajo</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);">
+                    <i class="fas fa-dollar-sign"></i>
+                    <div class="stat-number" id="totalValue">$0</div>
+                    <div class="stat-label">Valor Inventario</div>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <h3><i class="fas fa-chart-line"></i> Resumen del Inventario</h3>
+                <div class="loading" id="dashboardLoading">
+                    <i class="fas fa-spinner"></i>
+                    <div>Cargando estadísticas...</div>
+                </div>
+                <div id="dashboardContent">
+                    <p>Bienvenido al panel administrativo. Aquí puedes gestionar productos y categorías de la
+                        veterinaria.</p>
+                    <div id="recentActivity" style="margin-top: 20px;">
+                        <h4 style="color: #4A90E2; margin-bottom: 15px;">
+                            <i class="fas fa-clock"></i> Actividad Reciente
+                        </h4>
+                        <div id="activityList">
+                            <p style="color: #7f8c8d;">Cargando actividad...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Categories Tab -->
+        <div id="categories" class="tab-content">
+            <div class="content-card">
+                <div class="form-section">
+                    <h3><i class="fas fa-plus-circle"></i> Crear Nueva Categoría</h3>
+                    <form id="categoryForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label><i class="fas fa-tag"></i> Nombre de la Categoría</label>
+                                <input type="text" id="categoryName" class="form-input" required
+                                    placeholder="Ej: Medicamentos, Accesorios, Juguetes">
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-align-left"></i> Descripción</label>
+                                <textarea id="categoryDescription" class="form-input form-textarea"
+                                    placeholder="Describe qué tipo de productos incluye esta categoría"></textarea>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Crear Categoría
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="clearCategoryForm()">
+                            <i class="fas fa-times"></i> Limpiar
+                        </button>
+                    </form>
+                </div>
+
+                <div class="form-section">
+                    <h3><i class="fas fa-list"></i> Categorías Existentes</h3>
+                    <div class="loading" id="categoriesLoading">
+                        <i class="fas fa-spinner"></i>
+                        <div>Cargando categorías...</div>
+                    </div>
+                    <table class="data-table" id="categoriesTable" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Descripción</th>
+                                <th>Slug</th>
+                                <th>Productos</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categoriesTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Tab -->
+        <div id="products" class="tab-content">
+            <div class="content-card">
+                <div class="form-section">
+                    <h3><i class="fas fa-plus-circle"></i> Agregar Nuevo Producto</h3>
+                    <form id="productForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label><i class="fas fa-box"></i> Nombre del Producto</label>
+                                <input type="text" id="productName" class="form-input" required
+                                    placeholder="Ej: Collar para perro mediano">
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-tags"></i> Categoría</label>
+                                <select id="productCategory" class="form-input" required>
+                                    <option value="">Seleccionar categoría</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-dollar-sign"></i> Precio</label>
+                                <input type="number" id="productPrice" class="form-input" step="0.01" min="0" required
+                                    placeholder="0.00">
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-warehouse"></i> Stock</label>
+                                <input type="number" id="productStock" class="form-input" min="0" required
+                                    placeholder="Cantidad disponible">
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-user"></i> ID del Vendedor</label>
+                                <input type="number" id="productSeller" class="form-input" required
+                                    placeholder="ID del veterinario/vendedor">
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-image"></i> URL de la Imagen</label>
+                                <input type="url" id="productImage" class="form-input"
+                                    placeholder="https://ejemplo.com/imagen.jpg">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-align-left"></i> Descripción</label>
+                            <textarea id="productDescription" class="form-input form-textarea"
+                                placeholder="Descripción detallada del producto"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Agregar Producto
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="clearProductForm()">
+                            <i class="fas fa-times"></i> Limpiar
+                        </button>
+                    </form>
+                </div>
+
+                <div class="form-section">
+                    <h3><i class="fas fa-list"></i> Productos Existentes</h3>
+                    <div class="loading" id="productsLoading">
+                        <i class="fas fa-spinner"></i>
+                        <div>Cargando productos...</div>
+                    </div>
+                    <table class="data-table" id="productsTable" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>Imagen</th>
+                                <th>Nombre</th>
+                                <th>Categoría</th>
+                                <th>Precio</th>
+                                <th>Stock</th>
+                                <th>Vendedor</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para editar producto -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-edit"></i> Editar Producto</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="editProductForm">
+                <input type="hidden" id="editProductId">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Nombre del Producto</label>
+                        <input type="text" id="editProductName" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Precio</label>
+                        <input type="number" id="editProductPrice" class="form-input" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Stock</label>
+                        <input type="number" id="editProductStock" class="form-input" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>URL de la Imagen</label>
+                        <input type="url" id="editProductImage" class="form-input">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea id="editProductDescription" class="form-input form-textarea"></textarea>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Guardar Cambios
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Configuración de la API
+        const API_BASE_URL = 'http://127.0.0.1:5001';
+
+        // Variables globales
+        let allProducts = [];
+        let allCategories = [];
+        let currentUser = null;
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('Iniciando panel administrativo...');
+            checkAuth();
+            setupForms();
+            loadDashboard();
+        });
+
+        // Verificar autenticación y permisos
+        function checkAuth() {
+            const userData = getUserData();
+
+            if (!userData) {
+                alert('Debe iniciar sesión para acceder al panel administrativo');
+                return;
+            }
+
+            if (userData.role !== 'veterinario' && userData.role !== 'administrador') {
+                document.getElementById('authWarning').style.display = 'block';
+                document.querySelector('.nav-tabs').style.display = 'none';
+                document.querySelectorAll('.tab-content').forEach(tab => {
+                    tab.style.display = 'none';
+                });
+                return;
+            }
+
+            currentUser = userData;
+            document.getElementById('userInfo').textContent = `${userData.name} (${userData.role})`;
+        }
+
+        // Simular obtención de datos del usuario
+        function getUserData() {
+            return {
+                id: 1,
+                name: 'Dr. Juan Pérez',
+                role: 'veterinario',
+                email: 'juan@vetclinic.com'
+            };
+        }
+
+        // Configurar formularios
+        function setupForms() {
+            document.getElementById('categoryForm').addEventListener('submit', handleCategorySubmit);
+            document.getElementById('productForm').addEventListener('submit', handleProductSubmit);
+            document.getElementById('editProductForm').addEventListener('submit', handleEditProductSubmit);
+        }
+
+        // Funciones de navegación
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabName === 'dashboard') {
+                loadDashboard();
+            } else if (tabName === 'categories') {
+                loadCategories();
+            } else if (tabName === 'products') {
+                loadProducts();
+                loadCategoriesForSelect();
+            }
+        }
+
+        // Dashboard
+        async function loadDashboard() {
+            document.getElementById('dashboardLoading').style.display = 'block';
+            try {
+                const [productsResponse, categoriesResponse] = await Promise.all([
+                    fetch(`${API_BASE_URL}/productos`),
+                    fetch(`${API_BASE_URL}/categorias`)
+                ]);
+
+                if (productsResponse.ok) {
+                    const products = await productsResponse.json();
+                    allProducts = products;
+                    updateDashboardStats(products);
+                }
+
+                if (categoriesResponse.ok) {
+                    const categories = await categoriesResponse.json();
+                    allCategories = categories;
+                    document.getElementById('totalCategories').textContent = categories.length;
+                }
+
+            } catch (error) {
+                console.error('Error cargando dashboard:', error);
+                showMessage('Error cargando estadísticas del dashboard', 'error');
+            } finally {
+                document.getElementById('dashboardLoading').style.display = 'none';
+            }
+        }
+
+        function updateDashboardStats(products) {
+            const totalProducts = products.length;
+            const lowStockProducts = products.filter(p => p.stock < 10).length;
+            const totalValue = products.reduce((sum, p) => sum + (p.price * p.stock), 0);
+
+            document.getElementById('totalProducts').textContent = totalProducts;
+            document.getElementById('lowStockProducts').textContent = lowStockProducts;
+            document.getElementById('totalValue').textContent = `$${totalValue.toFixed(2)}`;
+
+            updateRecentActivity(products);
+        }
+
+        function updateRecentActivity(products) {
+            const recentProducts = products
+                .sort((a, b) => new Date(b.created_at || '2024-01-01') - new Date(a.created_at || '2024-01-01'))
+                .slice(0, 5);
+
+            const activityHtml = recentProducts.map(product => `
+                <div style="padding: 10px; border-left: 3px solid #4A90E2; margin-bottom: 10px; background: #f8f9fa;">
+                    <strong>${product.name}</strong><br>
+                    <small style="color: #7f8c8d;">Stock: ${product.stock} | Precio: $${product.price}</small>
+                </div>
+            `).join('');
+
+            document.getElementById('activityList').innerHTML = activityHtml || '<p style="color: #7f8c8d;">No hay productos registrados</p>';
+        }
+
+        // Gestión de categorías
+        async function loadCategories() {
+            document.getElementById('categoriesLoading').style.display = 'block';
+            try {
+                const response = await fetch(`${API_BASE_URL}/categorias`);
+                if (!response.ok) {
+                    throw new Error(`Error ${response.status}: ${response.statusText}`);
+                }
+
+                const categories = await response.json();
+                allCategories = categories;
+                displayCategories(categories);
+
+            } catch (error) {
+                console.error('Error cargando categorías:', error);
+                showMessage('Error cargando categorías. Verifica que el servidor esté funcionando.', 'error');
+            } finally {
+                document.getElementById('categoriesLoading').style.display = 'none';
+            }
+        }
+
+        function displayCategories(categories) {
+            const tableBody = document.getElementById('categoriesTableBody');
+            const table = document.getElementById('categoriesTable');
+
+            if (categories.length === 0) {
+                table.style.display = 'none';
+                showMessage('No hay categorías registradas. Crea la primera categoría usando el formulario de arriba.', 'error');
+                return;
+            }
+
+            table.style.display = 'table';
+
+            const html = categories.map(category => `
+                <tr>
+                    <td>${category.id}</td>
+                    <td><strong>${category.name}</strong></td>
+                    <td>${category.description || 'Sin descripción'}</td>
+                    <td><code>${category.slug}</code></td>
+                    <td><span class="status-badge status-active">${category.total_productos || 0} productos</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-warning btn-small" onclick="editCategory(${category.id})">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+                            <button class="btn btn-danger btn-small" onclick="deleteCategory(${category.id})">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+
+            tableBody.innerHTML = html;
+        }
+
+        async function handleCategorySubmit(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('categoryName').value.trim();
+            const description = document.getElementById('categoryDescription').value.trim();
+
+            if (!name) {
+                showMessage('El nombre de la categoría es obligatorio', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/categorias`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        description: description
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Error al crear la categoría');
+                }
+
+                const newCategory = await response.json();
+                showMessage('Categoría creada exitosamente', 'success');
+                clearCategoryForm();
+                loadCategories();
+
+            } catch (error) {
+                console.error('Error creando categoría:', error);
+                showMessage(error.message, 'error');
+            }
+        }
+
+        function clearCategoryForm() {
+            document.getElementById('categoryForm').reset();
+        }
+
+        async function deleteCategory(id) {
+            if (!confirm('¿Estás seguro de que quieres eliminar esta categoría?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/categorias/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Error al eliminar la categoría');
+                }
+
+                showMessage('Categoría eliminada exitosamente', 'success');
+                loadCategories();
+
+            } catch (error) {
+                console.error('Error eliminando categoría:', error);
+                showMessage(error.message, 'error');
+            }
+        }
+
+        // Gestión de productos
+        async function loadProducts() {
+            document.getElementById('productsLoading').style.display = 'block';
+            try {
+                const response = await fetch(`${API_BASE_URL}/productos`);
+                if (!response.ok) {
+                    throw new Error(`Error ${response.status}: ${response.statusText}`);
+                }
+
+                const products = await response.json();
+                allProducts = products;
+                displayProducts(products);
+
+            } catch (error) {
+                console.error('Error cargando productos:', error);
+                showMessage('Error cargando productos. Verifica que el servidor esté funcionando.', 'error');
+            } finally {
+                document.getElementById('productsLoading').style.display = 'none';
+            }
+        }
+
+        function displayProducts(products) {
+            const tableBody = document.getElementById('productsTableBody');
+            const table = document.getElementById('productsTable');
+
+            if (products.length === 0) {
+                table.style.display = 'none';
+                showMessage('No hay productos registrados. Agrega el primer producto usando el formulario de arriba.', 'error');
+                return;
+            }
+
+            table.style.display = 'table';
+
+            const html = products.map(product => {
+                const stockStatus = product.stock < 10 ? 'status-low-stock' : 'status-active';
+                const stockText = product.stock < 10 ? 'Stock Bajo' : 'Stock OK';
+
+                return `
+                   <td>
+  <img src="${product.image || 'https://via.placeholder.com/60x60?text=Sin+Imagen'}"
+       alt="${product.name}" class="product-image"
+       onerror="this.src='https://via.placeholder.com/60x60?text=Sin+Imagen'">
+</td>
+
+                        <td><strong>${product.name}</strong></td>
+                        <td>${product.category_name || 'Sin categoría'}</td>
+                        <td><strong>$${parseFloat(product.price).toFixed(2)}</strong></td>
+                        <td>${product.stock}</td>
+                        <td>${product.seller_id}</td>
+                        <td><span class="status-badge ${stockStatus}">${stockText}</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-warning btn-small" onclick="editProduct(${product.id})">
+                                    <i class="fas fa-edit"></i> Editar
+                                </button>
+                                <button class="btn btn-danger btn-small" onclick="deleteProduct(${product.id})">
+                                    <i class="fas fa-trash"></i> Eliminar
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            tableBody.innerHTML = html;
+        }
+
+        async function loadCategoriesForSelect() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/categorias`);
+                if (!response.ok) return;
+
+                const categories = await response.json();
+                const select = document.getElementById('productCategory');
+
+                select.innerHTML = '<option value="">Seleccionar categoría</option>';
+                categories.forEach(category => {
+                    select.innerHTML += `<option value="${category.id}">${category.name}</option>`;
+                });
+
+            } catch (error) {
+                console.error('Error cargando categorías para select:', error);
+            }
+        }
+
+        async function handleProductSubmit(e) {
+            e.preventDefault();
+
+            const formData = {
+                name: document.getElementById('productName').value.trim(),
+                category_id: parseInt(document.getElementById('productCategory').value),
+                price: parseFloat(document.getElementById('productPrice').value),
+                stock: parseInt(document.getElementById('productStock').value),
+                seller_id: parseInt(document.getElementById('productSeller').value),
+                image_url: document.getElementById('productImage').value.trim(),
+                description: document.getElementById('productDescription').value.trim()
+            };
+
+            // Validaciones
+            if (!formData.name || !formData.category_id || !formData.price || !formData.stock || !formData.seller_id) {
+                showMessage('Todos los campos obligatorios deben ser completados', 'error');
+                return;
+            }
+
+            if (formData.price <= 0) {
+                showMessage('El precio debe ser mayor a 0', 'error');
+                return;
+            }
+
+            if (formData.stock < 0) {
+                showMessage('El stock no puede ser negativo', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/productos`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Error al crear el producto');
+                }
+
+                const newProduct = await response.json();
+                showMessage('Producto agregado exitosamente', 'success');
+                clearProductForm();
+                loadProducts();
+
+            } catch (error) {
+                console.error('Error creando producto:', error);
+                showMessage(error.message, 'error');
+            }
+        }
+
+        function clearProductForm() {
+            document.getElementById('productForm').reset();
+        }
+
+        function editProduct(id) {
+            const product = allProducts.find(p => p.id === id);
+            if (!product) return;
+
+            document.getElementById('editProductId').value = product.id;
+            document.getElementById('editProductName').value = product.name;
+            document.getElementById('editProductPrice').value = product.price;
+            document.getElementById('editProductStock').value = product.stock;
+            document.getElementById('editProductImage').value = product.image_url || '';
+            document.getElementById('editProductDescription').value = product.description || '';
+
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        async function handleEditProductSubmit(e) {
+            e.preventDefault();
+
+            const id = document.getElementById('editProductId').value;
+            const formData = {
+                name: document.getElementById('editProductName').value.trim(),
+                price: parseFloat(document.getElementById('editProductPrice').value),
+                stock: parseInt(document.getElementById('editProductStock').value),
+                image_url: document.getElementById('editProductImage').value.trim(),
+                description: document.getElementById('editProductDescription').value.trim()
+            };
+
+            // Validaciones
+            if (!formData.name || !formData.price || !formData.stock) {
+                showMessage('Todos los campos obligatorios deben ser completados', 'error');
+                return;
+            }
+
+            if (formData.price <= 0) {
+                showMessage('El precio debe ser mayor a 0', 'error');
+                return;
+            }
+
+            if (formData.stock < 0) {
+                showMessage('El stock no puede ser negativo', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/productos/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Error al actualizar el producto');
+                }
+
+                showMessage('Producto actualizado exitosamente', 'success');
+                closeModal();
+                loadProducts();
+
+            } catch (error) {
+                console.error('Error actualizando producto:', error);
+                showMessage(error.message, 'error');
+            }
+        }
+
+        async function deleteProduct(id) {
+            if (!confirm('¿Estás seguro de que quieres eliminar este producto?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/productos/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Error al eliminar el producto');
+                }
+
+                showMessage('Producto eliminado exitosamente', 'success');
+                loadProducts();
+
+            } catch (error) {
+                console.error('Error eliminando producto:', error);
+                showMessage(error.message, 'error');
+            }
+        }
+
+        // Funciones de modal
+        function closeModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        // Cerrar modal al hacer clic fuera
+        window.onclick = function (event) {
+            const modal = document.getElementById('editModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Funciones auxiliares
+        function showMessage(message, type) {
+            const messagesContainer = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                ${message}
+            `;
+
+            messagesContainer.innerHTML = '';
+            messagesContainer.appendChild(messageDiv);
+            messageDiv.style.display = 'block';
+
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function logout() {
+            if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+                // Aquí podrías limpiar localStorage, sessionStorage, etc.
+                alert('Sesión cerrada. Redirigiendo...');
+                // window.location.href = '/login.html';
+            }
+        }
+
+        // Funciones de edición de categorías (funcionalidad adicional)
+        function editCategory(id) {
+            const category = allCategories.find(c => c.id === id);
+            if (!category) return;
+
+            const newName = prompt('Nuevo nombre de la categoría:', category.name);
+            if (newName && newName.trim() !== category.name) {
+                updateCategory(id, { name: newName.trim() });
+            }
+        }
+
+        async function updateCategory(id, data) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/categorias/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Error al actualizar la categoría');
+                }
+
+                showMessage('Categoría actualizada exitosamente', 'success');
+                loadCategories();
+
+            } catch (error) {
+                console.error('Error actualizando categoría:', error);
+                showMessage(error.message, 'error');
+            }
+        }
+
+        // Funciones de búsqueda y filtrado (funcionalidad adicional)
+        function filterProducts(searchTerm) {
+            const filteredProducts = allProducts.filter(product =>
+                product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                product.description?.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            displayProducts(filteredProducts);
+        }
+
+        function filterCategories(searchTerm) {
+            const filteredCategories = allCategories.filter(category =>
+                category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                category.description?.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            displayCategories(filteredCategories);
+        }
+
+        // Manejo de errores de red
+        window.addEventListener('online', function () {
+            showMessage('Conexión restaurada', 'success');
+        });
+
+        window.addEventListener('offline', function () {
+            showMessage('Sin conexión a internet', 'error');
+        });
+
+        // Actualización automática cada 30 segundos
+        setInterval(() => {
+            const activeTab = document.querySelector('.tab-content.active');
+            if (activeTab) {
+                const tabId = activeTab.id;
+                if (tabId === 'dashboard') {
+                    loadDashboard();
+                } else if (tabId === 'products') {
+                    loadProducts();
+                } else if (tabId === 'categories') {
+                    loadCategories();
+                }
+            }
+        }, 30000);
+
+        console.log('Panel administrativo cargado correctamente');
+    </script>
+</body>
+
+</html>
