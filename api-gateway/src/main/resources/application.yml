@@ -100,6 +100,16 @@ spring:
 
 
 
+        - id: product-service
+          uri: http://localhost:5001
+          predicates:
+            - Path=/api/productos/**
+          filters:
+            - StripPrefix=2
+
+
+
+
 
 
 

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto - VetCare Pro</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../css/contacto.css">
+</head>
+<body>
+<header id="nav-container"></header>
+
+<main>
+    <section class="hero-section text-white text-center">
+        <div class="container">
+            <h1 class="display-4 fw-bold">Estamos para Ayudarte</h1>
+            <p class="lead col-lg-8 mx-auto">
+                Ponte en contacto con nosotros. Nuestro equipo está listo para responder tus preguntas y atender a tu mascota.
+            </p>
+        </div>
+    </section>
+
+    <section class="contact-main-section py-5">
+        <div class="container">
+            <div class="row g-5">
+                <div class="col-lg-6">
+                    <h2 class="section-title">Envíanos un Mensaje</h2>
+                    <div id="form-confirmation" class="alert alert-success d-none" role="alert">
+                        ¡Gracias por tu mensaje! Nos pondremos en contacto contigo pronto.
+                    </div>
+                    <form id="contact-form" novalidate>
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="contact-name" placeholder="Tu Nombre" required>
+                            <label for="contact-name">Tu Nombre Completo</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="email" class="form-control" id="contact-email" placeholder="Tu Correo" required>
+                            <label for="contact-email">Correo Electrónico</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="contact-subject" placeholder="Asunto" required>
+                            <label for="contact-subject">Asunto</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <textarea class="form-control" id="contact-message" placeholder="Tu Mensaje" style="height: 150px" required></textarea>
+                            <label for="contact-message">Tu Mensaje</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 btn-lg">Enviar Mensaje</button>
+                    </form>
+                </div>
+
+                <div class="col-lg-5 offset-lg-1">
+                    <h2 class="section-title">Nuestras Sedes</h2>
+                    <div class="location-card mb-4">
+                        <h4 class="location-name">Sede Principal - El Poblado</h4>
+                        <p class="location-info"><i class="fas fa-map-marker-alt"></i> Cl. 10 #43a-30, Medellín, Antioquia</p>
+                        <p class="location-info"><i class="fas fa-phone"></i> (604) 123-4567</p>
+                        <p class="location-info"><i class="fas fa-envelope"></i> contacto.poblado@vetcarepro.com</p>
+                        <p class="location-info"><i class="fas fa-clock"></i> Lunes a Sábado: 8:00 AM - 7:00 PM</p>
+                        <div class="map-container">
+                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3966.41682705436!2d-75.5728893888921!3d6.208758893722778!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e442854b83a3573%3A0x34fd133b33333333!2sParque%20Lleras!5e0!3m2!1ses-419!2sco!4v1678886543210!5m2!1ses-419!2sco" width="100%" height="250" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="faq-section py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center section-title mb-5">Preguntas Frecuentes</h2>
+            <div class="accordion col-lg-8 mx-auto" id="faqAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                            ¿Necesito agendar una cita para una consulta?
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Recomendamos agendar una cita para asegurar que podamos atenderte sin demoras. Sin embargo, aceptamos pacientes sin cita previa, aunque pueden tener tiempos de espera. Para emergencias, no se requiere cita.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                            ¿Qué debo hacer en caso de una emergencia fuera del horario de atención?
+                        </button>
+                    </h2>
+                    <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Nuestra Sede Principal ofrece atención de emergencias 24/7. Por favor, llama a nuestro teléfono de emergencias (604) 987-6543 antes de dirigirte a la clínica para que nuestro equipo esté preparado para recibir a tu mascota.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
+                            ¿Qué métodos de pago aceptan?
+                        </button>
+                    </h2>
+                    <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Aceptamos efectivo, tarjetas de débito y crédito (Visa, MasterCard, American Express), y transferencias bancarias.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/nav.js"></script>
+<script src="../js/contacto.js"></script>
+</body>
+</html>
