@@ -1,0 +1,89 @@
+:root {
+    --primary-color: #4A90E2;
+    --secondary-color: #50E3C2;
+    --dark-text: #333A45;
+    --light-text: #6c757d;
+    --bg-light: #f8f9fa;
+    --border-color: #dee2e6;
+}
+
+body {
+    font-family: 'Manrope', sans-serif;
+}
+
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1548802673-380ab8ebc7b7?q=80&w=1935&auto=format&fit=crop') no-repeat center center;
+    background-size: cover;
+    padding: 6rem 0;
+}
+
+.section-title {
+    font-weight: 700;
+    color: var(--dark-text);
+    margin-bottom: 1.5rem;
+}
+
+/* Formulario */
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* Tarjeta de Ubicación */
+.location-card {
+    background-color: var(--bg-light);
+    padding: 2rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--border-color);
+}
+
+.location-name {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.location-info {
+    color: var(--dark-text);
+    margin-bottom: 0.5rem;
+}
+
+.location-info i {
+    color: var(--secondary-color);
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+.map-container {
+    border-radius: 0.5rem;
+    overflow: hidden;
+    margin-top: 1rem;
+    border: 1px solid var(--border-color);
+}
+
+/* Acordeón de FAQ */
+.faq-section {
+    background-color: #fff;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.accordion-button:focus {
+    box-shadow: none;
+    border-color: var(--primary-color);
+}
+
+.accordion-item {
+    border-radius: 0.5rem !important;
+    border: 1px solid var(--border-color);
+    margin-bottom: 1rem;
+}

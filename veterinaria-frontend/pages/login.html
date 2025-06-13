@@ -3,90 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión - Veterinaria</title>
+    <title>Iniciar Sesión - VetCare Pro</title>
 
-    <link rel="stylesheet" href="../css/login.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
 
-     <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <!-- Estilos personalizados -->
+    <style>
+        :root {
+            --primary-color: #4A90E2;
+            --secondary-color: #50E3C2;
+            --dark-text: #333A45;
+            --light-text: #6c757d;
+            --bg-light: #f8f9fa;
+            --border-color: #dee2e6;
+        }
 
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: var(--bg-light);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow: hidden; /* Evita barras de scroll durante la animación */
+        }
 
-  <style>
-    .auth-links {
-      text-align: center;
-      margin-top: 20px;
-    }
+        main.login-container {
+            display: flex;
+            width: 100%;
+            flex-grow: 1;
+        }
 
-    .auth-links a {
-      color: #007bff;
-      text-decoration: none;
-      margin: 0 10px;
-      font-size: 14px;
-      transition: color 0.3s ease;
-    }
+        .info-panel {
+            background: linear-gradient(135deg, var(--primary-color), #3a7bc8);
+            color: white;
+            padding: 4rem 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            width: 45%;
+        }
 
-    .auth-links a:hover {
-      color: #0056b3;
-      text-decoration: underline;
-    }
+        .info-panel .logo {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+        }
 
-    .auth-links .separator {
-      color: #6c757d;
-      margin: 0 5px;
-    }
+        .form-panel {
+            width: 55%;
+            padding: 4rem 3rem;
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+        }
 
-    .forgot-password {
-      display: block;
-      margin-top: 15px;
-      font-size: 13px;
-    }
+        /* Clases para la animación */
+        .form-panel.slide-out {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
 
-    .register-link {
-      font-weight: 500;
-    }
-  </style>
+        .form-panel h2 {
+            font-weight: 800;
+            color: var(--dark-text);
+        }
+
+        .form-panel .sub-heading {
+            color: var(--light-text);
+            margin-bottom: 2.5rem;
+        }
+
+        .input-group-text {
+            background-color: var(--bg-light);
+            border-right: none;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(74, 144, 226, 0.2);
+        }
+
+        .form-floating > .form-control {
+            border-left: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            padding: 0.8rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .forgot-password-link {
+            font-size: 0.9rem;
+            text-align: right;
+            display: block;
+        }
+
+        @media (max-width: 992px) {
+            main.login-container { flex-direction: column; }
+            .info-panel, .form-panel { width: 100%; padding: 2rem; }
+            .info-panel { text-align: center; }
+        }
+    </style>
 </head>
 <body>
- 
-  <!-- Barra de navegacion traida de nav-public.html -->
-  <header id="nav-container"></header>
+<header id="nav-container"></header>
 
-<main>
-    <section class="login-container" style="margin-top: 230px;">
-        <h2>Iniciar Sesión</h2>
-        <form id="login-form">
-            <label for="username">Correo:</label>
-            <input type="text" id="username" required>
-            <label for="password">Contraseña:</label>
-            <input type="password" id="password" required>
-            <button type="submit">Iniciar Sesión</button>
-        </form>
-        <p id="error-message" class="error"></p>
-        
-        <!-- Enlaces de autenticación -->
-        <div class="auth-links">
-            <a href="forgot-password.html" class="forgot-password">
-                <i class="fas fa-key"></i> ¿Olvidaste tu contraseña?
-            </a>
-            <div style="margin-top: 10px;">
-                <span>¿No tienes cuenta?</span>
-                <span class="separator">|</span>
-                <a href="register.html" class="register-link">
-                    <i class="fas fa-user-plus"></i> Regístrate aquí
-                </a>
-            </div>
+<main class="login-container">
+    <div class="info-panel">
+        <div class="logo">
+            <i class="fas fa-paw"></i> VetCare Pro
         </div>
-    </section>
+        <h1 class="display-5">Bienvenido de Vuelta</h1>
+        <p class="lead">Nos alegra verte de nuevo. Inicia sesión para continuar cuidando de tu mascota.</p>
+    </div>
+
+    <div class="form-panel">
+        <h2>Iniciar Sesión</h2>
+        <p class="sub-heading">¿No tienes cuenta? <a href="register.html" id="redirect-link">Regístrate aquí</a>.</p>
+
+        <form id="login-form">
+            <div class="input-group mb-3">
+                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                <div class="form-floating">
+                    <input type="email" class="form-control" id="username" placeholder="Correo electrónico" required>
+                    <label for="username">Correo electrónico</label>
+                </div>
+            </div>
+
+            <div class="input-group mb-3">
+                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                <div class="form-floating">
+                    <input type="password" class="form-control" id="password" placeholder="Contraseña" required>
+                    <label for="password">Contraseña</label>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <a href="forgot-password.html" class="forgot-password-link">¿Olvidaste tu contraseña?</a>
+            </div>
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+            </div>
+        </form>
+        <p id="error-message" class="error text-center mt-3"></p>
+    </div>
 </main>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="../js/nav.js"></script>
 <script src="../js/auth.js"></script>
 
-<!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-  <script src="../js/nav.js"></script>
+<script>
+    document.getElementById('redirect-link').addEventListener('click', function(e) {
+        e.preventDefault(); // Evita la navegación inmediata
+        const formPanel = document.querySelector('.form-panel');
+        const destination = this.href;
 
+        formPanel.classList.add('slide-out');
+
+        // Espera a que la animación termine para redirigir
+        setTimeout(() => {
+            window.location.href = destination;
+        }, 500); // 500ms, igual a la duración de la transición en CSS
+    });
+</script>
 </body>
 </html>

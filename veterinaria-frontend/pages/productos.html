@@ -9,49 +9,9 @@
     <link rel="stylesheet" href="../css/productos.css">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-vetcare">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="index.html"><i id="paw" class="fa fa-paw"></i>VetCare</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNavDropdown">
-                <ul class="navbar-nav mx-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.html"><i class="fas fa-home"></i> Inicio</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="fas fa-stethoscope me-1"></i> Servicios</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="lista_productos.html"><i class="fas fa-box me-1"></i> Productos</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="fas fa-envelope"></i> Contacto</a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPortal" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-user-circle"></i> Portal
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownPortal">
-                            <li><a class="dropdown-item" href="#">Mi Cuenta</a></li>
-                            <li><a class="dropdown-item" href="#">Mis Mascotas</a></li>
-                            <li><a class="dropdown-item" href="#">Historial de Citas</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="login.html">Cerrar Sesión</a></li>
-                        </ul>
-                    </li>
-                </ul>
-                <div class="d-flex align-items-center">
-                    <a href="carrito.html" class="btn btn-outline-success me-2" title="Ver Carrito">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span class="badge bg-danger rounded-pill" id="contador-carrito">0</span>
-                    </a>
-                    <button class="btn btn-cita-rapida" type="button">Cita Rápida</button>
-                </div>
-            </div>
-        </div>
-    </nav>
+
+<!-- Barra de navegacion traida de nav-public.html -->
+<header id="nav-container"></header>
 
     <div class="container container-productos">
         <h1 class="mb-4 text-center">Nuestros Productos <i class="fas fa-tags"></i></h1>
@@ -82,6 +42,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../js/productos.js"></script>
+<script src="../js/nav.js"></script>
+
 </body>
 </html>
 <!--
