@@ -5,20 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Veterinaria - Tienda de Productos</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
-    <link rel="stylesheet" href="../static/css/productos.css">
+    <link rel="stylesheet" href="http://localhost:5001/static/css/productos.css
+">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Bootstrap CSS (ya lo tienes bien) -->
+
+
+    <!-- Bootstrap JS (asegúrate que está antes de nav.js) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Tu script que carga el navbar -->
+
 </head>
+
+<header id="nav-container"></header>
+
 <body>
     <div class="container">
+
+
         <div class="header">
-            <h1><i class="fas fa-paw"></i> Veterinaria </h1>
+            <div class="header-content">
+                <h1><i class="fas fa-paw"></i> Veterinaria </h1>
+                <button class="cart-icon" onclick="toggleCart()">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" id="cartCount">0</span>
+                </button>
+            </div>
             <p>Todo lo que tu mascota necesita en un solo lugar</p>
         </div>
 
-        <button class="cart-icon" onclick="toggleCart()">
-            <i class="fas fa-shopping-cart"></i>
-            <span class="cart-count" id="cartCount">0</span>
-        </button>
 
         <div class="search-section">
             <div class="search-container">
@@ -195,10 +212,10 @@
             
             grid.innerHTML = products.map(producto => `
                 <div class="product-card" data-product-id="${producto.id}">
-                    <img src="${producto.image || 'https://via.placeholder.com/300x200?text=Sin+Imagen'}" 
-                         alt="${producto.name}" 
-                         class="product-image"
-                         onerror="this.src='https://via.placeholder.com/300x200?text=Sin+Imagen'">
+                    <img src="${producto.image || 'https://via.placeholder.com/300x200?text=Sin+Imagen'}"
+                     alt="${producto.name}"
+                     class="product-image"
+                     onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=Sin+Imagen';">
                     <div class="product-info">
                         <div class="category-badge">${getCategoryName(producto.category_id)}</div>
                         <h3 class="product-name">${producto.name}</h3>
@@ -435,5 +452,7 @@
             }
         }
     </script>
+    <script src="http://localhost:8080/Veterinary/microservices-example/veterinaria-frontend/js/nav.js"></script>
+
 </body>
 </html>

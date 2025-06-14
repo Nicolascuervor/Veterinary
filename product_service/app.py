@@ -2,9 +2,15 @@ from flask import Flask
 from config import Config
 from database import db
 from routes import routes
+import os
+
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(
+        __name__,
+        static_folder=os.path.join(os.path.dirname(__file__), 'static'),
+        template_folder=os.path.join(os.path.dirname(__file__), 'templates')
+    )
     app.config.from_object(Config)
 
     db.init_app(app)
