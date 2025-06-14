@@ -61,9 +61,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-        const publicNavHtml = await loadComponent('../components/nav-public.html');
-        const userNavHtml = await loadComponent('../components/nav.html');
+        const publicNavHtml = await loadComponent('/Veterinary/product_service/components/nav-public.html' );
+        let userNavHtml = await loadComponent('/Veterinary/product_service/components/nav.html');
+
+
+
+
+
         console.log('nav.html cargado correctamente'); // Mensaje simplificado
+
+
+
+
 
         // Crear un contenedor temporal para parsear el HTML
         const tempDiv = document.createElement('div');
@@ -108,17 +117,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                 localStorage.removeItem('token');
                 localStorage.removeItem('nombre');
                 localStorage.removeItem('userRole');
-                window.location.href = '../pages/login.html';
+                window.location.href = '/Veterinary/veterinaria-frontend/pages/login.html';
             });
         }
 
         if (isAuth && (window.location.pathname.includes('login.html') || window.location.pathname.includes('register.html'))) {
-            window.location.href = '../pages/dashboard.html';
+            window.location.href = '/Veterinary/veterinaria-frontend/pages/dashboard.html';
         }
 
         const protectedPages = ['dashboard.html', 'productos.html', 'carrito.html', 'citas.html', 'perfil.html', 'mis-mascotas.html'];
         if (!isAuth && protectedPages.some(page => window.location.pathname.includes(page))) {
-            window.location.href = '../pages/login.html';
+            window.location.href = '/Veterinary/veterinaria-frontend/pages/login.html';
         }
     } catch (error) {
         console.error('Error al configurar los navbars:', error);
