@@ -28,6 +28,12 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column(name = "activo")
+    private Boolean enabled;
+
+
+
+
 
 
     @Override
@@ -52,6 +58,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return this.enabled; // Debe devolver el valor del campo de la clase.
+
     }
 }

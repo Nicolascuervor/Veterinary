@@ -14,7 +14,7 @@ spring:
         - id: authentication-service
           uri: http://localhost:8082
           predicates:
-            - Path=/auth/**
+            - Path=/auth/**, /password/**, /api/admin/**
 
 
 
@@ -97,15 +97,24 @@ spring:
           filters:
             - StripPrefix=1
 
-
-
-
         - id: product-service
           uri: http://localhost:5001
           predicates:
-            - Path=/api/productos/**
-          filters:
-            - StripPrefix=2
+            - Path=/productos/**, /categorias/**
+
+
+
+        - id: product-static-images
+          uri: http://localhost:5001 # Apunta al servicio de Python
+          predicates:
+            - Path=/static/uploads/products/** # La ruta donde se guardan las imágenes
+
+
+
+
+
+
+
 
 
 

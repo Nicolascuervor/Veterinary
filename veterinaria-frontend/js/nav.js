@@ -1,135 +1,114 @@
-// js/nav.js
-document.addEventListener('DOMContentLoaded', async () => {
-    async function loadComponent(url) {
-        try {
-            const response = await fetch(url);
-            if (!response.ok) throw new Error(`No se pudo cargar ${url}`);
-            return await response.text();
-        } catch (error) {
-            console.error('Error al cargar el componente:', error);
-            return '';
-        }
-    }
+// veterinaria-frontend/js/nav.js (Versión Unificada y Funcional)
 
+document.addEventListener('DOMContentLoaded', async () => {
+
+    // --- 1. Función de Autenticación Robusta (con chequeo de expiración) ---
     async function checkTokenValidity() {
         const token = localStorage.getItem('token');
         if (!token) return false;
 
         try {
+            // Decodifica el payload del token para leer la fecha de expiración
             const payload = JSON.parse(atob(token.split('.')[1]));
             const currentTime = Math.floor(Date.now() / 1000);
+
             if (payload.exp && payload.exp < currentTime) {
-                console.log('Token expirado');
+                console.log('Token expirado. Limpiando sesión.');
+                // Limpia todo el localStorage relacionado con la sesión
                 localStorage.removeItem('token');
                 localStorage.removeItem('nombre');
                 localStorage.removeItem('userRole');
+                localStorage.removeItem('id');
                 return false;
             }
             return true;
         } catch (error) {
-            console.error('Error al decodificar el token:', error);
-            localStorage.removeItem('token');
-            localStorage.removeItem('nombre');
-            localStorage.removeItem('userRole');
+            console.error('Error al decodificar el token. Limpiando sesión.', error);
+            localStorage.clear(); // Limpia todo si el token es inválido
             return false;
         }
     }
 
-    async function isAuthenticated() {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            console.log('No se encontró token en localStorage');
-            return false;
-        }
+    // --- 2. Lógica de Protección de Páginas ---
+    const isAuth = await checkTokenValidity();
+    const currentPage = window.location.pathname.split('/').pop();
+    const protectedPages = ['admin.html', 'dashboard.html', 'citas.html', 'perfil.html', 'misMascotas.html'];
 
-        const isValid = await checkTokenValidity();
-        if (!isValid) {
-            console.log('Token no válido, se eliminará');
-            localStorage.removeItem('token');
-            localStorage.removeItem('nombre');
-            localStorage.removeItem('userRole');
-            return false;
-        }
-        console.log('Usuario autenticado correctamente');
-        return true;
-    }
-
-    const navContainer = document.getElementById('nav-container');
-    if (!navContainer) {
-        console.error('No se encontró el contenedor nav-container');
+    if (!isAuth && protectedPages.includes(currentPage)) {
+        // Si no está autenticado y está en una página protegida, lo enviamos al login.
+        // Usamos una ruta absoluta para que funcione desde cualquier página.
+        window.location.href = '/Veterinary/veterinaria-frontend/pages/login.html';
         return;
     }
 
+    if (isAuth && (currentPage === 'login.html' || currentPage === 'register.html')) {
+        // Si ya está autenticado y va a login/register, lo enviamos a su dashboard.
+        window.location.href = '/Veterinary/veterinaria-frontend/pages/dashboard.html';
+        return;
+    }
+
+    // --- 3. Carga y Configuración del Navbar ---
+    const navbarContainer = document.getElementById('nav-container');
+    if (!navbarContainer) return; // Si la página no tiene un contenedor para el nav, no hacemos nada.
+
+    // Usamos rutas absolutas desde la raíz del servidor para que siempre funcionen.
+    const basePath = '/Veterinary/veterinaria-frontend/components/';
+    const navPath = isAuth ? `${basePath}nav.html` : `${basePath}nav-public.html`;
+
     try {
-        const publicNavHtml = await loadComponent('/Veterinary/product_service/components/nav-public.html' );
-        let userNavHtml = await loadComponent('/Veterinary/product_service/components/nav.html');
+        const response = await fetch(navPath);
+        if (!response.ok) throw new Error(`No se encontró el navbar en ${navPath}`);
+        const html = await response.text();
 
+        navbarContainer.innerHTML = html;
 
-
-
-
-        console.log('nav.html cargado correctamente'); // Mensaje simplificado
-
-
-
-
-
-        // Crear un contenedor temporal para parsear el HTML
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = publicNavHtml + userNavHtml;
-
-        // Insertar el HTML en el DOM antes de ejecutar los scripts
-        navContainer.appendChild(tempDiv);
-
-        // Ahora que el HTML está en el DOM, extraer y ejecutar los scripts
-        const scripts = tempDiv.querySelectorAll('script');
-        scripts.forEach(script => {
-            const scriptContent = script.textContent;
-            const newScript = document.createElement('script');
-            newScript.textContent = scriptContent;
-            document.head.appendChild(newScript);
-        });
-
-        // Eliminar los scripts del HTML original (ya los ejecutamos)
-        scripts.forEach(script => script.remove());
-
-        const publicNav = document.getElementById('public-nav');
-        const userNav = document.getElementById('user-nav');
-        console.log('Elementos del DOM:', { publicNav, userNav });
-
-        if (!publicNav || !userNav) {
-            console.error('No se encontraron los navbars después de cargarlos');
-            return;
-        }
-
-        const isAuth = await isAuthenticated();
+        // Si el usuario está autenticado, configuramos los elementos dinámicos.
         if (isAuth) {
-            userNav.classList.remove('d-none');
-            publicNav.classList.add('d-none');
-        } else {
-            publicNav.classList.remove('d-none');
-            userNav.classList.add('d-none');
-        }
+            const nombreUsuario = localStorage.getItem('nombre');
+            const userRole = localStorage.getItem('userRole');
 
-        const logoutButton = document.getElementById('logout');
-        if (logoutButton) {
-            logoutButton.addEventListener('click', () => {
-                localStorage.removeItem('token');
-                localStorage.removeItem('nombre');
-                localStorage.removeItem('userRole');
-                window.location.href = '/Veterinary/veterinaria-frontend/pages/login.html';
+            // Actualizar nombre y rol en el menú
+            const userNameElement = document.getElementById('user-name');
+            if (userNameElement) userNameElement.textContent = nombreUsuario || 'Usuario';
+
+            const userRoleElement = document.getElementById('user-role');
+            if (userRoleElement) {
+                userRoleElement.textContent = userRole === 'USER' ? 'Propietario' : userRole;
+            }
+
+            // Mostrar el enlace al "Panel Admin" si el rol es ADMIN
+            const adminLinkPlaceholder = document.getElementById('admin-link-placeholder');
+            if (adminLinkPlaceholder) {
+                if (userRole === 'ADMIN') {
+                    const adminListItem = document.createElement('li');
+                    adminListItem.className = 'nav-item';
+                    adminListItem.innerHTML = `<a class="nav-link" href="/Veterinary/veterinaria-frontend/pages/admin.html"><i class="fas fa-cogs me-1"></i>Panel Admin</a>`;
+                    adminLinkPlaceholder.replaceWith(adminListItem);
+                } else {
+                    adminLinkPlaceholder.remove();
+                }
+            }
+
+            // Configurar el botón de cerrar sesión
+            const logoutButton = document.getElementById('logout');
+            if (logoutButton) {
+                logoutButton.addEventListener('click', () => {
+                    localStorage.clear(); // Limpia toda la sesión
+                    window.location.href = '/Veterinary/veterinaria-frontend/pages/login.html';
+                });
+            }
+
+            // Ejecutar scripts que puedan venir dentro del navbar cargado (ej. para el dropdown)
+            const navScripts = navbarContainer.querySelectorAll('script');
+            navScripts.forEach(script => {
+                const newScript = document.createElement('script');
+                newScript.textContent = script.textContent;
+                document.body.appendChild(newScript).remove(); // Añade, ejecuta y remueve
             });
         }
 
-        if (isAuth && (window.location.pathname.includes('login.html') || window.location.pathname.includes('register.html'))) {
-            window.location.href = '/Veterinary/veterinaria-frontend/pages/dashboard.html';
-        }
-
-        const protectedPages = ['dashboard.html', 'productos.html', 'carrito.html', 'citas.html', 'perfil.html', 'mis-mascotas.html'];
-        if (!isAuth && protectedPages.some(page => window.location.pathname.includes(page))) {
-            window.location.href = '/Veterinary/veterinaria-frontend/pages/login.html';
-        }
     } catch (error) {
-        console.error('Error al configurar los navbars:', error);
+        console.error('Error fatal al cargar la barra de navegación:', error);
+        if (navbarContainer) navbarContainer.innerHTML = `<div class="alert alert-danger">Error al cargar el menú.</div>`;
     }
 });

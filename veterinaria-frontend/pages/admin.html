@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Veterinaria</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <link rel="stylesheet" href="../css/admin.css"> </head>
+<body>
+<header id="nav-container"></header>
+
+<main class="container mt-5">
+    <h1 class="mb-4">Panel de Administración</h1>
+
+    <ul class="nav nav-tabs" id="adminTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users-panel" type="button" role="tab">Gestión de Usuarios</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="products-tab" data-bs-toggle="tab" data-bs-target="#products-panel" type="button" role="tab">Gestión de Productos</button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="adminTabContent">
+        <div class="tab-pane fade show active p-3" id="users-panel" role="tabpanel">
+            <h3 class="mt-3">Usuarios del Sistema</h3>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody id="user-table-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="tab-pane fade p-3" id="products-panel" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <h3>Productos de la Tienda</h3>
+                <button class="btn btn-primary" id="btn-crear-producto">
+                    <i class="fas fa-plus"></i> Crear Producto
+                </button>
+            </div>
+            <div class="table-responsive mt-3">
+                <table class="table table-striped table-hover">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody id="product-table-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div class="modal fade" id="product-modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="product-modal-title">Crear Producto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="product-form">
+                    <input type="hidden" id="product-id">
+                    <div class="mb-3">
+                        <label for="product-name" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="product-name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="product-description" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="product-description"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="product-price" class="form-label">Precio</label>
+                        <input type="number" step="0.01" class="form-control" id="product-price" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="product-stock" class="form-label">Stock</label>
+                        <input type="number" class="form-control" id="product-stock" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="product-image-file" class="form-label">Imagen del Producto</label>
+
+                        <div id="image-preview-container" class="mb-2" style="display: none;">
+                            <img id="image-preview" src="" alt="Imagen actual" style="width: 100px; height: 100px; object-fit: cover; border-radius: 5px;">
+                        </div>
+
+                        <input type="file" class="form-control" id="product-image-file" accept="image/*">
+                    </div>
+                    <div class="mb-3">
+                        <label for="product-category" class="form-label">Categoría ID</label>
+                        <input type="number" class="form-control" id="product-category" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="product-seller" class="form-label">Vendedor ID</label>
+                        <input type="number" class="form-control" id="product-seller" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="user-role-modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cambiar Rol del Usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="user-role-form">
+                    <input type="hidden" id="user-id-role">
+                    <div class="mb-3">
+                        <label for="user-role-select" class="form-label">Nuevo Rol</label>
+                        <select class="form-select" id="user-role-select">
+                            <option value="USER">USER</option>
+                            <option value="RECEPTIONIST">RECEPTIONIST</option>
+                            <option value="ADMIN">ADMIN</option>
+                            <option value="VETERINARIO">VETERINARIO</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Guardar Rol</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/admin.js"></script>
+<script src="../js/nav.js"></script>
+</body>
+</html>

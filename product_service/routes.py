@@ -2,6 +2,10 @@ from flask import Blueprint, request, jsonify , request, render_template
 from models import Producto, Category
 from database import db
 
+import os
+from werkzeug.utils import secure_filename
+from flask import current_app # Para acceder a la configuración de la app
+
 
 routes = Blueprint('routes', __name__)
 
@@ -32,18 +36,53 @@ def get_productos():
         } for p in productos
     ])
 #ejemplo postman: 
-#http://localhost:5001/productos 
+#http://localhost:5001/productos
 
+
+@routes.route('/productos/<int:producto_id>', methods=['GET'])
+def get_producto(producto_id):
+    producto = Producto.query.get_or_404(producto_id)
+    return jsonify({
+        'id': producto.id,
+        'name': producto.name,
+        'description': producto.description,
+        'price': producto.price,
+        'stock': producto.stock,
+        'image': producto.image,
+        'created_at': producto.created_at,
+        'category_id': producto.category_id,
+        'seller_id': producto.seller_id
+    })
+
+def allowed_file(filename):
+    return '.' in filename and \
+        filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
 
 @routes.route('/productos', methods=['POST'])
 def crear_producto():
-    data = request.json
+    # Los datos de texto ahora vienen en request.form
+    data = request.form
+
+    # Lógica para manejar el archivo subido
+    image_path = ''
+    if 'image' in request.files:
+        file = request.files['image']
+        if file and file.filename != '' and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            # Crear directorio si no existe
+            upload_path = current_app.config['UPLOAD_FOLDER']
+            os.makedirs(upload_path, exist_ok=True)
+
+            file.save(os.path.join(upload_path, filename))
+            # Guardamos la ruta relativa para acceder a ella desde el frontend
+            image_path = f'/static/uploads/products/{filename}'
+
     producto = Producto(
         name=data['name'],
         description=data['description'],
         price=data['price'],
         stock=data['stock'],
-        image=data.get('image') or data.get('image_url', ''),
+        image=image_path, # Guardar la ruta del archivo
         category_id=data['category_id'],
         seller_id=data['seller_id']
     )
@@ -52,7 +91,7 @@ def crear_producto():
     return jsonify({'message': 'Producto creado con éxito'}), 201
 
 #ejemplo postman.
-#http://localhost:5001/productos 
+#http://localhost:5001/productos
 '''
 {
   "name": "Collar para perro",
@@ -111,22 +150,35 @@ def eliminar_categoria(categoria_id):
     db.session.commit()
     return jsonify({'message': 'Categoría eliminada con éxito'})
 
-# Actualizar un producto
+
+
+
 @routes.route('/productos/<int:producto_id>', methods=['PUT'])
 def actualizar_producto(producto_id):
-    producto = Producto.query.get(producto_id)
-    if not producto:
-        return jsonify({'error': 'Producto no encontrado'}), 404
+    producto = Producto.query.get_or_404(producto_id)
+    data = request.form
 
-    data = request.json
+    producto.name = data.get('name', producto.name)
     producto.name = data.get('name', producto.name)
     producto.description = data.get('description', producto.description)
     producto.price = data.get('price', producto.price)
     producto.stock = data.get('stock', producto.stock)
-    producto.image = data.get('image', producto.image)
+
+    # Lógica para actualizar la imagen si se sube una nueva
+    if 'image' in request.files:
+        file = request.files['image']
+        if file and file.filename != '' and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            upload_path = current_app.config['UPLOAD_FOLDER']
+            os.makedirs(upload_path, exist_ok=True)
+            file.save(os.path.join(upload_path, filename))
+            producto.image = f'/static/uploads/products/{filename}'
 
     db.session.commit()
     return jsonify({'message': 'Producto actualizado con éxito'})
+
+
+
 
 # Eliminar un producto
 @routes.route('/productos/<int:producto_id>', methods=['DELETE'])
