@@ -144,6 +144,7 @@ public class AuthController {
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(Role.USER);
+        user.setEnabled(true);
         user = userRepository.save(user);
 
         PropietarioRequest propietario = new PropietarioRequest();
@@ -153,6 +154,7 @@ public class AuthController {
         propietario.telefono = request.getTelefono();
         propietario.cedula = request.getCedula();
         propietario.usuarioId = user.getId();
+
 
         try {
             String token = jwtService.generateToken(user);

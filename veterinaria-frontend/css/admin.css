@@ -1,0 +1,11 @@
+.table-responsive {
+    margin-top: 1rem;
+}
+
+.btn-sm i {
+    pointer-events: none; /* Para que el click se registre en el botón y no en el ícono */
+}
+
+.nav-tabs .nav-link {
+    cursor: pointer;
+}

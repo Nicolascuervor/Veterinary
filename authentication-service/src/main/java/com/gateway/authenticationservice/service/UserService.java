@@ -1,30 +1,31 @@
 package com.gateway.authenticationservice.service;
 
 
-import com.gateway.authenticationservice.Controller.PropietarioResponse;
-import com.gateway.authenticationservice.Emails.EmailClient;
-import com.gateway.authenticationservice.model.Role;
+
+
 import com.gateway.authenticationservice.model.User;
 import com.gateway.authenticationservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+
+
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+
+import com.gateway.authenticationservice.model.Role; // Asegurarse de importar Role
+import java.util.List; // Importar List
+import java.util.Optional; // Importar Optional
+
 
 @Service
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
 
-    @Autowired
-    private EmailClient emailClient;
-
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final RestTemplate restTemplate; // ✅ Agregado
+
 
 
     @Override
@@ -33,18 +34,27 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
-    public User registerUser(String username, String password, String role) {
-        User user = new User();
-        user.setUsername(username);
-        user.setPassword(passwordEncoder.encode(password));
-
-        user.setRole(Role.valueOf(role.toUpperCase()));
-
-
-
-
-        return userRepository.save(user);
+    public List<User> findAll() {
+        return userRepository.findAll();
     }
+
+
+    public Optional<User> updateUserStatus(Long id, boolean isEnabled) {
+        return userRepository.findById(id).map(user -> {
+            user.setEnabled(isEnabled);
+            return userRepository.save(user);
+        });
+    }
+
+
+    public Optional<User> updateUserRole(Long id, Role newRole) {
+        return userRepository.findById(id).map(user -> {
+            user.setRole(newRole);
+            return userRepository.save(user);
+        });
+    }
+
+
 
 
 
