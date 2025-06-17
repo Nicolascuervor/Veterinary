@@ -3,6 +3,10 @@ from config import Config
 from database import db
 from routes import routes
 import os
+from flask_cors import CORS
+from flask_migrate import Migrate # <<== AÑADIR ESTE IMPORT
+
+
 
 
 def create_app():
@@ -11,9 +15,21 @@ def create_app():
         static_folder=os.path.join(os.path.dirname(__file__), 'static'),
         template_folder=os.path.join(os.path.dirname(__file__), 'templates')
     )
+
+
+    CORS(app, resources={r"/*": {
+        "origins": "*",  # Permite cualquier origen (para desarrollo)
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"], # Permite todos los métodos
+        "allow_headers": ["Authorization", "Content-Type"] # Permite las cabeceras necesarias
+    }})
+
+
     app.config.from_object(Config)
 
     db.init_app(app)
+
+    migrate = Migrate(app, db)
+
     app.register_blueprint(routes)
 
     with app.app_context():

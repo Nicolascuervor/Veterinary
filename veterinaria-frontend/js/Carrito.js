@@ -1,158 +1,206 @@
-const productosDisponibles = [
-    {
-        id: 1,
-        nombre: 'Thornton (Collar antipulgas para Perros)',
-        precio: 19900,
-        imagen: 'https://geant.vteximg.com.br/arquivos/ids/334507-1000-1000/632066.jpg?v=637714163326900000' // Cambiado a una imagen real
-    },
-    {
-        id: 2,
-        nombre: 'Comida Premium para Gatos Adultos 1kg',
-        precio: 25900,
-        imagen: 'https://www. میر.com.co/wp-content/uploads/2022/03/Mirringo-Gatos-Adultos.jpg' // Cambiado a una imagen real
-    },
-    {
-        id: 3,
-        nombre: 'Juguete Hueso de Goma para Perro',
-        precio: 12500,
-        imagen: 'https://http2.mlstatic.com/D_NQ_NP_779720-MCO47375374836_092021-O.webp' // Cambiado a una imagen real
-    }
-];
+document.addEventListener('DOMContentLoaded', () => {
+    // ===================================================================
+    // 1. CONFIGURACIÓN INICIAL Y VARIABLES
+    // ===================================================================
+    const userId = localStorage.getItem('id');
+    const token = localStorage.getItem('token');
+    const apiBase = 'http://127.0.0.1:5001'; // URL del microservicio de productos/carrito
 
-let carrito = []; // Este será nuestro carrito de compras
+    // --- Selección de Elementos del DOM ---
+    const cartContainer = document.getElementById('cart-items-container');
+    const emptyCartMessage = document.getElementById('empty-cart-message');
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const subtotalEl = document.getElementById('cart-subtotal');
+    const totalEl = document.getElementById('cart-total');
+    const checkoutBtn = document.getElementById('checkout-btn');
 
-// Función para renderizar el carrito en la tabla HTML
-function renderizarCarrito() {
-    const tbody = document.getElementById('carrito-body');
-    const tfoot = document.querySelector('table tfoot'); // Seleccionamos el tfoot para los totales
-    tbody.innerHTML = ''; // Limpiar la tabla antes de renderizar
-    if (tfoot) tfoot.innerHTML = ''; // Limpiar también el pie de tabla si existe
-
-    let totalCantidadGeneral = 0;
-    let totalPrecioGeneral = 0;
-
-    if (carrito.length === 0) {
-        const filaVacia = document.createElement('tr');
-        filaVacia.innerHTML = `<td colspan="6" class="text-center p-4">Tu carrito está vacío. <a href="#">¡Empieza a comprar!</a></td>`;
-        tbody.appendChild(filaVacia);
-        document.getElementById('totalCantidadGeneral').innerText = '0';
-        document.getElementById('totalPrecioGeneral').innerText = '$0 COP';
+    // --- Verificación de Autenticación ---
+    if (!userId || !token) {
+        alert("Debes iniciar sesión para ver tu carrito.");
+        window.location.href = 'login.html';
         return;
     }
 
-    carrito.forEach(producto => {
-        const subtotalProducto = producto.precio * producto.cantidad;
-        totalCantidadGeneral += producto.cantidad;
-        totalPrecioGeneral += subtotalProducto;
 
-        const fila = document.createElement('tr');
-        fila.setAttribute('id', `fila-producto-${producto.id}`);
-        fila.innerHTML = `
-            <td>
-                <button class="btn-eliminar" onclick="eliminarDelCarrito(${producto.id})" title="Eliminar producto">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
-            </td>
-            <td><img src="${producto.imagen}" alt="${producto.nombre}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px;"></td>
-            <td class="text-start">${producto.nombre}</td>
-            <td>
-                <div class="d-flex justify-content-center align-items-center">
-                    <button class="btn-cantidad" onclick="cambiarCantidadEnCarrito(${producto.id}, -1)" title="Disminuir cantidad">
-                        <i class="fas fa-minus-circle"></i>
-                    </button>
-                    <input type="number" value="${producto.cantidad}" min="1" class="input-cantidad" readonly id="cantidad-${producto.id}">
-                    <button class="btn-cantidad" onclick="cambiarCantidadEnCarrito(${producto.id}, 1)" title="Aumentar cantidad">
-                        <i class="fas fa-plus-circle"></i>
-                    </button>
-                </div>
-            </td>
-            <td>$${producto.precio.toLocaleString()} COP</td>
-            <td id="subtotal-${producto.id}">$${subtotalProducto.toLocaleString()} COP</td>
-        `;
-        tbody.appendChild(fila);
+    checkoutBtn.addEventListener('click', () => {
+
+        window.location.href = 'pagos.html';
     });
 
-    document.getElementById('totalCantidadGeneral').innerText = totalCantidadGeneral;
-    document.getElementById('totalPrecioGeneral').innerText = `$${totalPrecioGeneral.toLocaleString()} COP`;
-
-    // Crear y añadir fila de totales al tfoot
-    const filaTotalTabla = document.createElement('tr');
-    filaTotalTabla.classList.add('table-light', 'fw-bold'); // Clases de Bootstrap para destacar
-    filaTotalTabla.innerHTML = `
-        <td colspan="3" class="text-end">TOTALES:</td>
-        <td class="text-center">${totalCantidadGeneral}</td>
-        <td></td>
-        <td class="text-center">$${totalPrecioGeneral.toLocaleString()} COP</td>
-    `;
-    if (tfoot) { // Asegurarse de que tfoot exista
-        tfoot.appendChild(filaTotalTabla);
-    } else { // Si tfoot no existe (por ejemplo, si se eliminó antes), crear uno nuevo y añadirlo
-         const newTfoot = document.createElement('tfoot');
-         newTfoot.appendChild(filaTotalTabla);
-         document.querySelector('table').appendChild(newTfoot);
-    }
 
 
-}
 
-// Función para agregar un producto al carrito
-function agregarAlCarrito(productoId) {
-    const productoAAgregar = productosDisponibles.find(p => p.id === productoId);
-    if (!productoAAgregar) {
-        console.error("Producto no encontrado");
-        return;
-    }
 
-    const productoEnCarrito = carrito.find(p => p.id === productoId);
-    if (productoEnCarrito) {
-        productoEnCarrito.cantidad++;
-    } else {
-        // Agregamos una copia del producto con la cantidad inicial
-        carrito.push({ ...productoAAgregar, cantidad: 1 });
-    }
-    console.log("Carrito después de agregar:", carrito);
-    renderizarCarrito();
-}
 
-// Función para eliminar un producto del carrito
-function eliminarDelCarrito(productoId) {
-    const index = carrito.findIndex(p => p.id === productoId);
-    if (index !== -1) {
-        carrito.splice(index, 1);
-    }
-    console.log("Carrito después de eliminar:", carrito);
-    renderizarCarrito();
-}
+    const loadCart = async () => {
+        showLoading(true);
+        try {
+            const response = await fetch(`${apiBase}/cart/${userId}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
 
-// Función para cambiar la cantidad de un producto en el carrito
-function cambiarCantidadEnCarrito(productoId, delta) {
-    const producto = carrito.find(p => p.id === productoId);
-    if (producto) {
-        producto.cantidad += delta;
-        if (producto.cantidad <= 0) {
-            eliminarDelCarrito(productoId);
-        } else {
-            renderizarCarrito();
+            if (!response.ok) {
+                throw new Error(`Error del servidor: ${response.status}`);
+            }
+
+            const cartItems = await response.json();
+            renderCart(cartItems);
+
+        } catch (error) {
+            console.error("Error al cargar el carrito:", error);
+            showErrorState();
+        } finally {
+            showLoading(false);
+        }
+    };
+
+    /**
+     * Renderiza los items del carrito en la página y calcula los totales.
+     * @param {Array} items - La lista de items del carrito obtenida de la API.
+     */
+    const renderCart = (items) => {
+        cartContainer.innerHTML = ''; // Limpiar el contenedor antes de renderizar
+
+        if (items.length === 0) {
+            emptyCartMessage.style.display = 'block';
+            checkoutBtn.disabled = true;
+            updateTotals([]);
+            return;
+        }
+
+        emptyCartMessage.style.display = 'none';
+
+        items.forEach(item => {
+            const itemHtml = `
+                <div class="row mb-4 cart-item" data-item-id="${item.cart_item_id}">
+                    <div class="col-md-3 col-4">
+                        <img src="${apiBase}${item.product.image}" class="img-fluid rounded" alt="${item.product.name}" onerror="this.onerror=null; this.src='https://via.placeholder.com/150?text=Sin+Imagen';">
+                    </div>
+                    <div class="col-md-9 col-8">
+                        <h5>${item.product.name}</h5>
+                        <p class="text-muted small d-none d-md-block">${item.product.description || ''}</p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div class="quantity-control d-flex align-items-center">
+                                <button class="btn btn-sm btn-outline-secondary" data-action="update-quantity" data-item-id="${item.cart_item_id}" data-new-quantity="${item.quantity - 1}">-</button>
+                                <span class="mx-3 fw-bold">${item.quantity}</span>
+                                <button class="btn btn-sm btn-outline-secondary" data-action="update-quantity" data-item-id="${item.cart_item_id}" data-new-quantity="${item.quantity + 1}">+</button>
+                            </div>
+                            <p class="fw-bold mb-0">$${(item.product.price * item.quantity).toFixed(2)}</p>
+                            <button class="btn btn-sm btn-outline-danger" data-action="remove-item" data-item-id="${item.cart_item_id}" title="Eliminar producto">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <hr>`;
+            cartContainer.innerHTML += itemHtml;
+        });
+
+        updateTotals(items);
+        checkoutBtn.disabled = false;
+    };
+
+    // ===================================================================
+    // 3. MANEJO DE EVENTOS (Delegación de Eventos)
+    // ===================================================================
+
+    // Un único listener en el contenedor principal para manejar todos los clics en los botones.
+    cartContainer.addEventListener('click', (e) => {
+        const button = e.target.closest('button');
+        if (!button) return; // Si el clic no fue en un botón, no hacemos nada.
+
+        const { action, itemId } = button.dataset;
+
+        if (action === 'update-quantity') {
+            const newQuantity = parseInt(button.dataset.newQuantity);
+            handleUpdateQuantity(itemId, newQuantity);
+        } else if (action === 'remove-item') {
+            handleRemoveItem(itemId);
+        }
+    });
+
+    // ===================================================================
+    // 4. FUNCIONES PARA COMUNICARSE CON LA API
+    // ===================================================================
+
+    /**
+     * Llama a la API para actualizar la cantidad de un producto.
+     */
+    async function handleUpdateQuantity(itemId, newQuantity) {
+        if (newQuantity < 1) {
+            // Si la cantidad llega a 0, se elimina el producto.
+            handleRemoveItem(itemId);
+            return;
+        }
+        try {
+            const response = await fetch(`${apiBase}/cart/update_item`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ cart_item_id: parseInt(itemId), quantity: newQuantity })
+            });
+            if (!response.ok) throw new Error('Error al actualizar la cantidad');
+
+            loadCart(); // Recargar todo el carrito para reflejar los cambios.
+        } catch (error) {
+            console.error('Error en handleUpdateQuantity:', error);
+            alert('No se pudo actualizar la cantidad del producto.');
         }
     }
-    console.log("Carrito después de cambiar cantidad:", carrito);
-}
 
-function procederAlPago() {
-    if (carrito.length === 0) {
-        alert("Tu carrito está vacío. Agrega algunos productos antes de proceder al pago.");
-        return;
+    /**
+     * Llama a la API para eliminar un producto del carrito.
+     */
+    async function handleRemoveItem(itemId) {
+        if (confirm('¿Estás seguro de que quieres eliminar este producto del carrito?')) {
+            try {
+                const response = await fetch(`${apiBase}/cart/remove_item`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ cart_item_id: parseInt(itemId) })
+                });
+                if (!response.ok) throw new Error('Error al eliminar el producto');
+
+                loadCart(); // Recargar el carrito para reflejar los cambios.
+            } catch (error) {
+                console.error('Error en handleRemoveItem:', error);
+                alert('No se pudo eliminar el producto del carrito.');
+            }
+        }
     }
-    alert(`Procediendo al pago con un total de: $${document.getElementById('totalPrecioGeneral').innerText.replace('$','').replace(' COP','')}`);
-    console.log("Redirigiendo a la página de métodos de pago...");
-    // window.location.href = 'pagina_de_pago.html'; // Descomentar para redirigir
-}
 
- //para prueba
-window.onload = () => {
-    agregarAlCarrito(1);
-    agregarAlCarrito(2);
-    agregarAlCarrito(2);
-    agregarAlCarrito(3);
-    console.log("Carrito inicializado:", carrito);
-};
+    // ===================================================================
+    // 5. FUNCIONES DE UTILIDAD
+    // ===================================================================
+
+    /**
+     * Actualiza el resumen de la compra (subtotal y total).
+     */
+    const updateTotals = (items) => {
+        const subtotal = items.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+        subtotalEl.textContent = `$${subtotal.toFixed(2)}`;
+        totalEl.textContent = `$${subtotal.toFixed(2)}`; // Por ahora el total es igual al subtotal.
+    };
+
+    /**
+     * Muestra u oculta el indicador de carga.
+     */
+    const showLoading = (isLoading) => {
+        loadingIndicator.style.display = isLoading ? 'block' : 'none';
+        cartContainer.style.display = isLoading ? 'none' : 'block';
+        if (isLoading) {
+            emptyCartMessage.style.display = 'none';
+        }
+    };
+
+    /**
+     * Muestra un mensaje de error si la carga inicial falla.
+     */
+    const showErrorState = () => {
+        cartContainer.innerHTML = `<div class="text-center p-5"><p class="text-danger">No se pudo cargar tu carrito. Por favor, inténtalo de nuevo más tarde.</p></div>`;
+    };
+
+    // ===================================================================
+    // 6. EJECUCIÓN INICIAL
+    // ===================================================================
+    loadCart();
+});

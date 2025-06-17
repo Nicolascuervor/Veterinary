@@ -3,412 +3,133 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VetCare Pro - Cuidamos de tu Mejor Amigo</title>
-
+  <title>VetCare - Cuidando a tu Mejor Amigo</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
-
-  <style>
-    :root {
-      --primary-color: #4A90E2; /* Un azul amigable y profesional */
-      --secondary-color: #333A45; /* Gris oscuro para texto */
-      --accent-color: #F5A623; /* Naranja para CTAs y acentos */
-      --bg-light: #F8F9FA;
-      --border-color: #EAEAEA;
-      --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
-      --card-hover-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
-    }
-
-    body {
-      font-family: 'Manrope', sans-serif;
-      color: var(--secondary-color);
-      background-color: #FFF;
-      overflow-x: hidden;
-    }
-
-    /* --- Animaciones y Utilidades --- */
-    .fade-in-section {
-      opacity: 0;
-      transform: translateY(40px);
-      transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-    }
-
-    .fade-in-section.is-visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* --- Hero Section --- */
-    .hero-section {
-      padding: 120px 0;
-      background-color: var(--bg-light);
-    }
-
-    .hero-section h1 {
-      font-weight: 800;
-      font-size: 3.5rem;
-      color: var(--secondary-color);
-      line-height: 1.2;
-    }
-
-    .hero-section .lead {
-      font-size: 1.25rem;
-      color: #6c757d;
-      margin: 1.5rem 0 2rem;
-    }
-
-    .btn-hero {
-      background-color: var(--primary-color);
-      color: white;
-      padding: 14px 30px;
-      font-weight: 700;
-      border-radius: 50px;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
-    }
-
-    .btn-hero:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 20px rgba(74, 144, 226, 0.4);
-    }
-
-    .hero-image-container {
-      position: relative;
-      text-align: center;
-    }
-
-    .hero-image {
-      border-radius: 30px;
-      box-shadow: var(--card-shadow);
-    }
-
-    /* --- Services Section --- */
-    .services-section {
-      padding: 80px 0;
-    }
-    .section-title {
-      font-weight: 800;
-      margin-bottom: 4rem;
-    }
-    .service-card {
-      background: #fff;
-      border: 1px solid var(--border-color);
-      border-radius: 20px;
-      padding: 2.5rem 2rem;
-      text-align: center;
-      transition: all 0.3s ease;
-      box-shadow: var(--card-shadow);
-      height: 100%;
-    }
-    .service-card:hover {
-      transform: translateY(-10px);
-      box-shadow: var(--card-hover-shadow);
-    }
-    .service-card .icon {
-      font-size: 2.5rem;
-      color: var(--primary-color);
-      margin-bottom: 1.5rem;
-    }
-    .service-card h3 {
-      font-weight: 700;
-      font-size: 1.5rem;
-    }
-
-    /* --- Why Us Section --- */
-    .why-us-section {
-      padding: 80px 0;
-      background-color: var(--bg-light);
-    }
-    .why-us-item {
-      text-align: center;
-    }
-    .why-us-item .icon {
-      font-size: 2rem;
-      color: var(--accent-color);
-      margin-bottom: 1rem;
-    }
-    .why-us-item h4 {
-      font-weight: 700;
-    }
-
-    /* --- Testimonials Section --- */
-    .testimonials-section {
-      padding: 80px 0;
-    }
-    .testimonial-card {
-      background-color: var(--bg-light);
-      border-radius: 20px;
-      padding: 2rem;
-      border: 1px solid var(--border-color);
-      text-align: center;
-    }
-    .testimonial-card img {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin-bottom: 1rem;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-    .testimonial-card .name {
-      font-weight: 700;
-      margin-top: 1rem;
-    }
-    .testimonial-card .pet-name {
-      color: #6c757d;
-      font-style: italic;
-    }
-
-    /* --- CTA Section --- */
-    .cta-section {
-      padding: 80px 0;
-      background: linear-gradient(135deg, var(--primary-color), #2c5a8e);
-      color: white;
-      text-align: center;
-      border-radius: 20px;
-      margin: 80px auto;
-      max-width: 95%;
-    }
-    .cta-section h2 {
-      font-weight: 800;
-    }
-    .btn-cta {
-      background-color: var(--accent-color);
-      color: white;
-      padding: 14px 30px;
-      font-weight: 700;
-      border-radius: 50px;
-      transition: all 0.3s ease;
-      border: none;
-    }
-    .btn-cta:hover {
-      background-color: #e69500;
-      transform: scale(1.05);
-    }
-
-    /* --- Footer --- */
-    footer {
-      padding: 60px 0 20px;
-      background-color: var(--secondary-color);
-      color: #adb5bd;
-    }
-    footer h5 {
-      color: white;
-      font-weight: 700;
-      margin-bottom: 1rem;
-    }
-    footer .nav-link {
-      color: #adb5bd;
-      padding: 0.25rem 0;
-      transition: color 0.3s ease;
-    }
-    footer .nav-link:hover {
-      color: white;
-    }
-    footer .social-icons a {
-      color: #adb5bd;
-      font-size: 1.5rem;
-      margin-right: 1rem;
-      transition: color 0.3s ease;
-    }
-    footer .social-icons a:hover {
-      color: var(--primary-color);
-    }
-  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../css/index.css">
 </head>
 <body>
-
 <header id="nav-container"></header>
 
-<section class="hero-section fade-in-section">
-  <div class="container">
-    <div class="row align-items-center g-5">
-      <div class="col-lg-6">
-        <h1 class="display-4">El mejor cuidado para tu fiel compañero</h1>
-        <p class="lead">Ofrecemos una atención veterinaria integral, con un equipo apasionado y la tecnología más avanzada para garantizar el bienestar de tu mascota.</p>
-        <a href="./citas.html" class="btn btn-hero">Agendar una Cita <i class="fas fa-arrow-right ms-2"></i></a>
+<section class="hero-banner">
+  <div class="hero-overlay"></div>
+  <div class="container hero-content text-center">
+    <h1 class="display-3 fw-bold">Cuidado experto para el miembro más importante de tu familia</h1>
+    <p class="lead my-4">Ofrecemos servicios veterinarios completos con la compasión y la profesionalidad que tu mascota merece.</p>
+    <a href="citas.html" class="btn btn-primary btn-lg">Agenda una Cita</a>
+  </div>
+</section>
+
+<section class="container my-5 py-5">
+  <div class="text-center mb-5">
+    <h2 class="section-title">Nuestros Servicios</h2>
+    <p class="text-muted">Desde chequeos de rutina hasta cirugías especializadas.</p>
+  </div>
+  <div class="row text-center">
+    <div class="col-md-4">
+      <div class="service-item">
+        <div class="icon-circle"><i class="fas fa-stethoscope fa-2x"></i></div>
+        <h4>Consultas Generales</h4>
+        <p>Revisiones completas para mantener a tu mascota saludable.</p>
       </div>
-      <div class="col-lg-6">
-        <div class="hero-image-container">
-          <img src="../assets/images/VetCareImage.jpg" alt="Perro y gato felices" class="img-fluid hero-image">
-        </div>
+    </div>
+    <div class="col-md-4">
+      <div class="service-item">
+        <div class="icon-circle"><i class="fas fa-syringe fa-2x"></i></div>
+        <h4>Vacunación</h4>
+        <p>Planes de vacunación personalizados para todas las edades.</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="service-item">
+        <div class="icon-circle"><i class="fas fa-user-md fa-2x"></i></div>
+        <h4>Cirugías</h4>
+        <p>Procedimientos quirúrgicos con la última tecnología y cuidado postoperatorio.</p>
       </div>
     </div>
   </div>
 </section>
 
-<section class="services-section py-5">
+<section class="gallery-section py-5">
   <div class="container">
-    <h2 class="text-center section-title">Nuestros Servicios</h2>
-    <div class="row g-4">
-      <div class="col-md-4 fade-in-section">
-        <div class="service-card">
-          <div class="icon"><i class="fas fa-stethoscope"></i></div>
-          <h3>Consulta General</h3>
-          <p>Revisiones completas para mantener un seguimiento detallado de la salud y prevención de enfermedades.</p>
-        </div>
-      </div>
-      <div class="col-md-4 fade-in-section" style="transition-delay: 0.2s;">
-        <div class="service-card">
-          <div class="icon"><i class="fas fa-syringe"></i></div>
-          <h3>Vacunación y Desparasitación</h3>
-          <p>Planes de inmunización personalizados para proteger a tu mascota de las enfermedades más comunes.</p>
-        </div>
-      </div>
-      <div class="col-md-4 fade-in-section" style="transition-delay: 0.4s;">
-        <div class="service-card">
-          <div class="icon"><i class="fas fa-cut"></i></div>
-          <h3>Peluquería y Estética</h3>
-          <p>Servicios de grooming para que tu mascota no solo se sienta bien, sino que también luzca increíble.</p>
-        </div>
-      </div>
+    <div class="text-center mb-5">
+      <h2 class="section-title">Conoce Nuestra Clínica</h2>
+      <p class="text-muted">Un vistazo a nuestras instalaciones y pacientes felices.</p>
+    </div>
+
+    <div class="gallery-grid">
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?q=80&w=2069" alt="Perros jugando"></div>
+
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=2070" alt="Veterinario con un gato"></div>
+
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1552053831-71594a27632d?q=80&w=1962" alt="Perro feliz"></div>
+
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1555685812-4b943f1cb0eb?q=80&w=2070" alt="Veterinario examinando un perro"></div>
     </div>
   </div>
 </section>
 
-<section class="why-us-section py-5">
-  <div class="container">
-    <h2 class="text-center section-title">¿Por Qué Confiar en Nosotros?</h2>
-    <div class="row g-5">
-      <div class="col-md-3 fade-in-section">
-        <div class="why-us-item">
-          <div class="icon"><i class="fas fa-user-md"></i></div>
-          <h4>Equipo Experto</h4>
-          <p>Veterinarios certificados con años de experiencia y amor por los animales.</p>
-        </div>
-      </div>
-      <div class="col-md-3 fade-in-section" style="transition-delay: 0.2s;">
-        <div class="why-us-item">
-          <div class="icon"><i class="fas fa-microscope"></i></div>
-          <h4>Tecnología de Punta</h4>
-          <p>Equipos de diagnóstico modernos para resultados precisos y rápidos.</p>
-        </div>
-      </div>
-      <div class="col-md-3 fade-in-section" style="transition-delay: 0.4s;">
-        <div class="why-us-item">
-          <div class="icon"><i class="fas fa-heartbeat"></i></div>
-          <h4>Atención Integral</h4>
-          <p>Desde la prevención hasta cirugías complejas, cubrimos todas sus necesidades.</p>
-        </div>
-      </div>
-      <div class="col-md-3 fade-in-section" style="transition-delay: 0.6s;">
-        <div class="why-us-item">
-          <div class="icon"><i class="far fa-clock"></i></div>
-          <h4>Emergencias 24/7</h4>
-          <p>Estamos disponibles a cualquier hora para atender las urgencias de tu mascota.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 
 <section class="testimonials-section py-5">
   <div class="container">
-    <h2 class="text-center section-title">Lo que Nuestros Clientes Dicen</h2>
-    <div class="row g-4">
-      <div class="col-md-4 fade-in-section">
+    <div class="text-center mb-5">
+      <h2 class="section-title">Lo que dicen nuestros clientes</h2>
+    </div>
+    <div class="row">
+      <div class="col-md-4 mb-4">
         <div class="testimonial-card">
-          <img src="https://i.imgur.com/szC38tA.jpg" alt="Cliente 1">
-          <p>"El trato que le dieron a Rocky fue excepcional. Se sintió como en casa y el diagnóstico fue rápido y certero. ¡Totalmente recomendados!"</p>
-          <p class="name">Ana García</p>
-          <p class="pet-name">Dueña de Rocky</p>
+          <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Cliente 1" class="testimonial-avatar">
+          <p class="testimonial-text">"El trato que recibió mi perro 'Rocky' fue excepcional. El personal es amable y muy profesional. ¡Totalmente recomendados!"</p>
+          <div class="testimonial-author">- María G.</div>
         </div>
       </div>
-      <div class="col-md-4 fade-in-section" style="transition-delay: 0.2s;">
+      <div class="col-md-4 mb-4">
         <div class="testimonial-card">
-          <img src="https://i.imgur.com/sC4tW54.jpg" alt="Cliente 2">
-          <p>"Siempre llevo a Luna para sus vacunas y peluquería. El personal es increíblemente amable y profesional. ¡El mejor lugar de la ciudad!"</p>
-          <p class="name">Carlos Martinez</p>
-          <p class="pet-name">Dueño de Luna</p>
+          <img src="https://randomuser.me/api/portraits/men/46.jpg" alt="Cliente 2" class="testimonial-avatar">
+          <p class="testimonial-text">"La mejor clínica veterinaria de la ciudad. Siempre disponibles para cualquier emergencia y se nota que aman a los animales."</p>
+          <div class="testimonial-author">- Juan C.</div>
         </div>
       </div>
-      <div class="col-md-4 fade-in-section" style="transition-delay: 0.4s;">
+      <div class="col-md-4 mb-4">
         <div class="testimonial-card">
-          <img src="https://i.imgur.com/nJk9lAh.jpg" alt="Cliente 3">
-          <p>"Tuvieron una emergencia con mi gato a medianoche y la atención fue inmediata y muy profesional. Le salvaron la vida a Mishi. Eternamente agradecida."</p>
-          <p class="name">Laura Jimenez</p>
-          <p class="pet-name">Dueña de Mishi</p>
+          <img src="https://randomuser.me/api/portraits/women/32.jpg" alt="Cliente 3" class="testimonial-avatar">
+          <p class="testimonial-text">"Gracias a VetCare, mi gata 'Luna' se recuperó de su cirugía muy rápido. Las instalaciones son impecables y el seguimiento fue excelente."</p>
+          <div class="testimonial-author">- Ana P.</div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<div class="container fade-in-section">
-  <section class="cta-section">
-    <h2 class="display-5">¿Listo para darle a tu mascota el cuidado que merece?</h2>
-    <p class="lead my-4">Una cita a tiempo puede marcar la diferencia. Estamos aquí para ayudarte.</p>
-    <a href="./citas.html" class="btn btn-cta btn-lg">Agenda una Cita Ahora</a>
-  </section>
-</div>
-
-<footer class="mt-5">
-  <div class="container">
-    <div class="row py-5">
-      <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
-        <h5>VetCare Pro</h5>
-        <p>Cuidando a tus mascotas con amor y profesionalismo. Tu tranquilidad y su salud son nuestra prioridad.</p>
-        <div class="social-icons">
-          <a href="#"><i class="fab fa-facebook-f"></i></a>
-          <a href="#"><i class="fab fa-instagram"></i></a>
-          <a href="#"><i class="fab fa-whatsapp"></i></a>
-        </div>
+<footer class="footer-section pt-5 pb-4">
+  <div class="container text-center text-md-start">
+    <div class="row">
+      <div class="col-md-4 col-lg-4 col-xl-4 mx-auto mt-3">
+        <h5 class="text-uppercase mb-4 fw-bold">VetCare</h5>
+        <p>Dedicados al cuidado integral y bienestar de tus mascotas, ofreciendo servicios de la más alta calidad con un equipo de profesionales apasionados.</p>
       </div>
-      <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
-        <h5>Navegación</h5>
-        <ul class="nav flex-column">
-          <li class="nav-item"><a href="#" class="nav-link">Inicio</a></li>
-          <li class="nav-item"><a href="#" class="nav-link">Servicios</a></li>
-          <li class="nav-item"><a href="#" class="nav-link">Nosotros</a></li>
-          <li class="nav-item"><a href="#" class="nav-link">Contacto</a></li>
-        </ul>
+      <div class="col-md-4 col-lg-2 col-xl-2 mx-auto mt-3">
+        <h5 class="text-uppercase mb-4 fw-bold">Navegación</h5>
+        <p><a href="servicios.html" class="footer-link">Servicios</a></p>
+        <p><a href="productos.html" class="footer-link">Tienda</a></p>
+        <p><a href="citas.html" class="footer-link">Agendar Cita</a></p>
+        <p><a href="contacto.html" class="footer-link">Contacto</a></p>
       </div>
-      <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
-        <h5>Servicios</h5>
-        <ul class="nav flex-column">
-          <li class="nav-item"><a href="#" class="nav-link">Consulta General</a></li>
-          <li class="nav-item"><a href="#" class="nav-link">Vacunación</a></li>
-          <li class="nav-item"><a href="#" class="nav-link">Cirugías</a></li>
-          <li class="nav-item"><a href="#" class="nav-link">Peluquería</a></li>
-        </ul>
-      </div>
-      <div class="col-lg-4 col-md-6">
-        <h5>Contacto</h5>
-        <p><i class="fas fa-map-marker-alt me-2"></i>Av. Principal #123, Ciudad</p>
-        <p><i class="fas fa-phone me-2"></i>(123) 456-7890</p>
-        <p><i class="fas fa-envelope me-2"></i>info@vetcarepro.com</p>
+      <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mt-3">
+        <h5 class="text-uppercase mb-4 fw-bold">Contacto</h5>
+        <p><i class="fas fa-home me-3"></i> Calle 43-2 #21, Armenia, CO</p>
+        <p><i class="fas fa-envelope me-3"></i> info@vetcare.com</p>
+        <p><i class="fas fa-phone me-3"></i> +57 300 123 4567</p>
       </div>
     </div>
-    <div class="text-center py-3 border-top border-secondary">
-      <p class="mb-0">&copy; 2024 VetCare Pro. Todos los derechos reservados.</p>
+    <hr class="my-4">
+    <div class="text-center">
+      <p>&copy; 2024 VetCare. Todos los derechos reservados.</p>
     </div>
   </div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="../js/nav.js"></script>
-<script>
-  // Script para animaciones on-scroll
-  document.addEventListener("DOMContentLoaded", function() {
-    const sections = document.querySelectorAll('.fade-in-section');
-
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-        }
-      });
-    }, {
-      threshold: 0.1
-    });
-
-    sections.forEach(section => {
-      observer.observe(section);
-    });
-  });
-</script>
 </body>
 </html>
