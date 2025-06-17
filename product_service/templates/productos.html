@@ -87,42 +87,81 @@
     </div>
 
     <script>
-        // Variables globales
+        // --- VARIABLES GLOBALES ---
         let allProducts = [];
         let filteredProducts = [];
-        let categories = [];
+        // <<== CAMBIO 1: Nueva variable para almacenar las categorías de la API.
+        let allCategories = [];
         let cart = [];
 
-        // Configuración de la API
         const API_BASE_URL = 'http://127.0.0.1:5001';
 
-        // Inicialización
+        // --- INICIALIZACIÓN ---
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Iniciando aplicación...');
-            loadProducts();
+            console.log('Iniciando aplicación de productos...');
+            // <<== CAMBIO 2: Ahora cargamos categorías primero, luego productos.
+            loadInitialData();
             setupSearchInput();
             loadCartFromStorage();
             updateCartCount();
         });
 
-        // Configurar búsqueda en tiempo real
-        function setupSearchInput() {
-            const searchInput = document.getElementById('searchInput');
-            let debounceTimer;
+        // <<== CAMBIO 3: Nueva función para cargar todos los datos iniciales.
+        async function loadInitialData() {
+            showLoading(true);
+            try {
+                // Cargar categorías y productos en paralelo para más eficiencia.
+                const [categoriesResponse, productsResponse] = await Promise.all([
+                    fetch(`${API_BASE_URL}/categorias`),
+                    fetch(`${API_BASE_URL}/productos`)
+                ]);
 
-            searchInput.addEventListener('input', function() {
-                clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(() => {
-                    searchProducts();
-                }, 300);
-            });
+                if (!categoriesResponse.ok) throw new Error('No se pudieron cargar las categorías');
+                if (!productsResponse.ok) throw new Error('No se pudieron cargar los productos');
 
-            searchInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    searchProducts();
-                }
+                allCategories = await categoriesResponse.json();
+                allProducts = await productsResponse.json();
+
+                console.log('Categorías cargadas desde la API:', allCategories);
+                console.log('Productos cargados desde la API:', allProducts);
+
+                // Una vez que tenemos los datos, poblamos la UI.
+                populateCategoryFilter();
+                displayProducts(allProducts);
+
+            } catch (error) {
+                console.error('Error en la carga inicial:', error);
+                showMessage(`Error al cargar datos: ${error.message}.`, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // <<== CAMBIO 4: La función `loadCategories` ahora se llama `populateCategoryFilter`.
+        // Ya no hace un fetch, solo usa la variable `allCategories`.
+        function populateCategoryFilter() {
+            const categorySelect = document.getElementById('categoryFilter');
+            // Limpiar opciones, excepto la primera ("Todas las categorías").
+            while (categorySelect.children.length > 1) {
+                categorySelect.removeChild(categorySelect.lastChild);
+            }
+            // Llenar el select con las categorías de la API.
+            allCategories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.id; // Usamos el ID como valor
+                option.textContent = category.name; // Y el nombre como texto visible
+                categorySelect.appendChild(option);
             });
         }
+
+        // <<== CAMBIO 5: `getCategoryName` ahora busca en el array `allCategories`.
+        function getCategoryName(categoryId) {
+            const category = allCategories.find(c => c.id === categoryId);
+            return category ? category.name : 'Sin Categoría';
+        }
+
+
+
 
         // Cargar productos
         async function loadProducts() {
@@ -130,21 +169,21 @@
             try {
                 const response = await fetch(`${API_BASE_URL}/productos`);
                 console.log('Response status:', response.status);
-                
+
                 if (!response.ok) {
                     throw new Error(`Error ${response.status}: ${response.statusText}`);
                 }
-                
+
                 const productos = await response.json();
                 console.log('Productos cargados:', productos);
-                
+
                 allProducts = productos;
                 filteredProducts = [...allProducts];
                 displayProducts(filteredProducts);
-                
+
                 // Cargar categorías después de tener los productos
                 loadCategories();
-                
+
             } catch (error) {
                 console.error('Error cargando productos:', error);
                 showMessage(`Error al cargar los productos: ${error.message}. Verifica que el servidor esté funcionando en http://127.0.0.1:5001`, 'error');
@@ -153,40 +192,9 @@
             }
         }
 
-        // Cargar categorías
-        async function loadCategories() {
-            try {
-                console.log('Cargando categorías...');
-                // Extraer categorías únicas de los productos
-                const uniqueCategories = [...new Set(allProducts.map(p => p.category_id))];
-                const categorySelect = document.getElementById('categoryFilter');
-                
-                // Limpiar opciones existentes (excepto la primera)
-                while (categorySelect.children.length > 1) {
-                    categorySelect.removeChild(categorySelect.lastChild);
-                }
-                
-                // Mapear IDs a nombres de categorías (basado en tu base de datos)
-                const categoryNames = {
-                    1: 'Accesorios',
-                    2: 'Medicamentos', 
-                    3: 'Juguetes',
-                    4: 'Snacks'
-                };
 
-                uniqueCategories.forEach(categoryId => {
-                    const option = document.createElement('option');
-                    option.value = categoryId;
-                    option.textContent = categoryNames[categoryId] || `Categoría ${categoryId}`;
-                    categorySelect.appendChild(option);
-                });
 
-                console.log('Categorías cargadas:', uniqueCategories);
 
-            } catch (error) {
-                console.error('Error cargando categorías:', error);
-            }
-        }
 
         // Mostrar/ocultar loading
         function showLoading(show) {
@@ -237,16 +245,6 @@
     `).join('');
         }
 
-        // Obtener nombre de categoría
-        function getCategoryName(categoryId) {
-            const categoryNames = {
-                1: 'Accesorios',
-                2: 'Medicamentos',
-                3: 'Juguetes', 
-                4: 'Snacks'
-            };
-            return categoryNames[categoryId] || 'Categoría';
-        }
 
         // Búsqueda inteligente con procesamiento de lenguaje natural
         function searchProducts() {
@@ -294,6 +292,10 @@
 
             displayProducts(filteredProducts);
         }
+
+
+
+
 
         // Filtrar productos
         function filterProducts() {
@@ -402,6 +404,9 @@
             }
         }
 
+
+
+
         function toggleCart() {
             // Aquí podrías mostrar un modal con el carrito o redirigir a la página del carrito
             if (cart.length === 0) {
@@ -431,6 +436,8 @@
                 messageElement.remove();
             }, 3000);
         }
+
+
 
         // Función para enviar al microservicio del carrito (ejemplo)
         async function sendToCartMicroservice(productId, quantity) {
