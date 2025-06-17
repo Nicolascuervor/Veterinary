@@ -3,6 +3,7 @@ package com.agend.agendamientoservice.ConfigSecurity;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
@@ -38,6 +39,9 @@ public class SecurityConfig {
                         .requestMatchers("/cita/**").permitAll()
                         .requestMatchers("/historial/**").permitAll()
                         .requestMatchers("/imagenes/mascotas/**").permitAll()
+
+
+                        .requestMatchers(HttpMethod.GET, "/propietarios/{id}").authenticated()
 
 
 
