@@ -11,4 +11,6 @@ public interface PropietarioRepository extends JpaRepository<Propietario, Long> 
 
 
 
+
+
 }

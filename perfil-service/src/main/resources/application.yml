@@ -29,3 +29,13 @@ services:
     url: http://localhost:8081/email-service
   authentication:
     url: http://localhost:8082
+
+
+agendamiento:
+  service:
+    url: http://localhost:8083 # URL del servicio de agendamiento
+
+
+authentication:
+  service:
+    url: http://localhost:8082 # URL del servicio de autenticación

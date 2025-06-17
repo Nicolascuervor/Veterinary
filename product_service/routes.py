@@ -1,108 +1,113 @@
-from flask import Blueprint, request, jsonify , request, render_template
+from flask import Blueprint, request, jsonify, current_app
+# FIX: Se importa el modelo con el nombre correcto: 'Producto'
 from models import Producto, Category
 from database import db
-
-import os
 from werkzeug.utils import secure_filename
-from flask import current_app # Para acceder a la configuración de la app
-
+import os
+import uuid
 
 routes = Blueprint('routes', __name__)
-
-@routes.route('/')
-def index():
-    return render_template('productos.html')
-
-
-@routes.route('/panel')
-def panel_admin():
-    return render_template('admin_panel_complete.html')  
-
-
-@routes.route('/productos', methods=['GET'])
-def get_productos():
-    productos = Producto.query.all()
-    return jsonify([
-        {
-            'id': p.id,
-            'name': p.name,
-            'description': p.description,
-            'price': p.price,
-            'stock': p.stock,
-            'image': p.image,
-            'created_at': p.created_at,
-            'category_id': p.category_id,
-            'seller_id': p.seller_id
-        } for p in productos
-    ])
-#ejemplo postman: 
-#http://localhost:5001/productos
-
-
-@routes.route('/productos/<int:producto_id>', methods=['GET'])
-def get_producto(producto_id):
-    producto = Producto.query.get_or_404(producto_id)
-    return jsonify({
-        'id': producto.id,
-        'name': producto.name,
-        'description': producto.description,
-        'price': producto.price,
-        'stock': producto.stock,
-        'image': producto.image,
-        'created_at': producto.created_at,
-        'category_id': producto.category_id,
-        'seller_id': producto.seller_id
-    })
 
 def allowed_file(filename):
     return '.' in filename and \
         filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
 
+def product_to_dict(p):
+    return {
+        'id': p.id,
+        'name': p.name,
+        'description': p.description,
+        'price': p.price,
+        'stock': p.stock,
+        'image': p.image,
+        'created_at': p.created_at,
+        'category_id': p.category_id,
+        'seller_id': p.seller_id,
+        'category_name': p.category.name if p.category else None
+    }
+
+@routes.route('/productos', methods=['GET'])
+def get_productos():
+    # FIX: Se usa la clase 'Producto' correcta en la consulta
+    productos = db.session.query(Producto).options(db.joinedload(Producto.category)).all()
+    return jsonify([product_to_dict(p) for p in productos])
+
+@routes.route('/productos/<int:producto_id>', methods=['GET'])
+def get_producto(producto_id):
+    # FIX: Se usa la clase 'Producto' correcta en la consulta
+    producto = db.session.query(Producto).options(db.joinedload(Producto.category)).get_or_404(producto_id)
+    return jsonify(product_to_dict(producto))
+
 @routes.route('/productos', methods=['POST'])
-def crear_producto():
-    # Los datos de texto ahora vienen en request.form
-    data = request.form
+def create_product():
+    try:
+        seller_id = request.headers.get('X-User-Id')
+        if not seller_id:
+            return jsonify({'error': 'Cabecera X-User-Id no encontrada'}), 400
 
-    # Lógica para manejar el archivo subido
-    image_path = ''
-    if 'image' in request.files:
-        file = request.files['image']
-        if file and file.filename != '' and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            # Crear directorio si no existe
-            upload_path = current_app.config['UPLOAD_FOLDER']
-            os.makedirs(upload_path, exist_ok=True)
+        data = request.form
+        if not all(k in data for k in ('name', 'price', 'stock', 'category_id')):
+            return jsonify({'error': 'Faltan campos obligatorios'}), 400
 
-            file.save(os.path.join(upload_path, filename))
-            # Guardamos la ruta relativa para acceder a ella desde el frontend
-            image_path = f'/static/uploads/products/{filename}'
+        image_path = None
+        if 'image' in request.files:
+            file = request.files['image']
+            if file and file.filename and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                unique_filename = str(uuid.uuid4()) + os.path.splitext(filename)[1]
+                upload_folder = current_app.config['UPLOAD_FOLDER']
+                os.makedirs(upload_folder, exist_ok=True)
+                file.save(os.path.join(upload_folder, unique_filename))
+                image_path = f'/static/uploads/products/{unique_filename}'
 
-    producto = Producto(
-        name=data['name'],
-        description=data['description'],
-        price=data['price'],
-        stock=data['stock'],
-        image=image_path, # Guardar la ruta del archivo
-        category_id=data['category_id'],
-        seller_id=data['seller_id']
-    )
-    db.session.add(producto)
-    db.session.commit()
-    return jsonify({'message': 'Producto creado con éxito'}), 201
+        # FIX: Se instancia la clase 'Producto' correcta
+        new_product = Producto(
+            name=data['name'],
+            description=data.get('description', ''),
+            price=float(data['price']),
+            stock=int(data['stock']),
+            image=image_path,
+            category_id=int(data['category_id']),
+            seller_id=int(seller_id)
+        )
+        db.session.add(new_product)
+        db.session.commit()
 
-#ejemplo postman.
-#http://localhost:5001/productos
-'''
-{
-  "name": "Collar para perro",
-  "description": "Collar ajustable para perro de raza mediana.",
-  "price": 12.5,
-  "stock": 100,
-  "image": "https://example.com/collar.jpg",
-  "category_id": 1,
-  "seller_id": 101
-}
-'''
+        return jsonify(product_to_dict(new_product)), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': f'Error interno del servidor: {str(e)}'}), 500
+
+@routes.route('/productos/<int:producto_id>', methods=['PUT'])
+def update_product(producto_id):
+    try:
+        # FIX: Se usa la clase 'Producto' correcta en la consulta
+        producto = Producto.query.get_or_404(producto_id)
+        data = request.form
+
+        producto.name = data.get('name', producto.name)
+        producto.description = data.get('description', producto.description)
+        producto.price = float(data.get('price', producto.price))
+        producto.stock = int(data.get('stock', producto.stock))
+        producto.category_id = int(data.get('category_id', producto.category_id))
+
+        if 'image' in request.files:
+            file = request.files['image']
+            if file and file.filename and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                unique_filename = str(uuid.uuid4()) + os.path.splitext(filename)[1]
+                file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], unique_filename))
+                producto.image = f'/static/uploads/products/{unique_filename}'
+
+        db.session.commit()
+        return jsonify(product_to_dict(producto))
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': f'Error interno del servidor: {str(e)}'}), 500
+
+
 
 
 @routes.route('/categorias', methods=['POST'])
@@ -151,43 +156,4 @@ def eliminar_categoria(categoria_id):
     return jsonify({'message': 'Categoría eliminada con éxito'})
 
 
-
-
-@routes.route('/productos/<int:producto_id>', methods=['PUT'])
-def actualizar_producto(producto_id):
-    producto = Producto.query.get_or_404(producto_id)
-    data = request.form
-
-    producto.name = data.get('name', producto.name)
-    producto.name = data.get('name', producto.name)
-    producto.description = data.get('description', producto.description)
-    producto.price = data.get('price', producto.price)
-    producto.stock = data.get('stock', producto.stock)
-
-    # Lógica para actualizar la imagen si se sube una nueva
-    if 'image' in request.files:
-        file = request.files['image']
-        if file and file.filename != '' and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            upload_path = current_app.config['UPLOAD_FOLDER']
-            os.makedirs(upload_path, exist_ok=True)
-            file.save(os.path.join(upload_path, filename))
-            producto.image = f'/static/uploads/products/{filename}'
-
-    db.session.commit()
-    return jsonify({'message': 'Producto actualizado con éxito'})
-
-
-
-
-# Eliminar un producto
-@routes.route('/productos/<int:producto_id>', methods=['DELETE'])
-def eliminar_producto(producto_id):
-    producto = Producto.query.get(producto_id)
-    if not producto:
-        return jsonify({'error': 'Producto no encontrado'}), 404
-
-    db.session.delete(producto)
-    db.session.commit()
-    return jsonify({'message': 'Producto eliminado con éxito'})
 

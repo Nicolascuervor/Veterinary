@@ -1,0 +1,46 @@
+#wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+#sidebar-wrapper {
+    min-height: 100vh;
+    width: 250px;
+    background-color: #343a40; /* Un color oscuro para la barra lateral */
+    transition: margin .25s ease-out;
+}
+
+#sidebar-wrapper .sidebar-heading {
+    padding: 0.875rem 1.25rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+#sidebar-wrapper .list-group {
+    width: 100%;
+}
+
+#sidebar-wrapper .list-group-item {
+    border: none;
+    padding: 1rem 1.25rem;
+}
+
+#sidebar-wrapper .list-group-item.active {
+    background-color: #0d6efd;
+    color: white;
+    border-left: 4px solid #ffc107;
+}
+
+#sidebar-wrapper .list-group-item:hover:not(.active) {
+    background-color: #495057;
+}
+
+#page-content-wrapper {
+    flex: 1;
+    min-width: 0;
+    padding-left: 0;
+}
+
+@media (max-width: 768px) {
+    /* Podríamos añadir lógica para ocultar la barra en móviles */
+}
