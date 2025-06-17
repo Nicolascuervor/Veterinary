@@ -85,6 +85,9 @@ public class PerfilUsuario {
     @JsonIgnore
     private List<PreferenciaPrivacidad> preferenciasPrivacidad;
 
+
+
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 

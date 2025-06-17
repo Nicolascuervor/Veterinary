@@ -90,5 +90,21 @@ public class PropietarioController {
         return ResponseEntity.ok(headers);
     }
 
+    @GetMapping("/auth/{authUserId}")
+    public ResponseEntity<?> getPropietarioByAuthUserId(@PathVariable Long authUserId) {
+        Optional<Propietario> propietarioOpt = propietarioService.findByUsuarioId(authUserId);
+
+        if (propietarioOpt.isPresent()) {
+            // Es buena práctica devolver un DTO, pero por simplicidad
+            // podemos devolver la entidad si aún no tienes el DTO aquí.
+            return ResponseEntity.ok(propietarioOpt.get());
+        } else {
+            // Si por alguna razón no se encuentra, devolvemos 404.
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("No se encontró propietario para el authUserId: " + authUserId);
+        }
+    }
+
+
 
 }

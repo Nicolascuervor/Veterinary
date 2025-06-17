@@ -5,12 +5,24 @@ import com.perfil.perfilservice.model.*;
 import com.perfil.perfilservice.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.springframework.web.client.RestTemplate;
+import com.perfil.perfilservice.dto.PropietarioDTO; // Asegúrate de tener este DTO
+
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +33,131 @@ public class PerfilUsuarioService {
     private final ContactoEmergenciaRepository contactoEmergenciaRepository;
     private final PreferenciaPrivacidadRepository preferenciaPrivacidadRepository;
     private final EmailService emailService;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @Value("${agendamiento.service.url}")
+    private String agendamientoServiceUrl;
+
+    @Value("${authentication.service.url}")
+    private String authenticationServiceUrl;
+
+
+    @Transactional
+    public Optional<PerfilUsuarioDTO> obtenerYCrearPerfilPorUserId(Long userId) {
+        // 1. Intenta obtener el perfil existente
+        Optional<PerfilUsuario> perfilExistente = perfilUsuarioRepository.findByUserId(userId);
+
+        if (perfilExistente.isPresent()) {
+            // Si ya existe, lo convierte a DTO y lo devuelve
+            return perfilExistente.map(this::convertirADTO);
+        } else {
+            // 2. Si NO existe, lo crea
+            System.out.println("Perfil no encontrado para userId: " + userId + ". Creando uno nuevo...");
+
+            // 2a. Llama a agendamiento-service para obtener los datos del propietario
+            PropietarioDTO propietario = obtenerDatosPropietario(userId);
+
+            // 2b. Crea una nueva entidad PerfilUsuario con esos datos
+            PerfilUsuario nuevoPerfil = new PerfilUsuario();
+            nuevoPerfil.setUserId(userId);
+            nuevoPerfil.setNombre(propietario.getNombre());
+            nuevoPerfil.setApellido(propietario.getApellido());
+            nuevoPerfil.setEmail(propietario.getEmail());
+            nuevoPerfil.setTelefono(propietario.getTelefono());
+            nuevoPerfil.setDireccion(propietario.getDireccion());
+            nuevoPerfil.setEstadoPerfil(EstadoPerfil.ACTIVO);
+
+            // 2c. Guarda el nuevo perfil en la base de datos
+            PerfilUsuario perfilGuardado = perfilUsuarioRepository.save(nuevoPerfil);
+
+            // 2d. Crea preferencias y envía email (lógica que ya tenías)
+            crearPreferenciasDefecto(perfilGuardado);
+            emailService.enviarEmailBienvenidaPerfil(perfilGuardado);
+
+            // 3. Devuelve el perfil recién creado
+            return Optional.of(convertirADTO(perfilGuardado));
+        }
+    }
+
+    /**
+     * NUEVO: Método helper para comunicarse con agendamiento-service.
+     */
+    private PropietarioDTO obtenerDatosPropietario(Long authUserId) {
+        // Este endpoint debe existir en agendamiento-service
+        String url = agendamientoServiceUrl + "/propietarios/auth/" + authUserId;
+        try {
+            return restTemplate.getForObject(url, PropietarioDTO.class);
+        } catch (Exception e) {
+            // Manejar el caso en que no se pueda obtener el propietario
+            throw new IllegalStateException("No se pudieron obtener los datos del propietario desde agendamiento-service para el usuario: " + authUserId, e);
+        }
+    }
+
+    public List<MascotaDTO> findMascotasByAuthUserId(Long authUserId) {
+        // Paso 1: Obtener el ID del Propietario desde agendamiento-service
+        // (Asume que agendamiento-service tiene un endpoint para esto)
+        String urlPropietario = agendamientoServiceUrl + "/propietarios/auth/" + authUserId;
+        PropietarioDTO propietario = restTemplate.getForObject(urlPropietario, PropietarioDTO.class);
+
+        if (propietario == null) {
+            return Collections.emptyList();
+        }
+
+        // Paso 2: Usar el ID del Propietario para obtener sus mascotas
+        String urlMascotas = agendamientoServiceUrl + "/mascotas/propietario/" + propietario.getId();
+        ResponseEntity<List<MascotaDTO>> response = restTemplate.exchange(
+                urlMascotas,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<List<MascotaDTO>>() {}
+        );
+        return response.getBody();
+    }
+
+    public ResponseEntity<String> solicitarCambioPassword(CambioPasswordDTO dto) {
+        String url = authenticationServiceUrl + "/auth/change-password";
+        try {
+            return restTemplate.postForEntity(url, dto, String.class);
+        } catch (HttpClientErrorException e) {
+            return new ResponseEntity<>(e.getResponseBodyAsString(), e.getStatusCode());
+        }
+    }
+
+
+    public PerfilCompletoDTO getPerfilCompleto(Long authUserId) {
+        // 1. Obtener la entidad PerfilUsuario desde la base de datos
+        PerfilUsuario perfilUsuario = perfilUsuarioRepository.findByUserId(authUserId)
+                .orElseThrow(() -> new EntityNotFoundException("Perfil no encontrado para el usuario con ID: " + authUserId));
+
+        // 2. Convertir la entidad a su DTO correspondiente usando el método existente
+        PerfilUsuarioDTO perfilDTO = convertirADTO(perfilUsuario);
+
+        // 3. Obtener la lista de mascotas llamando al método que se comunica con agendamiento-service
+        List<MascotaDTO> mascotas = findMascotasByAuthUserId(authUserId);
+
+        // 4. Obtener los contactos de emergencia usando el método existente en este servicio
+        List<ContactoEmergenciaDTO> contactos = obtenerContactosEmergencia(authUserId);
+
+        // 5. Obtener las preferencias de privacidad usando el método existente
+        List<PreferenciaPrivacidadDTO> preferencias = obtenerPreferenciasPrivacidad(authUserId);
+
+        // 6. Ensamblar el DTO completo con toda la información recopilada
+        PerfilCompletoDTO perfilCompleto = new PerfilCompletoDTO();
+        perfilCompleto.setPerfil(perfilDTO);
+        perfilCompleto.setMascotas(mascotas);
+        perfilCompleto.setContactosEmergencia(contactos);
+
+        // Aquí hay una inconsistencia en tu DTO original, lo ajustamos en el siguiente paso.
+        // Por ahora, asumimos que el DTO aceptará una lista.
+        // Si tu DTO solo acepta una, podrías tener que decidir cuál mostrar o cambiar el DTO.
+        // La mejor práctica es que acepte la lista completa.
+        perfilCompleto.setPreferenciasPrivacidad(preferencias); // Esto requiere un cambio en PerfilCompletoDTO
+
+        return perfilCompleto;
+    }
+
 
     // Crear perfil
     public PerfilUsuarioDTO crearPerfil(PerfilUsuarioCreateDTO createDTO) {
@@ -72,6 +209,20 @@ public class PerfilUsuarioService {
     public Optional<PerfilUsuarioDTO> obtenerPerfilPorUserId(Long userId) {
         return perfilUsuarioRepository.findByUserId(userId)
                 .map(this::convertirADTO);
+    }
+
+    public void updateFotoPerfil(Long authUserId, String fotoUrl) {
+
+        PerfilUsuario perfil = perfilUsuarioRepository.findByUserId(authUserId)
+                .orElseThrow(() -> new EntityNotFoundException("Perfil no encontrado para el usuario: " + authUserId));
+
+        // 2. Establecer la nueva URL en la entidad del perfil.
+        perfil.setFotoPerfilUrl(fotoUrl);
+
+        // 3. Guardar la entidad actualizada en la base de datos.
+        //    Como el servicio es @Transactional, este guardado se confirma
+        //    automáticamente al finalizar el método.
+        perfilUsuarioRepository.save(perfil);
     }
 
     // Obtener perfil por ID
@@ -307,5 +458,46 @@ public class PerfilUsuarioService {
                 preferencia.getDescripcion()
         );
     }
+
+    @Transactional
+    public Optional<PerfilUsuarioDTO> obtenerOCrearPerfil(Long userId, String email) {
+        Optional<PerfilUsuario> perfilExistente = perfilUsuarioRepository.findByUserId(userId);
+
+        if (perfilExistente.isPresent()) {
+            return perfilExistente.map(this::convertirADTO);
+        } else {
+            // --- LÓGICA CORREGIDA ---
+            System.out.println("Perfil no encontrado para userId: " + userId + ". Creando uno nuevo...");
+
+            // 1. Llamamos a agendamiento-service para obtener nombre y apellido.
+            PropietarioDTO propietario = obtenerDatosPropietario(userId);
+
+            // 2. Creamos el nuevo perfil con TODOS los datos necesarios.
+            PerfilUsuario nuevoPerfil = new PerfilUsuario();
+            nuevoPerfil.setUserId(userId);
+            nuevoPerfil.setEmail(email); // Del header
+            nuevoPerfil.setNombre(propietario.getNombre()); // De agendamiento-service
+            nuevoPerfil.setApellido(propietario.getApellido()); // De agendamiento-service
+            // --- AÑADE ESTAS DOS LÍNEAS ---
+            nuevoPerfil.setTelefono(propietario.getTelefono());
+            nuevoPerfil.setDireccion(propietario.getDireccion());
+            // ---------------------------------
+            nuevoPerfil.setEstadoPerfil(EstadoPerfil.ACTIVO);
+
+            // 3. Guardamos la entidad ahora sí válida.
+            PerfilUsuario perfilGuardado = perfilUsuarioRepository.save(nuevoPerfil);
+
+            // Lógica de bienvenida que ya tenías
+            crearPreferenciasDefecto(perfilGuardado);
+            // emailService.enviarEmailBienvenidaPerfil(perfilGuardado);
+
+            return Optional.of(convertirADTO(perfilGuardado));
+        }
+    }
+
+
+
+
+
 }
 

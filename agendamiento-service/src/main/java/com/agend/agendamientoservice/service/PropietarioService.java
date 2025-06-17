@@ -38,4 +38,9 @@ public class PropietarioService {
         propietarioRepository.deleteById(id);
     }
 
+
+    public Optional<Propietario> findByUsuarioId(Long authUserId) {
+        return propietarioRepository.findByUsuarioId(authUserId);
+    }
+
 }

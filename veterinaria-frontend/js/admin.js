@@ -1,275 +1,299 @@
-// veterinaria-frontend/js/admin.js (Versión Completa y Definitiva)
 document.addEventListener('DOMContentLoaded', () => {
+    // --- 1. CONFIGURACIÓN Y VERIFICACIÓN DE SEGURIDAD ---
     const token = localStorage.getItem('token');
     const userRole = localStorage.getItem('userRole');
 
-    // 1. Verificación de seguridad
     if (userRole !== 'ADMIN') {
         alert('Acceso denegado. Esta página es solo para administradores.');
         window.location.href = 'dashboard.html';
         return;
     }
 
-    // --- 2. Preparación (URLs y Headers) ---
     const apiGatewayUrl = 'http://localhost:8081';
-    const headers = {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-    };
+    const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
 
-    // --- 3. Referencias al DOM ---
-    const userTableBody = document.getElementById('user-table-body');
-    const productTableBody = document.getElementById('product-table-body');
-    const productModal = new bootstrap.Modal(document.getElementById('product-modal'));
-    const userRoleModal = new bootstrap.Modal(document.getElementById('user-role-modal'));
-    const productForm = document.getElementById('product-form');
-    const userRoleForm = document.getElementById('user-role-form');
+    let allUsers = [];
+    let allProducts = [];
 
-    // --- 4. Funciones de Carga de Datos ---
+    const contentArea = document.getElementById('admin-content-area');
+    const navLinks = document.querySelectorAll('#sidebar-wrapper .list-group-item');
+    const modalsContainer = document.getElementById('modals-container');
 
-    // Archivo: veterinaria-frontend/js/admin.js
+    let userRoleModal, productModal;
 
-    const loadUsers = async () => {
+    // --- 2. LÓGICA DE CARGA ---
+    const loadModals = async () => {
         try {
-            const response = await fetch(`${apiGatewayUrl}/api/admin/users`, { headers });
-            if (!response.ok) {
-                throw new Error(`Error ${response.status} al cargar usuarios.`);
-            }
-            const users = await response.json();
+            const response = await fetch('admin_modals.html');
+            modalsContainer.innerHTML = await response.text();
+            userRoleModal = new bootstrap.Modal(document.getElementById('user-role-modal'));
+            productModal = new bootstrap.Modal(document.getElementById('product-modal'));
 
-            userTableBody.innerHTML = '';
-            users.forEach(user => {
-                const row = document.createElement('tr');
-
-                // --- CORRECCIÓN AQUÍ: Usamos user.activo en lugar de user.enabled ---
-                const statusBadge = user.enabled ? `<span class="badge bg-success">Activo</span>` : `<span class="badge bg-danger">Inactivo</span>`;
-
-                row.innerHTML = `
-                <td>${user.id}</td>
-                <td>${user.username}</td>
-                <td>${user.email}</td>
-                <td>${user.role}</td>
-                <td>${statusBadge}</td>
-                <td>
-                    <button class="btn btn-sm btn-warning btn-edit-role" data-user-id="${user.id}" data-current-role="${user.role}" title="Cambiar Rol">
-                        <i class="fas fa-user-shield"></i>
-                    </button>
-                    <button class="btn btn-sm ${user.enabled ? 'btn-secondary' : 'btn-success'} btn-toggle-status" data-user-id="${user.id}" data-enabled="${user.enabled}" title="${user.enabled ? 'Desactivar' : 'Activar'}">
-                        <i class="fas ${user.enabled ? 'fa-toggle-off' : 'fa-toggle-on'}"></i>
-                    </button>
-                    <button class="btn btn-sm btn-danger btn-delete-user" data-user-id="${user.id}" title="Eliminar Usuario">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            `;
-                userTableBody.appendChild(row);
-            });
-        } catch (error) {
-            console.error(error);
-            userTableBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error al cargar los usuarios. Revisa la consola (F12).</td></tr>`;
-        }
+            document.getElementById('user-role-form').addEventListener('submit', handleRoleFormSubmit);
+            document.getElementById('product-form').addEventListener('submit', handleProductFormSubmit);
+        } catch (error) { console.error("No se pudieron cargar los modales:", error); }
     };
 
-    // Cargar y "dibujar" productos en la tabla
-    const loadProducts = async () => {
+    const loadSection = async (section) => {
+        contentArea.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-primary"></div></div>';
         try {
-            // Nota: El GET de productos es público, pero enviamos el header por si se quisiera proteger en el futuro.
-            const response = await fetch(`${apiGatewayUrl}/productos`, { headers });
-            if (!response.ok) {
-                throw new Error(`Error ${response.status} al cargar productos.`);
-            }
-            const products = await response.json();
+            const response = await fetch(`admin_${section}.html`);
+            if (!response.ok) throw new Error(`Vista no encontrada: admin_${section}.html`);
+            contentArea.innerHTML = await response.text();
 
-            productTableBody.innerHTML = ''; // Limpiar
-            products.forEach(product => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${product.id}</td>
-                    <td>${product.name}</td>
-                    <td>$${product.price.toFixed(2)}</td>
-                    <td>${product.stock}</td>
-                    <td>
-                        <button class="btn btn-sm btn-info btn-edit-product" data-product-id="${product.id}" title="Editar">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-sm btn-danger btn-delete-product" data-product-id="${product.id}" title="Eliminar">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                `;
-                productTableBody.appendChild(row);
-            });
-        } catch (error) {
-            console.error(error);
-            productTableBody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">Error al cargar los productos. Revisa la consola (F12).</td></tr>`;
-        }
+            if (section === 'users') initializeUsersSection();
+            else if (section === 'products') initializeProductsSection();
+            else if (section === 'dashboard') initializeDashboardSection();
+        } catch (error) { contentArea.innerHTML = `<div class="alert alert-danger">${error.message}</div>`; }
     };
 
-    // --- 5. Lógica de Eventos (Botones y Formularios) ---
-    // (Aquí va toda la lógica para los clics en botones de editar, eliminar, etc., y el envío de los formularios de los modales)
-    // Esta es la lógica completa que faltaba.
+    // --- 3. INICIALIZACIÓN POR SECCIÓN ---
+    const initializeDashboardSection = () => {
+        document.getElementById('total-users-kpi').textContent = allUsers.length;
+        document.getElementById('total-products-kpi').textContent = allProducts.length;
+    };
+    const initializeUsersSection = () => {
+        renderUsersTable(allUsers);
+        document.getElementById('apply-user-filters').addEventListener('click', applyUserFilters);
+        document.getElementById('clear-user-filters').addEventListener('click', clearUserFilters);
+        document.getElementById('user-table-body').addEventListener('click', handleUserActionClick);
+    };
+    const initializeProductsSection = () => {
+        renderProductsTable(allProducts);
+        document.getElementById('apply-product-filters').addEventListener('click', applyProductFilters);
+        document.getElementById('clear-product-filters').addEventListener('click', clearProductFilters);
+        document.getElementById('product-table-body').addEventListener('click', handleProductActionClick);
+        document.getElementById('btn-crear-producto').addEventListener('click', openNewProductModal);
+    };
 
-    // Eventos para la tabla de usuarios
-    userTableBody.addEventListener('click', async (e) => {
+    // --- 4. RENDERIZADO DE TABLAS ---
+    const renderUsersTable = (users) => {
+        const userTableBody = document.getElementById('user-table-body');
+        userTableBody.innerHTML = '';
+        users.forEach(user => {
+            const statusBadge = user.enabled ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-danger">Inactivo</span>';
+            const toggleButton = `<button class="btn btn-sm ${user.enabled ? 'btn-secondary' : 'btn-success'} btn-toggle-status" data-user-id="${user.id}" data-enabled="${user.enabled}" title="${user.enabled ? 'Desactivar' : 'Activar'}"><i class="fas fa-toggle-${user.enabled ? 'on' : 'off'}"></i></button>`;
+            userTableBody.innerHTML += `<tr>
+                <td>${user.id}</td><td>${user.username}</td><td>${user.email}</td><td>${user.role}</td><td>${statusBadge}</td>
+                <td><button class="btn btn-sm btn-warning btn-edit-role" data-user-id="${user.id}" data-current-role="${user.role}" title="Cambiar Rol"><i class="fas fa-user-shield"></i></button> ${toggleButton}</td>
+            </tr>`;
+        });
+    };
+    const renderProductsTable = (products) => {
+        const productTableBody = document.getElementById('product-table-body');
+        productTableBody.innerHTML = '';
+        products.forEach(product => {
+            // LOG: Muestra el objeto de producto que se está renderizando.
+            console.log('[Admin Panel] Renderizando producto:', product);
+
+            const stockBadge = product.stock > 10 ? `<span class="badge bg-success">En Stock (${product.stock})</span>`
+                : product.stock > 0 ? `<span class="badge bg-warning">Stock Bajo (${product.stock})</span>`
+                    : `<span class="badge bg-danger">Agotado</span>`;
+
+            const actionButtons = `<button class="btn btn-sm btn-warning btn-edit-product" data-product-id="${product.id}" title="Editar Producto"><i class="fas fa-edit"></i></button>`;
+
+            productTableBody.innerHTML += `<tr>
+                <td>${product.id}</td>
+                <td>${product.name}</td>
+                <td>${product.category_name || 'N/A'}</td>
+                <td>$${product.price.toLocaleString('es-CO')}</td>
+                <td>${stockBadge}</td>
+                <td>${actionButtons}</td>
+            </tr>`;
+        });
+    };
+
+    // --- 5. LÓGICA DE FILTROS ---
+    const applyUserFilters = () => {
+        const searchValue = document.getElementById('user-search-input').value.toLowerCase();
+        const roleValue = document.getElementById('user-role-filter').value;
+        const statusValue = document.getElementById('user-status-filter').value;
+        renderUsersTable(allUsers.filter(user =>
+            (user.username.toLowerCase().includes(searchValue) || user.email.toLowerCase().includes(searchValue)) &&
+            (!roleValue || user.role === roleValue) &&
+            (!statusValue || String(user.enabled) === statusValue)
+        ));
+    };
+    const clearUserFilters = () => {
+        document.getElementById('user-search-input').value = '';
+        document.getElementById('user-role-filter').value = '';
+        document.getElementById('user-status-filter').value = '';
+        renderUsersTable(allUsers);
+    };
+    const applyProductFilters = () => {
+        const searchValue = document.getElementById('product-search-input').value.toLowerCase();
+        const categoryValue = document.getElementById('product-category-filter').value;
+        const stockValue = document.getElementById('product-stock-filter').value;
+        renderProductsTable(allProducts.filter(product => {
+            const matchesSearch = product.name.toLowerCase().includes(searchValue);
+            const matchesCategory = !categoryValue || product.category_name === categoryValue;
+            let matchesStock = !stockValue || (stockValue === 'in-stock' && product.stock > 10) || (stockValue === 'low-stock' && product.stock > 0 && product.stock <= 10) || (stockValue === 'out-of-stock' && product.stock === 0);
+            return matchesSearch && matchesCategory && matchesStock;
+        }));
+    };
+    const clearProductFilters = () => {
+        document.getElementById('product-search-input').value = '';
+        document.getElementById('product-category-filter').value = '';
+        document.getElementById('product-stock-filter').value = '';
+        renderProductsTable(allProducts);
+    };
+
+    // --- 6. LÓGICA DE ACCIONES ---
+    const handleUserActionClick = async (e) => {
         const target = e.target.closest('button');
         if (!target) return;
-
         const userId = target.dataset.userId;
-
         if (target.classList.contains('btn-edit-role')) {
             document.getElementById('user-id-role').value = userId;
             document.getElementById('user-role-select').value = target.dataset.currentRole;
             userRoleModal.show();
         }
-
         if (target.classList.contains('btn-toggle-status')) {
             const isEnabled = target.dataset.enabled === 'true';
-            if (confirm(`¿Estás seguro de que quieres ${isEnabled ? 'desactivar' : 'activar'} a este usuario?`)) {
+            if (confirm(`¿Seguro que quieres ${isEnabled ? 'DESACTIVAR' : 'ACTIVAR'} a este usuario?`)) {
                 try {
+                    // FIX: URL Corregida con la sintaxis ${...}
                     const response = await fetch(`${apiGatewayUrl}/api/admin/users/${userId}/status`, {
                         method: 'PUT', headers, body: JSON.stringify({ enabled: !isEnabled })
                     });
                     if (!response.ok) throw new Error('Falló la actualización de estado');
-                    await loadUsers(); // Recargar la tabla
-                } catch (error) {
-                    alert('No se pudo actualizar el estado.');
-                    console.error(error);
-                }
+                    await refreshData('users');
+                } catch (error) { console.error(error); alert('No se pudo actualizar el estado.'); }
             }
         }
-    });
-
-    // Evento para el formulario de cambio de rol
-    userRoleForm.addEventListener('submit', async (e) => {
+    };
+    const handleRoleFormSubmit = async (e) => {
         e.preventDefault();
         const userId = document.getElementById('user-id-role').value;
         const newRole = document.getElementById('user-role-select').value;
         try {
+            // FIX: URL Corregida con la sintaxis ${...}
             const response = await fetch(`${apiGatewayUrl}/api/admin/users/${userId}/role`, {
                 method: 'PUT', headers, body: JSON.stringify({ role: newRole })
             });
             if (!response.ok) throw new Error(await response.text());
             userRoleModal.hide();
-            await loadUsers(); // Recargar la tabla
-        } catch (error) {
-            alert(`Error al cambiar rol: ${error.message}`);
-        }
-    });
-
-    // Eventos para la tabla de productos
-    document.getElementById('btn-crear-producto').addEventListener('click', () => {
-        productForm.reset();
-        document.getElementById('product-modal-title').textContent = 'Crear Producto';
-        document.getElementById('product-id').value = '';
-        productModal.show();
-    });
-
-    productTableBody.addEventListener('click', async (e) => {
-        const target = e.target.closest('button');
+            await refreshData('users');
+        } catch (error) { alert(`Error al cambiar rol: ${error.message}`); }
+    };
+    const handleProductActionClick = async (e) => {
+        const target = e.target.closest('button.btn-edit-product');
         if (!target) return;
-
         const productId = target.dataset.productId;
-
-        if (target.classList.contains('btn-edit-product')) {
-
+        try {
+            // FIX: URL Corregida con la sintaxis ${...}
             const response = await fetch(`${apiGatewayUrl}/productos/${productId}`);
-
+            if (!response.ok) throw new Error('Producto no encontrado');
             const product = await response.json();
-
-            // Llenamos el formulario
             document.getElementById('product-modal-title').textContent = 'Editar Producto';
-            document.getElementById('product-id').value = product.id;
             document.getElementById('product-id').value = product.id;
             document.getElementById('product-name').value = product.name;
             document.getElementById('product-description').value = product.description;
             document.getElementById('product-price').value = product.price;
             document.getElementById('product-stock').value = product.stock;
-            document.getElementById('product-category').value = product.category_id;
-            document.getElementById('product-seller').value = product.seller_id;
-
-
-            const imagePreviewContainer = document.getElementById('image-preview-container');
-            const imagePreview = document.getElementById('image-preview');
-
-
-
-            // --- LÍNEA CORRECTA ---
-            if (product.image) {
-                imagePreview.src = `${apiGatewayUrl}${product.image}`;
-                imagePreviewContainer.style.display = 'block';
-            } else {
-                imagePreviewContainer.style.display = 'none';
-            }
-
-            // Limpiamos el campo de archivo, ya que no se puede pre-rellenar
+            document.getElementById('product-category').value = product.category_id.name;
             document.getElementById('product-image-file').value = '';
-
             productModal.show();
+        } catch (error) {
+            console.error("Error al obtener detalles del producto:", error);
+            alert("No se pudieron cargar los datos para editar.");
         }
-
-        if (target.classList.contains('btn-delete-product')) {
-            if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
-                try {
-                    const response = await fetch(`${apiGatewayUrl}/productos/${productId}`, { method: 'DELETE', headers });
-                    if (!response.ok) throw new Error('Error al eliminar');
-                    await loadProducts();
-                } catch (error) {
-                    alert('No se pudo eliminar el producto.');
-                }
-            }
-        }
-    });
-
-    // Archivo: veterinaria-frontend/js/admin.js
-
-    // Archivo: veterinaria-frontend/js/admin.js
-
-    productForm.addEventListener('submit', async (e) => {
+    };
+    const openNewProductModal = () => {
+        document.getElementById('product-form').reset();
+        document.getElementById('product-modal-title').textContent = 'Crear Nuevo Producto';
+        document.getElementById('product-id').value = '';
+        productModal.show();
+    };
+    const handleProductFormSubmit = async (e) => {
         e.preventDefault();
-        const productId = document.getElementById('product-id').value;
+        console.log('[Admin Panel] Se ha enviado el formulario de producto.');
+
+        const form = document.getElementById('product-form');
+        const productId = form.querySelector('#product-id').value;
         const isEditing = !!productId;
 
-        // 1. Crear un objeto FormData
-        const formData = new FormData();
+        const formData = new FormData(form);
 
-
-
-        // 2. Añadir todos los campos de texto
-        formData.append('name', document.getElementById('product-name').value);
-        formData.append('description', document.getElementById('product-description').value);
-        formData.append('price', document.getElementById('product-price').value);
-        formData.append('stock', document.getElementById('product-stock').value);
-        formData.append('category_id', document.getElementById('product-category').value);
-        formData.append('seller_id', document.getElementById('product-seller').value);
-
-        // 3. Añadir el archivo de imagen si se seleccionó uno
-        const imageFile = document.getElementById('product-image-file').files[0];
-        if (imageFile) {
-            formData.append('image', imageFile);
+        // LOG: Muestra todos los datos que se van a enviar al backend.
+        console.log('[Admin Panel] Datos a enviar en FormData:');
+        for (let [key, value] of formData.entries()) {
+            // Si es un archivo, muestra su nombre y tamaño.
+            if (value instanceof File) {
+                console.log(`  ${key}: ${value.name} (Tamaño: ${value.size} bytes)`);
+            } else {
+                console.log(`  ${key}: ${value}`);
+            }
         }
 
         const url = isEditing ? `${apiGatewayUrl}/productos/${productId}` : `${apiGatewayUrl}/productos`;
         const method = isEditing ? 'PUT' : 'POST';
 
-        // 4. Modificar la cabecera y el cuerpo del fetch
-        const fetchHeaders = new Headers();
-        fetchHeaders.append('Authorization', `Bearer ${token}`);
-        // NO AÑADIR 'Content-Type', el navegador lo hará automáticamente por nosotros con FormData
+        console.log(`[Admin Panel] Enviando petición: ${method} a ${url}`);
 
         try {
-            const response = await fetch(url, { method, headers: fetchHeaders, body: formData });
-            // ... (el resto del manejo de errores y respuesta es igual)
-            const responseText = await response.text();
-            if (!response.ok) throw new Error(`Error ${response.status}: ${responseText}`);
-            alert(`Producto ${isEditing ? 'actualizado' : 'creado'} con éxito.`);
-            productModal.hide();
-            await loadProducts();
-        } catch(error) {
-            alert(`Error al guardar: ${error.message}`);
-        }
-    });
+            const response = await fetch(url, {
+                method: method,
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            });
 
-    // --- 6. Carga Inicial de Datos ---
-    loadUsers();
-    loadProducts();
+            console.log(`[Admin Panel] Respuesta del servidor recibida con estado: ${response.status}`);
+
+            if (!response.ok) {
+                // LOG: Si la respuesta no es JSON (como una página de error HTML), la mostramos.
+                const errorText = await response.text();
+                console.error('[Admin Panel] La respuesta del servidor no fue JSON. Contenido:', errorText);
+                throw new Error(`El servidor respondió con un error ${response.status}. Revisa la consola de tu IDE para ver el error del backend.`);
+            }
+
+            productModal.hide();
+            await refreshData('products');
+            alert(`Producto ${isEditing ? 'actualizado' : 'creado'} con éxito.`);
+
+        } catch (error) {
+            alert(`Error al guardar el producto: ${error.message}`);
+            console.error(error);
+        }
+    };
+
+    // --- 7. ARRANQUE Y REFRESCO DE DATOS ---
+    const refreshData = async (sectionToRender) => {
+        try {
+            if (sectionToRender === 'users') {
+                allUsers = await (await fetch(`${apiGatewayUrl}/api/admin/users`, { headers })).json();
+                renderUsersTable(allUsers);
+            } else if (sectionToRender === 'products') {
+                allProducts = await (await fetch(`${apiGatewayUrl}/productos`)).json();
+                renderProductsTable(allProducts);
+            }
+        } catch (error) { console.error("Error al refrescar datos:", error); }
+    };
+
+    const initApp = async () => {
+        try {
+            await loadModals();
+            [allUsers, allProducts] = await Promise.all([
+                (await fetch(`${apiGatewayUrl}/api/admin/users`, { headers })).json(),
+                (await fetch(`${apiGatewayUrl}/productos`)).json()
+            ]);
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    e.currentTarget.classList.add('active');
+                    loadSection(e.currentTarget.dataset.section);
+                });
+            });
+
+            loadSection('dashboard');
+            document.querySelector('[data-section="dashboard"]').classList.add('active');
+        } catch (error) {
+            contentArea.innerHTML = `<div class="alert alert-danger">Error fatal al cargar los datos iniciales.</div>`;
+            console.error("Error de inicialización:", error);
+        }
+    };
+
+    initApp();
 });

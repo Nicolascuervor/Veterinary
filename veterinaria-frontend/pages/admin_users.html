@@ -1,0 +1,25 @@
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Gestión de Usuarios</h6>
+    </div>
+    <div class="card-body">
+        <div class="accordion mb-3" id="user-filters-accordion">
+            <div class="accordion-item"><h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseUsers"><i class="fas fa-filter me-2"></i>Filtros</button>
+            </h2><div id="collapseUsers" class="accordion-collapse collapse" data-bs-parent="#user-filters-accordion"><div class="accordion-body">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-4"><input type="text" id="user-search-input" class="form-control" placeholder="Buscar por nombre o email..."></div>
+                    <div class="col-md-3"><select id="user-role-filter" class="form-select"><option value="">Todos los Roles</option><option value="ADMIN">ADMIN</option><option value="USER">USER</option></select></div>
+                    <div class="col-md-3"><select id="user-status-filter" class="form-select"><option value="">Cualquier Estado</option><option value="true">Activo</option><option value="false">Inactivo</option></select></div>
+                    <div class="col-md-2 d-grid gap-2"><button id="apply-user-filters" class="btn btn-primary">Aplicar</button><button id="clear-user-filters" class="btn btn-secondary">Limpiar</button></div>
+                </div>
+            </div></div></div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered" width="100%" cellspacing="0">
+                <thead><tr><th>ID</th><th>Username</th><th>Email</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead>
+                <tbody id="user-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
