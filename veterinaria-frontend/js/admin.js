@@ -14,25 +14,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let allUsers = [];
     let allProducts = [];
+    let allMascotas = []; // Variable para mascotas
+
 
     const contentArea = document.getElementById('admin-content-area');
     const navLinks = document.querySelectorAll('#sidebar-wrapper .list-group-item');
     const modalsContainer = document.getElementById('modals-container');
 
-    let userRoleModal, productModal;
+    let userRoleModal, productModal, mascotaModal;
 
-    // --- 2. LÓGICA DE CARGA ---
+    // --- 2. LÓGICA DE CARGA (Ajustada para el modal de mascotas) ---
     const loadModals = async () => {
         try {
             const response = await fetch('admin_modals.html');
             modalsContainer.innerHTML = await response.text();
             userRoleModal = new bootstrap.Modal(document.getElementById('user-role-modal'));
             productModal = new bootstrap.Modal(document.getElementById('product-modal'));
+            mascotaModal = new bootstrap.Modal(document.getElementById('mascota-modal'));
 
             document.getElementById('user-role-form').addEventListener('submit', handleRoleFormSubmit);
             document.getElementById('product-form').addEventListener('submit', handleProductFormSubmit);
+            document.getElementById('mascota-form').addEventListener('submit', handleMascotaFormSubmit);
+
+
         } catch (error) { console.error("No se pudieron cargar los modales:", error); }
     };
+
 
     const loadSection = async (section) => {
         contentArea.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-primary"></div></div>';
@@ -44,14 +51,21 @@ document.addEventListener('DOMContentLoaded', () => {
             if (section === 'users') initializeUsersSection();
             else if (section === 'products') initializeProductsSection();
             else if (section === 'dashboard') initializeDashboardSection();
+            else if (section === 'pets') initializeMascotasSection();
+
         } catch (error) { contentArea.innerHTML = `<div class="alert alert-danger">${error.message}</div>`; }
     };
+
+
 
     // --- 3. INICIALIZACIÓN POR SECCIÓN ---
     const initializeDashboardSection = () => {
         document.getElementById('total-users-kpi').textContent = allUsers.length;
         document.getElementById('total-products-kpi').textContent = allProducts.length;
+        document.getElementById('total-mascotas-kpi').textContent = allMascotas.length;
     };
+
+
     const initializeUsersSection = () => {
         renderUsersTable(allUsers);
         document.getElementById('apply-user-filters').addEventListener('click', applyUserFilters);
@@ -65,6 +79,17 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('product-table-body').addEventListener('click', handleProductActionClick);
         document.getElementById('btn-crear-producto').addEventListener('click', openNewProductModal);
     };
+
+
+    const initializeMascotasSection = () => {
+        renderMascotasTable(allMascotas);
+        document.getElementById('apply-mascota-filters').addEventListener('click', applyMascotaFilters);
+        document.getElementById('clear-mascota-filters').addEventListener('click', clearMascotaFilters);
+        document.getElementById('mascotas-table-body').addEventListener('click', handleMascotaActionClick);
+        document.getElementById('btn-crear-mascota').addEventListener('click', openNewMascotaModal);
+    };
+
+
 
     // --- 4. RENDERIZADO DE TABLAS ---
     const renderUsersTable = (users) => {
@@ -103,6 +128,82 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+
+
+    /**
+     * Calcula la edad en años y meses a partir de una fecha de nacimiento.
+     * @param {string} fechaNacimientoStr - La fecha de nacimiento en formato 'YYYY-MM-DD'.
+     * @returns {string} La edad formateada, por ejemplo: "3 años y 2 meses".
+     */
+    const calcularEdad = (fechaNacimientoStr) => {
+        if (!fechaNacimientoStr) {
+            return 'N/A';
+        }
+        const fechaNacimiento = new Date(fechaNacimientoStr);
+        const hoy = new Date();
+
+        let anios = hoy.getFullYear() - fechaNacimiento.getFullYear();
+        let meses = hoy.getMonth() - fechaNacimiento.getMonth();
+
+        if (meses < 0 || (meses === 0 && hoy.getDate() < fechaNacimiento.getDate())) {
+            anios--;
+            meses += 12;
+        }
+
+        // Si la mascota tiene menos de un año, mostrar solo los meses.
+        if (anios === 0) {
+            return `${meses} mes${meses !== 1 ? 'es' : ''}`;
+        }
+
+        return `${anios} año${anios !== 1 ? 's' : ''}`;
+    };
+
+    /**
+     * Renderiza la tabla de mascotas en el panel de administración.
+     * @param {Array<Object>} mascotas - El arreglo de objetos de mascotas a renderizar.
+     */
+    const renderMascotasTable = (mascotas) => {
+        const mascotasTableBody = document.getElementById('mascotas-table-body');
+        mascotasTableBody.innerHTML = '';
+
+        if (!mascotas || mascotas.length === 0) {
+            mascotasTableBody.innerHTML = `<tr><td colspan="10" class="text-center">No se encontraron mascotas.</td></tr>`;
+            return;
+        }
+
+        mascotas.forEach(mascota => {
+
+            console.log('[DEBUG] Renderizando mascota en tabla:', mascota);
+
+            const edadCalculada = calcularEdad(mascota.fechaNacimiento);
+            const nombrePropietario = mascota.propietario ? mascota.propietario.nombre : 'No asignado';
+
+            const actionButtons = `
+            <button class="btn btn-sm btn-info btn-view-history" data-mascota-id="${mascota.id}" title="Ver Historial Clínico"><i class="fas fa-notes-medical"></i></button>
+            <button class="btn btn-sm btn-warning btn-edit-mascota" data-mascota-id="${mascota.id}" title="Editar Mascota"><i class="fas fa-edit"></i></button>
+            <button class="btn btn-sm btn-danger btn-delete-mascota" data-mascota-id="${mascota.id}" title="Eliminar Mascota"><i class="fas fa-trash"></i></button>
+        `;
+
+            mascotasTableBody.innerHTML += `<tr>
+            <td>${mascota.id}</td>
+            <td>${mascota.nombre}</td>
+            <td>${mascota.especie}</td>
+            <td>${mascota.raza || 'N/A'}</td>
+            <td>${edadCalculada}</td>
+            <td>${mascota.fechaNacimiento || 'N/A'}</td>
+            <td>${mascota.color || 'N/A'}</td>
+            <td>${mascota.peso || 0} kg</td>
+            <td>${nombrePropietario}</td>
+            <td>${actionButtons}</td>
+        </tr>`;
+        });
+    };
+
+
+
+
+
+
     // --- 5. LÓGICA DE FILTROS ---
     const applyUserFilters = () => {
         const searchValue = document.getElementById('user-search-input').value.toLowerCase();
@@ -137,6 +238,80 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('product-stock-filter').value = '';
         renderProductsTable(allProducts);
     };
+
+
+    // --- LÓGICA DE FILTROS PARA MASCOTAS ---
+
+        const getAgeInYears = (fechaNacimientoStr) => {
+        if (!fechaNacimientoStr) return -1; // Retorna -1 si no hay fecha
+        const today = new Date();
+        const birthDate = new Date(fechaNacimientoStr);
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        return age;
+    };
+
+
+    const applyMascotaFilters = () => {
+        // Se asume que existe una variable global 'allMascotas' con todas las mascotas.
+        const searchValue = document.getElementById('mascota-search-input').value.toLowerCase();
+        const speciesValue = document.getElementById('mascota-species-filter').value;
+        const ageValue = document.getElementById('mascota-age-filter').value;
+
+        const filteredMascotas = allMascotas.filter(mascota => {
+            // 1. Condición de Búsqueda (Nombre, Raza o Propietario)
+            const ownerName = mascota.propietario ? mascota.propietario.nombre.toLowerCase() : '';
+            const matchesSearch = mascota.nombre.toLowerCase().includes(searchValue) ||
+                mascota.raza.toLowerCase().includes(searchValue) ||
+                ownerName.includes(searchValue);
+
+            // 2. Condición de Especie
+            const matchesSpecies = !speciesValue || mascota.especie === speciesValue;
+
+            // 3. Condición de Edad
+            let matchesAge = true; // Por defecto es verdadero si no se selecciona filtro de edad
+            if (ageValue) {
+                const ageInYears = getAgeInYears(mascota.fecha_nacimiento);
+                switch (ageValue) {
+                    case 'cachorro':
+                        matchesAge = ageInYears >= 0 && ageInYears < 1;
+                        break;
+                    case 'adulto':
+                        matchesAge = ageInYears >= 1 && ageInYears <= 7;
+                        break;
+                    case 'senior':
+                        matchesAge = ageInYears > 7;
+                        break;
+                }
+            }
+
+            return matchesSearch && matchesSpecies && matchesAge;
+        });
+
+        renderMascotasTable(filteredMascotas);
+    };
+
+    /**
+     * Limpia todos los filtros de la sección de mascotas y muestra la tabla completa.
+     */
+    const clearMascotaFilters = () => {
+        document.getElementById('mascota-search-input').value = '';
+        document.getElementById('mascota-species-filter').value = '';
+        document.getElementById('mascota-age-filter').value = '';
+
+        // Vuelve a renderizar la tabla con la lista completa de mascotas
+        renderMascotasTable(allMascotas);
+    };
+
+
+
+
+
+
+
 
     // --- 6. LÓGICA DE ACCIONES ---
     const handleUserActionClick = async (e) => {
@@ -257,26 +432,161 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- 7. ARRANQUE Y REFRESCO DE DATOS ---
+
+
+    // Lógica de acciones para Mascotas
+    const openNewMascotaModal = () => {
+        document.getElementById('mascota-form').reset();
+        document.getElementById('mascota-modal-title').textContent = 'Registrar Nueva Mascota';
+        document.getElementById('mascota-id').value = '';
+        mascotaModal.show();
+    };
+
+    const handleMascotaActionClick = async (e) => {
+        const target = e.target.closest('button');
+        if (!target) return;
+        const mascotaId = target.dataset.mascotaId;
+
+        if (target.classList.contains('btn-edit-mascota')) {
+            try {
+                const response = await fetch(`${apiGatewayUrl}/mascotas/${mascotaId}`, { headers });
+                if (!response.ok) throw new Error('Mascota no encontrada');
+                const mascota = await response.json();
+
+                console.log('[DEBUG] Datos de mascota para editar:', mascota);
+
+                document.getElementById('mascota-modal-title').textContent = 'Editar Mascota';
+                document.getElementById('mascota-id').value = mascota.id;
+                document.getElementById('mascota-nombre').value = mascota.nombre;
+                document.getElementById('mascota-especie').value = mascota.especie;
+                document.getElementById('mascota-raza').value = mascota.raza || '';
+                document.getElementById('mascota-fecha-nacimiento').value = mascota.fecha_nacimiento || '';
+                document.getElementById('mascota-color').value = mascota.color || '';
+                document.getElementById('mascota-peso').value = mascota.peso || '';
+
+
+                // CORRECCIÓN: Comprobar si el propietario existe antes de acceder a su id
+                if (mascota.propietario) {
+                    document.getElementById('mascota-propietario-id').value = mascota.propietario.id;
+                } else {
+                    console.warn(`La mascota con ID ${mascotaId} no tiene un propietario asociado en la respuesta.`);
+                    document.getElementById('mascota-propietario-id').value = ''; // Dejar el select en blanco
+                }
+
+
+                mascotaModal.show();
+            } catch (error) {
+                console.error("Error al obtener detalles de la mascota:", error);
+                alert("No se pudieron cargar los datos de la mascota para editar.");
+            }
+        }
+
+        if (target.classList.contains('btn-delete-mascota')) {
+            if (confirm(`¿Estás seguro de que quieres eliminar esta mascota?`)) {
+                try {
+                    const response = await fetch(`${apiGatewayUrl}/mascotas/${mascotaId}`, { method: 'DELETE', headers });
+                    if (!response.ok) throw new Error('Falló al eliminar la mascota');
+                    alert('Mascota eliminada con éxito.');
+                    await refreshData('mascotas');
+                } catch (error) {
+                    console.error(error);
+                    alert('No se pudo eliminar la mascota.');
+                }
+            }
+        }
+    };
+
+    const handleMascotaFormSubmit = async (e) => {
+        e.preventDefault();
+        const form = document.getElementById('mascota-form');
+        const mascotaId = form.querySelector('#mascota-id').value;
+        const isEditing = !!mascotaId;
+
+        const mascotaData = {
+            nombre: form.querySelector('#mascota-nombre').value,
+            especie: form.querySelector('#mascota-especie').value,
+            raza: form.querySelector('#mascota-raza').value,
+            fechaNacimiento: form.querySelector('#mascota-fecha-nacimiento').value,
+            color: form.querySelector('#mascota-color').value,
+            peso: parseFloat(form.querySelector('#mascota-peso').value),
+            propietarioId: parseInt(form.querySelector('#mascota-propietario-id').value)
+        };
+
+        const formData = new FormData();
+        formData.append('mascota', JSON.stringify(mascotaData));
+        const imageFile = form.querySelector('#mascota-imagen-file').files[0];
+        if (imageFile) {
+            formData.append('file', imageFile);
+        }
+
+        const url = isEditing ? `${apiGatewayUrl}/mascotas/${mascotaId}` : `${apiGatewayUrl}/mascotas`;
+        const method = isEditing ? 'PUT' : 'POST';
+
+        try {
+            const response = await fetch(url, {
+                method: method,
+                headers: { 'Authorization': `Bearer ${token}` }, // No 'Content-Type' con FormData
+                body: formData
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(errorText || `Error del servidor: ${response.status}`);
+            }
+
+            mascotaModal.hide();
+            await refreshData('mascotas');
+            alert(`Mascota ${isEditing ? 'actualizada' : 'registrada'} con éxito.`);
+        } catch (error) {
+            alert(`Error al guardar la mascota: ${error.message}`);
+            console.error(error);
+        }
+    };
+
+
+
+
+    // --- 7. ARRANQUE Y REFRESCO DE DATOS (Corregido) ---
     const refreshData = async (sectionToRender) => {
         try {
             if (sectionToRender === 'users') {
-                allUsers = await (await fetch(`${apiGatewayUrl}/api/admin/users`, { headers })).json();
+                const response = await fetch(`${apiGatewayUrl}/api/admin/users`, { headers });
+                if (!response.ok) throw new Error(`Error ${response.status} al obtener usuarios`);
+                allUsers = await response.json();
                 renderUsersTable(allUsers);
             } else if (sectionToRender === 'products') {
-                allProducts = await (await fetch(`${apiGatewayUrl}/productos`)).json();
+                const response = await fetch(`${apiGatewayUrl}/productos`);
+                if (!response.ok) throw new Error(`Error ${response.status} al obtener productos`);
+                allProducts = await response.json();
                 renderProductsTable(allProducts);
+            } else if (sectionToRender === 'mascotas') {
+                const response = await fetch(`${apiGatewayUrl}/mascotas`, { headers });
+                if (!response.ok) throw new Error(`Error ${response.status} al obtener mascotas`);
+                allMascotas = await response.json();
+
+                console.log('[DEBUG] Array de mascotas completo recibido:', allMascotas);
+
+                renderMascotasTable(allMascotas);
             }
-        } catch (error) { console.error("Error al refrescar datos:", error); }
+        } catch (error) {
+            console.error(`Error al refrescar datos de ${sectionToRender}:`, error);
+        }
     };
 
     const initApp = async () => {
         try {
             await loadModals();
-            [allUsers, allProducts] = await Promise.all([
-                (await fetch(`${apiGatewayUrl}/api/admin/users`, { headers })).json(),
-                (await fetch(`${apiGatewayUrl}/productos`)).json()
+
+            // CORRECCIÓN: Cargar todos los datos y asignarlos correctamente
+            const [usersData, productsData, mascotasData] = await Promise.all([
+                fetch(`${apiGatewayUrl}/api/admin/users`, { headers }).then(res => res.json()),
+                fetch(`${apiGatewayUrl}/productos`).then(res => res.json()),
+                fetch(`${apiGatewayUrl}/mascotas`, { headers }).then(res => res.json())
             ]);
+
+            allUsers = usersData;
+            allProducts = productsData;
+            allMascotas = mascotasData;
 
             navLinks.forEach(link => {
                 link.addEventListener('click', (e) => {

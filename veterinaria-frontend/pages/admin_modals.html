@@ -78,3 +78,76 @@
         </div>
     </div>
 </div>
+
+
+<div class="modal fade" id="mascota-modal" tabindex="-1" aria-labelledby="mascotaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form id="mascota-form" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="mascota-modal-title">Registrar Nueva Mascota</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="mascota-id" name="id">
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="mascota-nombre" class="form-label">Nombre</label>
+                            <input type="text" class="form-control" id="mascota-nombre" name="nombre" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="mascota-especie" class="form-label">Especie</label>
+                            <select class="form-select" id="mascota-especie" name="especie" required>
+                                <option value="" disabled selected>Seleccione una especie...</option>
+                                <option value="Perro">Perro</option>
+                                <option value="Gato">Gato</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="mascota-raza" class="form-label">Raza</label>
+                            <input type="text" class="form-control" id="mascota-raza" name="raza">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="mascota-color" class="form-label">Color</label>
+                            <input type="text" class="form-control" id="mascota-color" name="color">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="mascota-fecha-nacimiento" class="form-label">Fecha de Nacimiento</label>
+                            <input type="date" class="form-control" id="mascota-fecha-nacimiento" name="fechaNacimiento">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="mascota-peso" class="form-label">Peso (kg)</label>
+                            <input type="number" class="form-control" id="mascota-peso" name="peso" step="0.1" min="0">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="mascota-propietario-id" class="form-label">Propietario</label>
+                            <select class="form-select" id="mascota-propietario-id" name="propietarioId" required>
+                                <option value="">Cargando propietarios...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="mascota-imagen-file" class="form-label">Foto</label>
+                            <input type="file" class="form-control" id="mascota-imagen-file" name="file" accept="image/*">
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

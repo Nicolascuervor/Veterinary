@@ -1,0 +1,67 @@
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold text-primary">Gestión de Mascotas</h6>
+        <button class="btn btn-success btn-sm" id="btn-crear-mascota">
+            <i class="fas fa-plus me-2"></i>Registrar Mascota
+        </button>
+    </div>
+    <div class="card-body">
+        <div class="accordion mb-3" id="mascotas-filters-accordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMascotas"><i class="fas fa-filter me-2"></i>Filtros</button>
+                </h2>
+                <div id="collapseMascotas" class="accordion-collapse collapse" data-bs-parent="#mascotas-filters-accordion">
+                    <div class="accordion-body">
+                        <div class="row g-3 align-items-center">
+                            <div class="col-md-4">
+                                <input type="text" id="mascota-search-input" class="form-control" placeholder="Buscar por nombre, raza o propietario...">
+                            </div>
+                            <div class="col-md-3">
+                                <select id="mascota-species-filter" class="form-select">
+                                    <option value="">Todas las Especies</option>
+                                    <option value="Perro">Perro</option>
+                                    <option value="Gato">Gato</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select id="mascota-age-filter" class="form-select">
+                                    <option value="">Cualquier Edad</option>
+                                    <option value="cachorro">Cachorro (0-1 año)</option>
+                                    <option value="adulto">Adulto (1-7 años)</option>
+                                    <option value="senior">Senior (7+ años)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2 d-grid gap-2">
+                                <button id="apply-mascota-filters" class="btn btn-primary">Aplicar</button>
+                                <button id="clear-mascota-filters" class="btn btn-secondary">Limpiar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-bordered" width="100%" cellspacing="0">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Especie</th>
+                    <th>Raza</th>
+                    <th>Edad</th>
+                    <th>Fecha de nacimiento</th>
+                    <th>Color</th>
+                    <th>Peso (kg)</th>
+                    <th>Propietario</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody id="mascotas-table-body">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

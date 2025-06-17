@@ -1,5 +1,6 @@
 package com.agend.agendamientoservice.controller;
 
+import com.agend.agendamientoservice.DTOs.MascotaResponseDTO;
 import com.agend.agendamientoservice.DTOs.UserDTO;
 import com.agend.agendamientoservice.Emails.EmailClient;
 import com.agend.agendamientoservice.model.Mascota;
@@ -173,17 +174,34 @@ public class MascotaController {
     }
 
     @GetMapping
-    public List<Mascota> findAll() { return mascotaService.findAllMascotas(); }
+    public List<MascotaResponseDTO> findAll() {
+        return mascotaService.findAllMascotas();
+    }
+
+
 
     @GetMapping("/propietario/{propietarioId}")
-    public ResponseEntity<List<Mascota>> findByPropietarioId(@PathVariable Long propietarioId) {
-        List<Mascota> mascotas = mascotaService.findByPropietarioId(propietarioId);
-        if (mascotas.isEmpty()) { return ResponseEntity.noContent().build(); }
+    public ResponseEntity<List<MascotaResponseDTO>> findByPropietarioId(@PathVariable Long propietarioId) {
+        List<MascotaResponseDTO> mascotas = mascotaService.findByPropietarioId(propietarioId);
+        if (mascotas.isEmpty()) {
+            return ResponseEntity.noContent().build(); // Devuelve 204 si no hay mascotas
+        }
         return ResponseEntity.ok(mascotas);
     }
 
+
+
+    // MÉTODO MODIFICADO
     @GetMapping("/{id}")
-    public Optional<Mascota> findMascotaById(@PathVariable Long id) { return mascotaService.findMascotaById(id); }
+    public ResponseEntity<MascotaResponseDTO> getMascotaById(@PathVariable Long id) {
+        MascotaResponseDTO mascotaDTO = mascotaService.findById(id);
+        if (mascotaDTO == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(mascotaDTO);
+    }
+
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Boolean>> eliminarMascota(@PathVariable Long id) {
