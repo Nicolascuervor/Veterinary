@@ -1,6 +1,8 @@
 package com.agend.agendamientoservice.controller;
 
 
+import com.agend.agendamientoservice.DTOs.PropietarioRequest;
+import com.agend.agendamientoservice.DTOs.PropietarioResponseDTO;
 import com.agend.agendamientoservice.model.Propietario;
 import com.agend.agendamientoservice.repository.PropietarioRepository;
 import com.agend.agendamientoservice.service.PropietarioService;
@@ -76,12 +78,15 @@ public class PropietarioController {
     }
 
     @GetMapping("/usuario/{usuarioId}")
-    public ResponseEntity<Propietario> getByUsuarioId(@PathVariable Long usuarioId) {
-        Optional<Propietario> p = propietarioRepository.findByUsuarioId(usuarioId);
-        return p.map(ResponseEntity::ok)
+    public ResponseEntity<PropietarioResponseDTO> getByUsuarioId(@PathVariable Long usuarioId) {
+        // Busca el propietario en la base de datos
+        Optional<Propietario> propietarioOpt = propietarioRepository.findByUsuarioId(usuarioId);
+
+        // Si lo encuentra, lo convierte a DTO y lo devuelve.
+        return propietarioOpt
+                .map(propietario -> ResponseEntity.ok(new PropietarioResponseDTO(propietario)))
                 .orElse(ResponseEntity.notFound().build());
     }
-
 
     @GetMapping("/debug/headers")
     public ResponseEntity<Map<String, String>> getHeaders(HttpServletRequest request) {

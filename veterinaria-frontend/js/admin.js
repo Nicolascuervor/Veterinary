@@ -10,11 +10,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const apiGatewayUrl = 'http://localhost:8081';
+    const productApiUrl = 'http://localhost:5001';
     const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
 
     let allUsers = [];
     let allProducts = [];
     let allMascotas = []; // Variable para mascotas
+    let allCategories = [];
 
 
     const contentArea = document.getElementById('admin-content-area');
@@ -23,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let userRoleModal, productModal, mascotaModal;
 
-    // --- 2. LÓGICA DE CARGA (Ajustada para el modal de mascotas) ---
+    // --- 2. LÓGICA DE CARGA
     const loadModals = async () => {
         try {
             const response = await fetch('admin_modals.html');
@@ -72,13 +74,32 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('clear-user-filters').addEventListener('click', clearUserFilters);
         document.getElementById('user-table-body').addEventListener('click', handleUserActionClick);
     };
+
+
     const initializeProductsSection = () => {
+        populateCategoryDropdowns('product-category-filter');
         renderProductsTable(allProducts);
+
         document.getElementById('apply-product-filters').addEventListener('click', applyProductFilters);
         document.getElementById('clear-product-filters').addEventListener('click', clearProductFilters);
         document.getElementById('product-table-body').addEventListener('click', handleProductActionClick);
         document.getElementById('btn-crear-producto').addEventListener('click', openNewProductModal);
     };
+
+    // <<== NUEVO: Función reutilizable para poblar los 'select' de categorías.
+    function populateCategoryDropdowns(selectElementId, selectedId = null) {
+        const select = document.getElementById(selectElementId);
+        select.innerHTML = `<option value="">${selectElementId.includes('filter') ? 'Todas las Categorías' : 'Seleccione una categoría...'}</option>`;
+        allCategories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category.id;
+            option.textContent = category.name;
+            if (selectedId && category.id == selectedId) {
+                option.selected = true;
+            }
+            select.appendChild(option);
+        });
+    }
 
 
     const initializeMascotasSection = () => {
@@ -104,12 +125,15 @@ document.addEventListener('DOMContentLoaded', () => {
             </tr>`;
         });
     };
+
     const renderProductsTable = (products) => {
         const productTableBody = document.getElementById('product-table-body');
         productTableBody.innerHTML = '';
         products.forEach(product => {
             // LOG: Muestra el objeto de producto que se está renderizando.
             console.log('[Admin Panel] Renderizando producto:', product);
+
+            const categoryName = allCategories.find(c => c.id === product.category_id)?.name || 'N/A';
 
             const stockBadge = product.stock > 10 ? `<span class="badge bg-success">En Stock (${product.stock})</span>`
                 : product.stock > 0 ? `<span class="badge bg-warning">Stock Bajo (${product.stock})</span>`
@@ -221,17 +245,22 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('user-status-filter').value = '';
         renderUsersTable(allUsers);
     };
+
+
     const applyProductFilters = () => {
         const searchValue = document.getElementById('product-search-input').value.toLowerCase();
-        const categoryValue = document.getElementById('product-category-filter').value;
+        const categoryIdValue = document.getElementById('product-category-filter').value;
         const stockValue = document.getElementById('product-stock-filter').value;
         renderProductsTable(allProducts.filter(product => {
             const matchesSearch = product.name.toLowerCase().includes(searchValue);
-            const matchesCategory = !categoryValue || product.category_name === categoryValue;
+            const matchesCategory = !categoryIdValue || product.category_id == categoryIdValue;
             let matchesStock = !stockValue || (stockValue === 'in-stock' && product.stock > 10) || (stockValue === 'low-stock' && product.stock > 0 && product.stock <= 10) || (stockValue === 'out-of-stock' && product.stock === 0);
             return matchesSearch && matchesCategory && matchesStock;
         }));
     };
+
+
+
     const clearProductFilters = () => {
         document.getElementById('product-search-input').value = '';
         document.getElementById('product-category-filter').value = '';
@@ -351,6 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
             await refreshData('users');
         } catch (error) { alert(`Error al cambiar rol: ${error.message}`); }
     };
+
     const handleProductActionClick = async (e) => {
         const target = e.target.closest('button.btn-edit-product');
         if (!target) return;
@@ -366,7 +396,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('product-description').value = product.description;
             document.getElementById('product-price').value = product.price;
             document.getElementById('product-stock').value = product.stock;
-            document.getElementById('product-category').value = product.category_id.name;
+            populateCategoryDropdowns('product-category', product.category_id);
             document.getElementById('product-image-file').value = '';
             productModal.show();
         } catch (error) {
@@ -374,12 +404,18 @@ document.addEventListener('DOMContentLoaded', () => {
             alert("No se pudieron cargar los datos para editar.");
         }
     };
+
+
+
     const openNewProductModal = () => {
         document.getElementById('product-form').reset();
         document.getElementById('product-modal-title').textContent = 'Crear Nuevo Producto';
         document.getElementById('product-id').value = '';
+        populateCategoryDropdowns('product-category');
         productModal.show();
     };
+
+
     const handleProductFormSubmit = async (e) => {
         e.preventDefault();
         console.log('[Admin Panel] Se ha enviado el formulario de producto.');
@@ -578,15 +614,18 @@ document.addEventListener('DOMContentLoaded', () => {
             await loadModals();
 
             // CORRECCIÓN: Cargar todos los datos y asignarlos correctamente
-            const [usersData, productsData, mascotasData] = await Promise.all([
+            const [usersData, productsData, mascotasData, categoriesData] = await Promise.all([
                 fetch(`${apiGatewayUrl}/api/admin/users`, { headers }).then(res => res.json()),
                 fetch(`${apiGatewayUrl}/productos`).then(res => res.json()),
-                fetch(`${apiGatewayUrl}/mascotas`, { headers }).then(res => res.json())
+                fetch(`${apiGatewayUrl}/mascotas`, { headers }).then(res => res.json()),
+                fetch(`${productApiUrl}/categorias`).then(res => res.json()) // <<== NUEVO: Carga de categorías.
+
             ]);
 
             allUsers = usersData;
             allProducts = productsData;
             allMascotas = mascotasData;
+            allCategories = categoriesData; // <<== NUEVO: Almacenar categorías.
 
             navLinks.forEach(link => {
                 link.addEventListener('click', (e) => {

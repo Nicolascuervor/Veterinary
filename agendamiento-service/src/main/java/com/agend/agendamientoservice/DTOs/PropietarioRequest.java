@@ -1,4 +1,4 @@
-package com.agend.agendamientoservice.controller;
+package com.agend.agendamientoservice.DTOs;
 
 import lombok.Data;
 import lombok.Getter;
