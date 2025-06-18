@@ -5,17 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Veterinaria - Tienda de Productos</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
-    <link rel="stylesheet" href="http://localhost:5001/static/css/productos.css
-">
+    <link rel="stylesheet" href="http://localhost:5001/static/css/productos.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Bootstrap CSS (ya lo tienes bien) -->
 
 
     <!-- Bootstrap JS (asegúrate que está antes de nav.js) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Tu script que carga el navbar -->
 
 </head>
 
@@ -26,13 +22,17 @@
 
 
         <div class="header">
+
+
             <div class="header-content">
                 <h1><i class="fas fa-paw"></i> Veterinaria </h1>
-                <button class="cart-icon" onclick="toggleCart()">
+                <a href="http://localhost:8080/Veterinary/veterinaria-frontend/pages/carrito.html" class="cart-icon" style="text-decoration: none; color: inherit;">
                     <i class="fas fa-shopping-cart"></i>
                     <span class="cart-count" id="cartCount">0</span>
-                </button>
+                </a>
             </div>
+
+
             <p>Todo lo que tu mascota necesita en un solo lugar</p>
         </div>
 
@@ -351,30 +351,54 @@
             displayProducts(filteredProducts);
         }
 
-        // Funciones del carrito
-        function addToCart(productId) {
-            const product = allProducts.find(p => p.id === productId);
-            if (!product || product.stock <= 0) return;
+        async function addToCart(productId) {
+            const userId = localStorage.getItem('id');
+            const token = localStorage.getItem('token');
 
-            const existingItem = cart.find(item => item.id === productId);
-            if (existingItem) {
-                existingItem.quantity += 1;
-            } else {
-                cart.push({
-                    id: product.id,
-                    name: product.name,
-                    price: product.price,
-                    image: product.image,
-                    quantity: 1
-                });
+            if (!userId) {
+                alert('Debes iniciar sesión para agregar productos al carrito.');
+                window.location.href = 'login.html';
+                return;
             }
 
-            saveCartToStorage();
-            updateCartCount();
-            showMessage(`${product.name} añadido al carrito`, 'success');
+            const product = allProducts.find(p => p.id === productId);
+            if (!product || product.stock <= 0) {
+                showMessage('Este producto no está disponible.', 'error');
+                return;
+            }
 
-            // Aquí podrías hacer una llamada al microservicio del carrito
-            // sendToCartMicroservice(productId, 1);
+            try {
+                const response = await fetch(`${API_BASE_URL}/cart/add`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}` // Es posible que tu API de productos requiera auth
+                    },
+                    body: JSON.stringify({
+                        user_id: parseInt(userId),
+                        product_id: productId,
+                        quantity: 1
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'No se pudo agregar el producto.');
+                }
+
+                const result = await response.json();
+                showMessage(result.message, 'success');
+
+                // Actualizamos el contador del carrito visualmente de forma local
+                // (La página del carrito obtendrá el dato real de la API)
+                const cartCountEl = document.getElementById('cartCount');
+                let currentCount = parseInt(cartCountEl.textContent);
+                cartCountEl.textContent = currentCount + 1;
+
+            } catch (error) {
+                console.error('Error al agregar al carrito:', error);
+                showMessage(error.message, 'error');
+            }
         }
 
         function updateCartCount() {
@@ -407,21 +431,7 @@
 
 
 
-        function toggleCart() {
-            // Aquí podrías mostrar un modal con el carrito o redirigir a la página del carrito
-            if (cart.length === 0) {
-                showMessage('El carrito está vacío', 'error');
-                return;
-            }
-            
-            const cartSummary = cart.map(item => 
-                `${item.name} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}`
-            ).join('\n');
-            
-            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            
-            alert(`Carrito:\n${cartSummary}\n\nTotal: $${total.toFixed(2)}\n\n(En un entorno real, esto abriría el carrito completo)`);
-        }
+
 
         // Mostrar mensajes
         function showMessage(message, type = 'success') {

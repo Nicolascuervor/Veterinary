@@ -1,101 +1,129 @@
-let carrito = [];
-let montoTotalPagar = 0;
-let cantidadTotalProductos = 0;
+document.addEventListener('DOMContentLoaded', () => {
+    // --- CONFIGURACIÓN ---
+    const userId = localStorage.getItem('id');
+    const token = localStorage.getItem('token');
+    const productApiUrl = 'http://127.0.0.1:5001';
 
-function actualizarContadorCarritoNav() {
-    const contador = carrito.reduce((total, producto) => total + producto.cantidad, 0);
-    document.getElementById('contador-carrito-nav').innerText = contador;
-}
+    // ¡IMPORTANTE! Reemplaza esto con tu Clave Publicable de Stripe
+    const stripePublicKey = 'pk_test_51Rb6uq4YKcv9a0spdKrl96lSVoxZAbrcfzHOFvSA4ZlGEK7eEhlajPDOXl9fd84pUdu5psIvGaRfmhMVmLIzKZBc00IDgkmPd1'; // Pega tu clave aquí
+    const stripe = Stripe(stripePublicKey);
 
-function cargarResumenPedido() {
-    carrito = JSON.parse(localStorage.getItem('vetcareCarrito')) || [];
-    montoTotalPagar = 0;
-    cantidadTotalProductos = 0;
+    // --- ELEMENTOS DEL DOM ---
+    const summaryContainer = document.getElementById('order-summary-container');
+    const checkoutButton = document.getElementById('checkout-button');
+    const buttonText = document.getElementById('button-text');
+    const buttonSpinner = document.getElementById('button-spinner');
 
-    if (carrito.length === 0) {
-        document.getElementById('totalProductosResumen').innerText = '0';
-        document.getElementById('montoTotalResumen').innerText = '$0 COP';
-        // Opcional: deshabilitar el formulario de pago o redirigir si no hay nada que pagar
-        alert("Tu carrito está vacío. Serás redirigido a la página de productos.");
-        window.location.href = 'lista_productos.html'; // Asume que así se llama tu página de productos
+    let currentCartItems = []; // Almacenará los items del carrito
+
+    // --- VERIFICACIÓN ---
+    if (!userId || !token) {
+        alert("Debes iniciar sesión para proceder al pago.");
+        window.location.href = 'login.html';
         return;
     }
 
-    carrito.forEach(producto => {
-        cantidadTotalProductos += producto.cantidad;
-        montoTotalPagar += producto.precio * producto.cantidad;
+    // --- LÓGICA PRINCIPAL ---
+
+    /**
+     * Carga el resumen del carrito desde nuestro backend.
+     */
+    const loadOrderSummary = async () => {
+        try {
+            const response = await fetch(`${productApiUrl}/cart/${userId}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!response.ok) throw new Error('No se pudo cargar el resumen del carrito.');
+
+            currentCartItems = await response.json();
+
+            if (currentCartItems.length === 0) {
+                summaryContainer.innerHTML = '<div class="card-body text-center"><p class="text-danger">Tu carrito está vacío.</p></div>';
+                checkoutButton.disabled = true;
+                return;
+            }
+
+            renderSummary(currentCartItems);
+            checkoutButton.disabled = false;
+
+        } catch (error) {
+            console.error("Error cargando resumen:", error);
+            summaryContainer.innerHTML = '<div class="card-body text-center"><p class="text-danger">Error al cargar el resumen.</p></div>';
+        }
+    };
+
+    /**
+     * Renderiza el resumen del pedido en el DOM.
+     */
+    const renderSummary = (items) => {
+        const total = items.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+        let itemsHtml = items.map(item => `
+            <li class="list-group-item d-flex justify-content-between lh-sm">
+                <div>
+                    <h6 class="my-0">${item.product.name}</h6>
+                    <small class="text-muted">Cantidad: ${item.quantity}</small>
+                </div>
+                <span class="text-muted">$${(item.product.price * item.quantity).toFixed(2)}</span>
+            </li>
+        `).join('');
+
+        summaryContainer.innerHTML = `
+            <ul class="list-group list-group-flush">
+                ${itemsHtml}
+                <li class="list-group-item d-flex justify-content-between bg-light">
+                    <span class="fw-bold">Total (USD)</span>
+                    <strong>$${total.toFixed(2)}</strong>
+                </li>
+            </ul>
+        `;
+        buttonText.textContent = `Pagar $${total.toFixed(2)}`;
+    };
+
+    /**
+     * Maneja el clic en el botón de checkout.
+     */
+    checkoutButton.addEventListener('click', async () => {
+        setLoadingState(true);
+
+        try {
+            // 1. Llama a nuestro backend para crear la sesión de Stripe
+            const response = await fetch(`${productApiUrl}/checkout/create-session`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                // CAMBIO: Enviamos un objeto que contiene tanto los items como el userId
+                body: JSON.stringify({
+                    cartItems: currentCartItems,
+                    userId: parseInt(userId)
+                })
+            });
+
+            if (!response.ok) throw new Error('No se pudo iniciar la sesión de pago.');
+
+            const session = await response.json();
+
+            // 2. Redirige al usuario a la página de pago de Stripe
+            const result = await stripe.redirectToCheckout({
+                sessionId: session.id
+            });
+
+            if (result.error) {
+                // Si hay un error en la redirección (poco común), lo mostramos.
+                alert(result.error.message);
+                setLoadingState(false);
+            }
+        } catch (error) {
+            console.error("Error en el proceso de checkout:", error);
+            alert("Hubo un error al intentar procesar el pago. Por favor, inténtalo de nuevo.");
+            setLoadingState(false);
+        }
     });
 
-    document.getElementById('totalProductosResumen').innerText = cantidadTotalProductos;
-    document.getElementById('montoTotalResumen').innerText = `$${montoTotalPagar.toLocaleString()} COP`;
-    actualizarContadorCarritoNav();
-}
+    const setLoadingState = (isLoading) => {
+        checkoutButton.disabled = isLoading;
+        buttonText.style.display = isLoading ? 'none' : 'inline';
+        buttonSpinner.style.display = isLoading ? 'inline-block' : 'none';
+    };
 
-function manejarSeleccionMetodoPago() {
-    const detallesTarjetaDiv = document.getElementById('detalles-tarjeta');
-    const mensajeEfectivoDiv = document.getElementById('mensaje-efectivo');
-    const inputsTarjeta = detallesTarjetaDiv.querySelectorAll('input');
-
-    if (document.getElementById('pagoTarjeta').checked) {
-        detallesTarjetaDiv.style.display = 'block';
-        mensajeEfectivoDiv.style.display = 'none';
-        inputsTarjeta.forEach(input => input.required = true);
-    } else if (document.getElementById('pagoEfectivo').checked) {
-        detallesTarjetaDiv.style.display = 'none';
-        mensajeEfectivoDiv.style.display = 'block';
-        inputsTarjeta.forEach(input => input.required = false); // No son requeridos si se paga en efectivo
-    }
-}
-
-// Event Listeners para los radio buttons de método de pago
-document.querySelectorAll('input[name="metodoPago"]').forEach(radio => {
-    radio.addEventListener('change', manejarSeleccionMetodoPago);
+    // --- INICIO ---
+    loadOrderSummary();
 });
-
-// Simulación de procesamiento de pago
-const formularioPago = document.getElementById('formularioPago');
-formularioPago.addEventListener('submit', function(event) {
-    event.preventDefault(); // Evitar el envío real del formulario
-    event.stopPropagation();
-
-    // Aplicar validación de Bootstrap
-    formularioPago.classList.add('was-validated');
-
-    if (!formularioPago.checkValidity()) {
-        alert("Por favor, corrige los errores en el formulario.");
-        return;
-    }
-
-    const metodoSeleccionado = document.querySelector('input[name="metodoPago"]:checked').value;
-    let mensajeExito = "";
-
-    if (metodoSeleccionado === 'tarjeta') {
-        const nombreTarjeta = document.getElementById('nombreTarjeta').value;
-        const numeroTarjeta = document.getElementById('numeroTarjeta').value;
-        // Aquí iría una validación más robusta o integración con pasarela de pago
-        mensajeExito = `¡Pago con tarjeta procesado exitosamente!\nGracias por tu compra, ${nombreTarjeta}.\nTotal: $${montoTotalPagar.toLocaleString()} COP`;
-    } else if (metodoSeleccionado === 'efectivo') {
-        mensajeExito = `Pedido para pago en efectivo confirmado.\nNos pondremos en contacto contigo pronto.\nTotal: $${montoTotalPagar.toLocaleString()} COP`;
-    }
-
-    // Simulación de éxito
-    alert(mensajeExito);
-
-    // Limpiar carrito y redirigir (simulación)
-    localStorage.removeItem('vetcareCarrito');
-    carrito = [];
-    actualizarContadorCarritoNav();
-    cargarResumenPedido(); // Esto debería llevar a la redirección por carrito vacío
-
-    // Idealmente, redirigir a una página de "Gracias por tu compra"
-    // window.location.href = 'gracias.html';
-    formularioPago.classList.remove('was-validated');
-    formularioPago.reset(); // Limpiar el formulario
-    manejarSeleccionMetodoPago(); // Restablecer la visibilidad de los campos de tarjeta
-});
-
-// Carga inicial
-window.onload = () => {
-    cargarResumenPedido();
-    manejarSeleccionMetodoPago(); // Configurar visibilidad inicial de campos de tarjeta
-};

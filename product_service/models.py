@@ -45,6 +45,7 @@ class Order(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, nullable=False)
+    total_price = db.Column(db.Float, nullable=False, default=0.0)
     order_date = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String(50), default='Pending')
 
