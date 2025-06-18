@@ -1,6 +1,7 @@
 package com.agend.agendamientoservice.service;
 
 import com.agend.agendamientoservice.DTOs.CitaRequest;
+import com.agend.agendamientoservice.DTOs.CitaResponseDTO;
 import com.agend.agendamientoservice.controller.DisponibilidadHoraria;
 import com.agend.agendamientoservice.model.*;
 import com.agend.agendamientoservice.repository.*;
@@ -25,6 +26,11 @@ public class CitaService {
 
     @Autowired
     private VeterinarioRepository veterinarioRepository;
+
+
+    @Autowired
+    private ServicioRepository servicioRepository;
+
 
     @Autowired
     private PropietarioRepository propietarioRepository;
@@ -57,42 +63,47 @@ public class CitaService {
         citaRepository.deleteById(id);
     }
 
-    public Cita convertirYGuardar(CitaRequest request) {
-        Cita cita = new Cita();
-        cita.setMotivo(request.getMotivo());
-        cita.setEstadoCita(EstadoCita.PENDIENTE);
+    @Transactional
+    public CitaResponseDTO crearCitaDesdeRequest(CitaRequest request) {
+        // --- LÓGICA CORREGIDA Y COMPLETA ---
+        Mascota mascota = mascotaRepository.findById(request.getMascotaId())
+                .orElseThrow(() -> new RuntimeException("Mascota no encontrada con ID: " + request.getMascotaId()));
+
+        Veterinario veterinario = veterinarioRepository.findById(request.getVeterinarioId())
+                .orElseThrow(() -> new RuntimeException("Veterinario no encontrado con ID: " + request.getVeterinarioId()));
+
+        // Asumiendo que CitaRequest ahora tiene servicioId
+        Servicio servicio = servicioRepository.findById(request.getServicioId())
+                .orElseThrow(() -> new RuntimeException("Servicio no encontrado con ID: " + request.getServicioId()));
 
         LocalDate fecha = LocalDate.parse(request.getFecha());
         LocalTime hora = LocalTime.parse(request.getHora());
 
-        cita.setFecha(fecha);
-        cita.setHora(hora);
-
-
-        Mascota mascota = mascotaRepository.findById(request.getMascotaId())
-                .orElseThrow(() -> new RuntimeException("Mascota no encontrada"));
-        Veterinario vet = veterinarioRepository.findById(request.getVeterinarioId())
-                .orElseThrow(() -> new RuntimeException("Veterinario no encontrado"));
-        Propietario propietario = mascota.getPropietario();
-
-        cita.setMascota(mascota);
-        cita.setVeterinario(vet);
-        cita.setPropietario(propietario);
-
-        // 🔐 Bloquear franja
+        // Bloqueo de la franja horaria (tu lógica existente está bien)
         DisponibilidadHoraria franja = disponibilidadHorariaRepository
-                .findByVeterinarioIdAndDiaAndHoraInicio(vet.getId(), fecha.getDayOfWeek(), hora)
+                .findByVeterinarioIdAndDiaAndHoraInicio(veterinario.getId(), fecha.getDayOfWeek(), hora)
                 .orElseThrow(() -> new RuntimeException("Franja horaria no encontrada"));
-
         if (franja.getEstado() != EstadoDisponibilidad.DISPONIBLE) {
             throw new RuntimeException("La franja ya está ocupada o no está disponible");
         }
-
         franja.setEstado(EstadoDisponibilidad.OCUPADA);
         disponibilidadHorariaRepository.save(franja);
 
-        return citaRepository.save(cita);
+        // Creación de la nueva Cita
+        Cita nuevaCita = new Cita();
+        nuevaCita.setPropietario(mascota.getPropietario());
+        nuevaCita.setMascota(mascota);
+        nuevaCita.setVeterinario(veterinario);
+        nuevaCita.setServicio(servicio);
+        nuevaCita.setFecha(fecha);
+        nuevaCita.setHora(hora);
+        nuevaCita.setMotivo(request.getMotivo());
+        nuevaCita.setEstadoCita(EstadoCita.PENDIENTE);
+
+        Cita citaGuardada = citaRepository.save(nuevaCita);
+        return convertirCitaAResponseDTO(citaGuardada); // Devuelve el DTO para evitar recursividad
     }
+
 
     public void cancelarCita(Long citaId) {
         Cita cita = citaRepository.findById(citaId)
@@ -114,6 +125,26 @@ public class CitaService {
         }
 
         citaRepository.save(cita);
+    }
+
+
+    private CitaResponseDTO convertirCitaAResponseDTO(Cita cita) {
+        CitaResponseDTO dto = new CitaResponseDTO();
+        dto.setId(cita.getId());
+        dto.setMotivo(cita.getMotivo());
+        dto.setFecha(cita.getFecha());
+        dto.setHora(cita.getHora());
+        dto.setEstadoCita(cita.getEstadoCita().toString());
+        if (cita.getMascota() != null) {
+            dto.setMascotaNombre(cita.getMascota().getNombre());
+        }
+        if (cita.getVeterinario() != null) {
+            dto.setVeterinarioNombre(cita.getVeterinario().getNombre() + " " + cita.getVeterinario().getApellido());
+        }
+        if (cita.getServicio() != null) {
+            dto.setServicioNombre(cita.getServicio().getNombre());
+        }
+        return dto;
     }
 
 
