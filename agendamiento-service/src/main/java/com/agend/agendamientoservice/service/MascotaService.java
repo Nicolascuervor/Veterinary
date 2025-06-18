@@ -19,7 +19,6 @@ public class MascotaService {
     private MascotaRepository mascotaRepository;
 
 
-
     @Transactional
     public List<MascotaResponseDTO> findAllMascotas() {
         return mascotaRepository.findAll()
@@ -27,7 +26,6 @@ public class MascotaService {
                 .map(MascotaResponseDTO::new) // Convierte cada Mascota a MascotaResponseDTO
                 .collect(Collectors.toList());
     }
-
 
 
 

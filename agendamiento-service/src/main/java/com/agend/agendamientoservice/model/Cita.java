@@ -1,15 +1,12 @@
 package com.agend.agendamientoservice.model;
 
-
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Date;
 
 @Setter
 @Getter
@@ -21,43 +18,47 @@ public class Cita {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
-    @ManyToOne
+    // --- RELACIONES CON OTRAS ENTIDADES ---
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "propietario_id", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Propietario propietario;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mascota_id", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Mascota mascota;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "veterinario_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private Veterinario veterinario;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "servicio_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private Servicio servicio;
+
+    // --- CAMPOS DE LA CITA ---
     @Column(name = "motivo")
     private String motivo;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    @Temporal(TemporalType.DATE)
     @Column(name = "fecha")
     private LocalDate fecha;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
-    @Temporal(TemporalType.TIME)
 
     @Column(name = "hora")
     private LocalTime hora;
 
-    @ManyToOne
-    @JoinColumn(name = "veterinario_id")
-    private Veterinario veterinario;
-
-    @Column(nullable = false)
+    // --- CAMPO DE ESTADO ÚNICO Y CORRECTO ---
     @Enumerated(EnumType.STRING)
-    private EstadoCita estado;
+    @Column(name = "estado_cita", nullable = false)
+    private EstadoCita estadoCita = EstadoCita.PENDIENTE;
 
-    public enum EstadoCita {
-        ACTIVO, CANCELADA, COMPLETADA
-    }
+    // --- RELACIÓN CON EL ENCUENTRO CLÍNICO ---
+    @OneToOne(mappedBy = "cita", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private EncuentroClinico encuentroClinico;
 
-
-
+    // --- TIMESTAMPS ---
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
@@ -74,11 +75,4 @@ public class Cita {
     public void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-
-
-
-
-
-
-
 }

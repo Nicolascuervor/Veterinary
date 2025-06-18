@@ -42,6 +42,11 @@ public class Mascota {
     @Column(name = "color")
     private String color;
 
+    @Column(name = "sexo")
+    private String sexo;
+
+
+
     @Column(name = "image_url")
     private String imageUrl;
 

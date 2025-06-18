@@ -15,6 +15,7 @@ public class MascotaRequest {
     public String raza;
     public Long propietarioId;
     public String color;
+    private String sexo;
     public LocalDate fechaNacimiento;
     public Double peso;
     private String imageUrl;

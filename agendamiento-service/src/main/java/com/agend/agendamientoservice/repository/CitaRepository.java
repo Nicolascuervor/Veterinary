@@ -9,4 +9,7 @@ import java.util.List;
 public interface CitaRepository extends JpaRepository<Cita, Long> {
     List<Cita> findByVeterinarioIdAndFecha(Long veterinarioId, LocalDate fecha);
 
+    List<Cita> findByMascotaIdOrderByFechaDesc(Long mascotaId);
+
+
 }

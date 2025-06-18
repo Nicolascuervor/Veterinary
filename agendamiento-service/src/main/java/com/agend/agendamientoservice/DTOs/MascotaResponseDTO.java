@@ -19,6 +19,8 @@ public class MascotaResponseDTO {
     private String edad;
     private String color;
     private Double peso;
+    private String sexo;
+
     private String imageUrl;
     private PropietarioSimpleDTO propietario; // <-- ¡La clave está aquí!
 
@@ -32,6 +34,7 @@ public class MascotaResponseDTO {
         this.edad = mascota.getEdad();
         this.color = mascota.getColor();
         this.peso = mascota.getPeso();
+        this.sexo = mascota.getSexo();
         this.imageUrl = mascota.getImageUrl();
         if (mascota.getPropietario() != null) {
             this.propietario = new PropietarioSimpleDTO();

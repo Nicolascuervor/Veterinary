@@ -147,6 +147,7 @@ public class MascotaController {
         mascotaExistente.setEdad(datosActualizados.getEdad());
         mascotaExistente.setPeso(datosActualizados.getPeso());
         mascotaExistente.setColor(datosActualizados.getColor());
+        mascotaExistente.setSexo(datosActualizados.getSexo());
         mascotaExistente.setFechaNacimiento(datosActualizados.getFechaNacimiento());
 
         if (file != null && !file.isEmpty()) {

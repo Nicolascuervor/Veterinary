@@ -9,8 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Date;
-import java.sql.Time;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -61,7 +60,7 @@ public class CitaService {
     public Cita convertirYGuardar(CitaRequest request) {
         Cita cita = new Cita();
         cita.setMotivo(request.getMotivo());
-        cita.setEstado(Cita.EstadoCita.ACTIVO);
+        cita.setEstadoCita(EstadoCita.PENDIENTE);
 
         LocalDate fecha = LocalDate.parse(request.getFecha());
         LocalTime hora = LocalTime.parse(request.getHora());
@@ -99,7 +98,7 @@ public class CitaService {
         Cita cita = citaRepository.findById(citaId)
                 .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
 
-        cita.setEstado(Cita.EstadoCita.CANCELADA);
+        cita.setEstadoCita(EstadoCita.CANCELADA_PROPIETARIO);
 
         DisponibilidadHoraria franja = disponibilidadHorariaRepository
                 .findByVeterinarioIdAndDiaAndHoraInicio(
