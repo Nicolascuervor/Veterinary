@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (userRole !== 'ADMIN') {
         alert('Acceso denegado. Esta página es solo para administradores.');
-        window.location.href = 'dashboard.html';
+        window.location.href = 'index.html';
         return;
     }
 
@@ -471,39 +471,40 @@ document.addEventListener('DOMContentLoaded', () => {
         mascotaModal.show();
     };
 
+    // Reemplaza esta función completa en tu archivo admin.js
     const handleMascotaActionClick = async (e) => {
         const target = e.target.closest('button');
         if (!target) return;
         const mascotaId = target.dataset.mascotaId;
 
+        // Lógica para el botón de Ver Historial (NUEVO)
+        if (target.classList.contains('btn-view-history')) {
+            // Abre la página del historial clínico en una nueva pestaña
+            window.open(`../pages/historial-clinico.html?id=${mascotaId}`, '_blank');
+        }
+
+        // Lógica para el botón de Editar (Existente)
         if (target.classList.contains('btn-edit-mascota')) {
             try {
                 const response = await fetch(`${apiGatewayUrl}/mascotas/${mascotaId}`, { headers });
                 if (!response.ok) throw new Error('Mascota no encontrada');
                 const mascota = await response.json();
 
-                console.log('[DEBUG] Datos de mascota para editar:', mascota);
-
                 document.getElementById('mascota-modal-title').textContent = 'Editar Mascota';
                 document.getElementById('mascota-id').value = mascota.id;
                 document.getElementById('mascota-nombre').value = mascota.nombre;
                 document.getElementById('mascota-especie').value = mascota.especie;
                 document.getElementById('mascota-raza').value = mascota.raza || '';
+                document.getElementById('mascota-sexo').value = mascota.sexo || '';
                 document.getElementById('mascota-fecha-nacimiento').value = mascota.fechaNacimiento || '';
                 document.getElementById('mascota-color').value = mascota.color || '';
                 document.getElementById('mascota-peso').value = mascota.peso || '';
-                document.getElementById('mascota-sexo').value = mascota.sexo || '';
 
-
-
-                // CORRECCIÓN: Comprobar si el propietario existe antes de acceder a su id
                 if (mascota.propietario) {
                     document.getElementById('mascota-propietario-id').value = mascota.propietario.id;
                 } else {
-                    console.warn(`La mascota con ID ${mascotaId} no tiene un propietario asociado en la respuesta.`);
-                    document.getElementById('mascota-propietario-id').value = ''; // Dejar el select en blanco
+                    document.getElementById('mascota-propietario-id').value = '';
                 }
-
 
                 mascotaModal.show();
             } catch (error) {
@@ -512,13 +513,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        // Lógica para el botón de Eliminar (Existente)
         if (target.classList.contains('btn-delete-mascota')) {
             if (confirm(`¿Estás seguro de que quieres eliminar esta mascota?`)) {
                 try {
                     const response = await fetch(`${apiGatewayUrl}/mascotas/${mascotaId}`, { method: 'DELETE', headers });
                     if (!response.ok) throw new Error('Falló al eliminar la mascota');
                     alert('Mascota eliminada con éxito.');
-                    await refreshData('mascotas');
+                    await refreshData('pets'); // Cambiado a 'pets' para que coincida con tu sección
                 } catch (error) {
                     console.error(error);
                     alert('No se pudo eliminar la mascota.');

@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- 2. Lógica de Protección de Páginas ---
     const isAuth = await checkTokenValidity();
     const currentPage = window.location.pathname.split('/').pop();
-    const protectedPages = ['admin.html', 'dashboard.html', 'citas.html', 'perfil.html', 'misMascotas.html'];
+    const protectedPages = ['admin.html', 'index.html', 'citas.html', 'perfil.html', 'misMascotas.html'];
 
     if (!isAuth && protectedPages.includes(currentPage)) {
         // Si no está autenticado y está en una página protegida, lo enviamos al login.
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (isAuth && (currentPage === 'login.html' || currentPage === 'register.html')) {
         // Si ya está autenticado y va a login/register, lo enviamos a su dashboard.
-        window.location.href = '/Veterinary/veterinaria-frontend/pages/dashboard.html';
+        window.location.href = '/Veterinary/veterinaria-frontend/pages/index.html';
         return;
     }
 
