@@ -1,0 +1,46 @@
+/* veterinaria-frontend/css/pedidos.css */
+
+body {
+    background-color: #f8f9fa;
+}
+
+.page-header h1 {
+    font-weight: 700;
+    color: #343a40;
+}
+
+.accordion-item {
+    border: 1px solid #dee2e6;
+    margin-bottom: 1rem;
+    border-radius: 0.5rem !important;
+    overflow: hidden;
+}
+
+.accordion-button {
+    font-weight: 600;
+}
+
+.accordion-button:not(.collapsed) {
+    color: #fff;
+    background-color: #4A90E2; /* Un azul principal */
+}
+
+.accordion-button:not(.collapsed)::after {
+    filter: brightness(0) invert(1); /* Hace la flecha del acordeón blanca */
+}
+
+.accordion-button:focus {
+    box-shadow: 0 0 0 0.25rem rgba(74, 144, 226, 0.25);
+}
+
+.accordion-body .list-group-item {
+    border: none;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.accordion-body img.img-thumbnail {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+}

@@ -1,6 +1,7 @@
 package com.perfil.perfilservice.service;
 
 import com.perfil.perfilservice.dto.*;
+import com.perfil.perfilservice.exception.PerfilNotFoundException;
 import com.perfil.perfilservice.model.*;
 import com.perfil.perfilservice.repository.*;
 import jakarta.persistence.EntityNotFoundException;
@@ -495,6 +496,14 @@ public class PerfilUsuarioService {
         }
     }
 
+    @Transactional
+    public void actualizarUrlFoto(Long userId, String fileUrl) {
+        PerfilUsuario perfil = perfilUsuarioRepository.findByUserId(userId)
+                .orElseThrow(() -> new PerfilNotFoundException("No se encontró el perfil para el usuario con ID: " + userId)); // <-- Mejorado
+
+        perfil.setFotoPerfilUrl(fileUrl);
+        perfilUsuarioRepository.save(perfil);
+    }
 
 
 

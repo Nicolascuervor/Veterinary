@@ -4,7 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===================================================================
     const userId = localStorage.getItem('id');
     const token = localStorage.getItem('token');
-    const apiBase = 'http://127.0.0.1:5001'; // URL del microservicio de productos/carrito
+    const apiBase = 'http://localhost:8081'; // <<== Apuntar al API Gateway
+
 
     // --- Selección de Elementos del DOM ---
     const cartContainer = document.getElementById('cart-items-container');

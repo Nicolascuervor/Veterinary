@@ -9,17 +9,13 @@ class PerfilService {
         }
     }
 
-    // --- Métodos para interactuar con el backend ---
-
     async obtenerMiPerfil() {
         try {
             const response = await fetch(`${this.baseUrl}/mi-perfil`, {
                 method: 'GET',
-                headers: { 'Authorization': `Bearer ${this.token}`, 'Content-Type': 'application/json' }
+                headers: { 'Authorization': `Bearer ${this.token}` }
             });
             if (response.ok) return await response.json();
-            // Con la nueva lógica del backend, un 404 ya no debería ocurrir para un usuario logueado.
-            // Se maneja como un error genérico si aun así sucede.
             throw new Error('No se pudo obtener el perfil del usuario.');
         } catch (error) {
             console.error('Error en obtenerMiPerfil:', error);
@@ -67,8 +63,12 @@ class PerfilUI {
         this.perfilService = new PerfilService();
         this.perfil = null;
 
-        this.contactoModal = new bootstrap.Modal(document.getElementById('contactoModal'));
+        // ▼▼▼ CORRECCIÓN 1: Definimos la URL base del backend que sirve las imágenes.
+        this.backendApiUrl = 'http://localhost:8085';
+
+
         this.editarPerfilModal = new bootstrap.Modal(document.getElementById('editarPerfilModal'));
+        this.contactoModal = new bootstrap.Modal(document.getElementById('contactoModal'));
         this.toastElement = document.getElementById('notification-toast');
         this.toast = new bootstrap.Toast(this.toastElement);
 
@@ -87,10 +87,20 @@ class PerfilUI {
             e.preventDefault();
             this.guardarContactoEmergencia();
         });
-
         document.getElementById('editar-perfil-form').addEventListener('submit', (e) => {
             e.preventDefault();
             this.guardarEdicionPerfil();
+        });
+
+        // ▼▼▼ AÑADIR ESTOS NUEVOS LISTENERS ▼▼▼
+        document.getElementById('edit-foto-input').addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                this.subirNuevaFoto(e.target.files[0]);
+            }
+        });
+
+        document.getElementById('btn-eliminar-foto').addEventListener('click', () => {
+            this.eliminarFoto();
         });
     }
 
@@ -101,6 +111,7 @@ class PerfilUI {
             this.perfil = await this.perfilService.obtenerMiPerfil();
 
             if (this.perfil) {
+                localStorage.setItem('fotoPerfilUrl', this.perfil.fotoPerfilUrl || '');
                 this.renderizarPerfil();
                 this.renderizarContactos();
                 this.renderizarEstadisticas();
@@ -116,43 +127,49 @@ class PerfilUI {
         const container = document.getElementById('perfil-container');
         if (!container || !this.perfil) return;
 
+        // ▼▼▼ CORRECCIÓN FINAL Y DEFINITIVA DE LA URL ▼▼▼
+        const fotoSrc = this.perfil.fotoPerfilUrl
+            ? `${this.backendApiUrl}${this.perfil.fotoPerfilUrl}`
+            : 'https://via.placeholder.com/150'; // <-- Se corrige la URL de respaldo
+
         container.innerHTML = `
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h3>Mi Perfil</h3>
-                    <button class="btn btn-outline-primary" onclick="ui.mostrarModalEdicion()">
-                        <i class="fas fa-edit"></i> Editar
-                    </button>
+                    <button class="btn btn-outline-primary" onclick="ui.mostrarModalEdicion()"><i class="fas fa-edit"></i> Editar</button>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-3 text-center">
-                            <img src="${this.perfil.fotoPerfilUrl || 'https://via.placeholder.com/150'}" class="rounded-circle mb-3" width="150" height="150" alt="Foto de perfil">
-                            <div class="badge ${this.perfil.perfilCompleto ? 'bg-success' : 'bg-warning'}">
-                                ${this.perfil.perfilCompleto ? 'Perfil Completo' : 'Perfil Incompleto'}
-                            </div>
+                            <img src="${fotoSrc}" class="rounded-circle mb-3" width="150" height="150" alt="Foto de perfil" style="object-fit: cover;">
                         </div>
                         <div class="col-md-9">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <p><strong>Nombre:</strong> ${this.perfil.nombre || ''}</p>
-                                    <p><strong>Apellido:</strong> ${this.perfil.apellido || ''}</p>
+                                    <p><strong>Nombre:</strong> ${this.perfil.nombre || ''} ${this.perfil.apellido || ''}</p>
                                     <p><strong>Email:</strong> ${this.perfil.email || ''}</p>
-                                    <p><strong>Teléfono:</strong> ${this.perfil.telefono || 'No especificado'}</p>
+                                    <p><strong>Genero:</strong> ${this.perfil.genero || ''}</p>
+                                    <p><strong>Fecha de nacimiento:</strong> ${this.perfil.fechaNacimiento || ''}</p>
+
+
+                                    
                                 </div>
                                 <div class="col-md-6">
+                                    <p><strong>Teléfono:</strong> ${this.perfil.telefono || 'No especificado'}</p>
                                     <p><strong>Dirección:</strong> ${this.perfil.direccion || 'No especificada'}</p>
-                                    <p><strong>Fecha de Nacimiento:</strong> ${this.perfil.fechaNacimiento || 'No especificada'}</p>
-                                    <p><strong>Género:</strong> ${this.perfil.genero || 'No especificado'}</p>
-                                    <p><strong>Ocupación:</strong> ${this.perfil.ocupacion || 'No especificada'}</p>
+                                    <p><strong>Ocupacion:</strong> ${this.perfil.ocupacion || 'No especificada'}</p>
+                                    <p><strong>Biografia:</strong> ${this.perfil.biografia || 'No especificada'}</p>
+
+                                    
+
                                 </div>
                             </div>
-                            ${this.perfil.biografia ? `<div class="mt-3"><strong>Biografía:</strong><p>${this.perfil.biografia}</p></div>` : ''}
                         </div>
                     </div>
                 </div>
             </div>`;
     }
+
 
     renderizarContactos() {
         const container = document.getElementById('contactos-emergencia-container');
@@ -208,6 +225,15 @@ class PerfilUI {
 
     mostrarModalEdicion() {
         if (!this.perfil) return;
+
+        const fotoPreviewSrc = this.perfil.fotoPerfilUrl
+            ? `${this.backendApiUrl}${this.perfil.fotoPerfilUrl}`
+            : 'https://via.placeholder.com/150'; // <-- Se corrige la URL de respaldo
+
+        console.log(`[LOG] Abriendo modal. URL para vista previa: ${fotoPreviewSrc}`);
+
+        document.getElementById('edit-preview-foto').src = fotoPreviewSrc;
+
         document.getElementById('edit-nombre').value = this.perfil.nombre || '';
         document.getElementById('edit-apellido').value = this.perfil.apellido || '';
         document.getElementById('edit-email').value = this.perfil.email || '';
@@ -218,6 +244,57 @@ class PerfilUI {
         document.getElementById('edit-ocupacion').value = this.perfil.ocupacion || '';
         document.getElementById('edit-biografia').value = this.perfil.biografia || '';
         this.editarPerfilModal.show();
+    }
+
+
+    async subirNuevaFoto(file) {
+        this.mostrarLoading(true);
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            const response = await fetch(`${this.perfilService.baseUrl}/mi-perfil/foto`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${this.perfilService.token}` },
+                body: formData
+            });
+            if (!response.ok) throw new Error('Error al subir la imagen.');
+
+            const data = await response.json();
+            this.perfil.fotoPerfilUrl = data.fotoPerfilUrl;
+            localStorage.setItem('fotoPerfilUrl', data.fotoPerfilUrl);
+
+            this.renderizarPerfil();
+            document.getElementById('edit-preview-foto').src = `${this.backendApiUrl}${data.fotoPerfilUrl}`;
+
+            this.mostrarToast('Foto de perfil actualizada.', 'success');
+        } catch (error) {
+            this.mostrarToast(error.message, 'error');
+        } finally {
+            this.mostrarLoading(false);
+        }
+    }
+
+    async eliminarFoto() {
+        if (!confirm('¿Estás seguro de que quieres eliminar tu foto de perfil?')) return;
+        this.mostrarLoading(true);
+        try {
+            const response = await fetch(`${this.perfilService.baseUrl}/mi-perfil/foto`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${this.perfilService.token}` }
+            });
+            if (!response.ok) throw new Error('No se pudo eliminar la foto.');
+
+            this.perfil.fotoPerfilUrl = null;
+            localStorage.setItem('fotoPerfilUrl', '');
+
+            this.renderizarPerfil();
+            document.getElementById('edit-preview-foto').src = 'https://via.placeholder.com/150';
+            this.mostrarToast('Foto de perfil eliminada.', 'success');
+        } catch (error) {
+            this.mostrarToast(error.message, 'error');
+        } finally {
+            this.mostrarLoading(false);
+        }
     }
 
     async guardarContactoEmergencia() {

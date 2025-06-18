@@ -7,66 +7,63 @@ document.getElementById('login-form')?.addEventListener('submit', async (e) => {
     const password = document.getElementById('password').value;
 
     const errorMessage = document.getElementById('error-message');
-    // <<== LÓGICA DE CARGA (1/3): Obtener el botón y guardar su texto original
     const submitButton = e.target.querySelector('button[type="submit"]');
     const originalButtonText = submitButton.innerHTML;
 
-    // <<== LÓGICA DE CARGA (2/3): Desactivar botón y mostrar spinner
+    // Iniciar estado de carga
     submitButton.disabled = true;
-    submitButton.innerHTML = `
-        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        Iniciando...
-    `;
+    submitButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Iniciando...`;
 
     try {
-        const response = await fetch('http://localhost:8081/auth/login', {
+        // --- PASO 1: Autenticar y obtener el token ---
+        const loginResponse = await fetch('http://localhost:8081/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password }),
         });
 
-        // ... (resto del código de manejo de la respuesta sin cambios) ...
-        const contentType = response.headers.get('Content-Type');
-        let data;
-        if (contentType && contentType.includes('application/json')) {
-            data = await response.json();
-        } else {
-            data = await response.text();
+        if (!loginResponse.ok) {
+            const errorData = await loginResponse.json();
+            throw new Error(errorData.message || 'Credenciales incorrectas');
         }
 
-        if (response.ok) {
-            let token, nombre, userRole, id;
-            if (contentType && contentType.includes('application/json')) {
-                token = data.token;
-                nombre = data.nombre || 'Usuario';
-                userRole = data.role || 'USER';
-                id = data.id || null;
-            } else {
-                token = data;
-                nombre = 'Usuario';
-                userRole = 'USER';
-                id = null;
-            }
-            localStorage.setItem('token', token);
-            localStorage.setItem('nombre', nombre);
-            localStorage.setItem('userRole', userRole);
-            localStorage.setItem('id', id);
+        const authData = await loginResponse.json();
 
-            // La redirección ocurrirá antes de que el botón se restaure, lo cual está bien.
-            window.location.href = 'index.html';
+        // Guardar los datos básicos de autenticación
+        localStorage.setItem('token', authData.token);
+        localStorage.setItem('nombre', authData.nombre || 'Usuario');
+        localStorage.setItem('userRole', authData.role || 'USER');
+        localStorage.setItem('id', authData.id);
+
+        // --- PASO 2 (NUEVO): Obtener los datos del perfil para la foto ---
+        console.log('Login exitoso. Obteniendo datos del perfil...');
+        const perfilResponse = await fetch('http://localhost:8081/perfil/mi-perfil', {
+            headers: { 'Authorization': `Bearer ${authData.token}` }
+        });
+
+        if (perfilResponse.ok) {
+            const perfilData = await perfilResponse.json();
+            // Guardamos la URL de la foto en localStorage
+            localStorage.setItem('fotoPerfilUrl', perfilData.fotoPerfilUrl || '');
+            console.log('URL de foto de perfil guardada en localStorage.');
         } else {
-            errorMessage.textContent = typeof data === 'string' ? data : data.message || 'Error al iniciar sesión';
+            // Si falla, no es crítico. Dejamos el localStorage vacío para la foto.
+            console.warn('No se pudieron obtener los datos del perfil, se usará el avatar por defecto.');
+            localStorage.setItem('fotoPerfilUrl', '');
         }
+
+        // --- PASO 3: Redirigir al usuario ---
+        window.location.href = 'index.html';
+
     } catch (error) {
-        errorMessage.textContent = 'Error de conexión con el servidor';
+        errorMessage.textContent = error.message;
         console.error('Error en login:', error);
     } finally {
-        // <<== LÓGICA DE CARGA (3/3): Restaurar el botón en cualquier caso (éxito o error)
+        // Restaurar el botón solo si hubo un error (si no, la página redirige)
         submitButton.disabled = false;
         submitButton.innerHTML = originalButtonText;
     }
 });
-
 // Manejar el formulario de registro
 document.getElementById('register-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();

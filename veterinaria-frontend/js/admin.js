@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const apiGatewayUrl = 'http://localhost:8081';
-    const productApiUrl = 'http://localhost:5001';
     const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
 
     let allUsers = [];
@@ -618,7 +617,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 fetch(`${apiGatewayUrl}/api/admin/users`, { headers }).then(res => res.json()),
                 fetch(`${apiGatewayUrl}/productos`).then(res => res.json()),
                 fetch(`${apiGatewayUrl}/mascotas`, { headers }).then(res => res.json()),
-                fetch(`${productApiUrl}/categorias`).then(res => res.json()) // <<== NUEVO: Carga de categorías.
+                fetch(`${apiGatewayUrl}/categorias`).then(res => res.json())
 
             ]);
 

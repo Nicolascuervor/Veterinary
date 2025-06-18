@@ -21,7 +21,6 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/perfil")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class PerfilUsuarioController {
 
     @Autowired
@@ -182,5 +181,36 @@ public class PerfilUsuarioController {
                     .body(Map.of("error", "Error en la búsqueda"));
         }
     }
+
+    @PostMapping("/mi-perfil/foto")
+    public ResponseEntity<Map<String, String>> actualizarFotoPerfil(
+            @RequestHeader("X-User-Id") Long userId,
+            @RequestParam("file") MultipartFile file) {
+
+        // CORRECCIÓN 1: Se llama al método correcto 'storeFile'.
+        // CORRECCIÓN 2: Se pasan los dos argumentos que requiere: el archivo y el ID del usuario.
+        String fileName = fileStorageService.storeFile(file, userId);
+
+        // Construimos la ruta relativa que se guardará en la base de datos.
+        String fileUrl = "/uploads/profile-images/" + fileName;
+
+        // Actualizamos el perfil del usuario con la nueva ruta de la imagen.
+        perfilUsuarioService.actualizarUrlFoto(userId, fileUrl);
+
+        // Devolvemos la nueva ruta al frontend para que pueda mostrar la imagen.
+        return ResponseEntity.ok(Map.of("fotoPerfilUrl", fileUrl));
+    }
+
+    @DeleteMapping("/mi-perfil/foto")
+    public ResponseEntity<Void> eliminarFotoPerfil(
+            @RequestHeader("X-User-Id") Long userId) {
+
+        // CORRECCIÓN: Usar la instancia 'perfilUsuarioService' para poner la URL a null.
+        perfilUsuarioService.actualizarUrlFoto(userId, null);
+
+        // Devuelve una respuesta 204 No Content, indicando que la operación fue exitosa.
+        return ResponseEntity.noContent().build();
+    }
+
 }
 

@@ -76,6 +76,28 @@ document.addEventListener('DOMContentLoaded', async () => {
                 userRoleElement.textContent = userRole === 'USER' ? 'Propietario' : userRole;
             }
 
+            // ▼▼▼ LÍNEA CORREGIDA Y AÑADIDA ▼▼▼
+            // Primero, obtenemos el elemento del avatar del DOM
+            const userAvatarElement = document.getElementById('user-avatar');
+
+            const fotoUrl = localStorage.getItem('fotoPerfilUrl');
+
+            console.log(`[NAV.JS LOG] fotoUrl de localStorage: `, fotoUrl);
+
+
+            if (userAvatarElement) {
+                if (fotoUrl && fotoUrl.trim() !== '') {
+                    // CORRECCIÓN: Apuntamos al backend que sirve las imágenes (puerto 8085)
+                    const fullAvatarUrl = `http://localhost:8085${fotoUrl}`;
+                    console.log(`[NAV.JS LOG] Construyendo URL de avatar: `, fullAvatarUrl);
+                    userAvatarElement.src = fullAvatarUrl;
+                } else {
+                    // CORRECCIÓN: Se añade https:// al avatar genérico
+                    userAvatarElement.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(nombreUsuario)}&background=667eea&color=fff&size=35`;
+                }
+            }
+
+
             // Mostrar el enlace al "Panel Admin" si el rol es ADMIN
             const adminLinkPlaceholder = document.getElementById('admin-link-placeholder');
             if (adminLinkPlaceholder) {
