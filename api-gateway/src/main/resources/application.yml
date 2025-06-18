@@ -103,7 +103,7 @@ spring:
         - id: product-service
           uri: http://localhost:5001
           predicates:
-            - Path=/productos/**, /categorias/**
+            - Path=/productos/**, /categorias/**, /cart/**, /orders/**, /checkout/**, /stripe-webhook
 
 
 

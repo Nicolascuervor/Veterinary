@@ -27,7 +27,7 @@ public class CorsConfig {
 
     private static final String ALLOWED_METHODS = "GET, PUT, POST, DELETE, OPTIONS, PATCH";
     private static final String ALLOWED_HEADERS = "DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization";
-    private static final String MAX_AGE = "3600";
+    private static final String MAX_AGE = "36000";
 
     @Bean
     public WebFilter corsFilter() {

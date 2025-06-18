@@ -157,7 +157,22 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <form id="editar-perfil-form">
+
         <div class="modal-body">
+
+          <div class="text-center mb-4">
+            <img src="https://via.placeholder.com/150" class="rounded-circle" id="edit-preview-foto" alt="Vista previa" width="120" height="120" style="object-fit: cover;">
+            <input type="file" id="edit-foto-input" class="d-none" accept="image/*">
+            <div class="mt-3">
+              <button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('edit-foto-input').click();">
+                <i class="fas fa-upload me-2"></i>Cambiar Foto
+              </button>
+              <button type="button" class="btn btn-outline-danger btn-sm" id="btn-eliminar-foto">
+                <i class="fas fa-trash me-2"></i>Eliminar Foto
+              </button>
+            </div>
+          </div>
+
           <div class="row">
             <div class="col-md-6">
               <div class="mb-3">
@@ -208,6 +223,9 @@
             <div class="form-text">Máximo 500 caracteres</div>
           </div>
         </div>
+
+
+
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
           <button type="submit" class="btn btn-primary">
@@ -215,6 +233,9 @@
           </button>
         </div>
       </form>
+
+
+
     </div>
   </div>
 </div>

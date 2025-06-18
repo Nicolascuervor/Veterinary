@@ -2,6 +2,7 @@ package com.perfil.perfilservice.ConfigSecurity;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
@@ -23,10 +24,11 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         // Endpoints públicos
+                        .requestMatchers("/uploads/profile-images/**").permitAll()
                         .requestMatchers("/perfil/publico/**").permitAll()
 
-                        // Endpoints que requieren autenticación
-                        .requestMatchers("/perfil/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/perfil/mi-perfil/foto").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/perfil/mi-perfil/foto").authenticated()
 
                         // Endpoints específicos por rol
                         .requestMatchers("/perfil/admin/**").hasAuthority("ROLE_ADMIN")

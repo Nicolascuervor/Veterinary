@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- CONFIGURACIÓN ---
     const userId = localStorage.getItem('id');
     const token = localStorage.getItem('token');
-    const apiBase = 'http://127.0.0.1:5001';
+    const apiBase = 'http://localhost:8081';
 
     // --- ELEMENTOS DEL DOM ---
     const ordersContainer = document.getElementById('orders-accordion-container');
