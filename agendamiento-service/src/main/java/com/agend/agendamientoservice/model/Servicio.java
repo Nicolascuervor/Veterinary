@@ -1,11 +1,13 @@
 package com.agend.agendamientoservice.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Setter
@@ -31,6 +33,8 @@ public class Servicio {
     @ManyToOne
     @JoinColumn(name = "especialidad_id", nullable = false)
     private Especialidad especialidad;
+
+
 
 
 

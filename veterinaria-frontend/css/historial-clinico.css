@@ -1,0 +1,50 @@
+/* Estilos para la página de Historial Clínico */
+
+#perfil-mascota #mascota-foto {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border: 3px solid #dee2e6;
+}
+
+.accordion-button {
+    font-weight: 500;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+}
+
+.badge-status {
+    font-size: 0.8rem;
+    padding: 0.4em 0.7em;
+    font-weight: 600;
+    min-width: 100px;
+    text-align: center;
+}
+
+.badge-realizada {
+    background-color: #198754 !important; /* Verde */
+}
+.badge-pendiente, .badge-confirmada {
+    background-color: #ffc107 !important; /* Amarillo */
+    color: #000 !important;
+}
+.badge-cancelada {
+    background-color: #6c757d !important; /* Gris */
+}
+.badge-no-asistio {
+    background-color: #dc3545 !important; /* Rojo */
+}
+
+.detalle-encuentro-card {
+    border-left: 4px solid #0d6efd;
+    margin-bottom: 1rem;
+}
+
+.detalle-encuentro-card .card-header {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    color: #343a40;
+}

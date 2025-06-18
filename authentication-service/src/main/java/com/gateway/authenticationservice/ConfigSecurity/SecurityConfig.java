@@ -34,8 +34,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authRequest ->
                         authRequest
                                 .requestMatchers("/auth/**").permitAll()
-                                // --- LÍNEA CORREGIDA ---
-                                .requestMatchers("/api/admin/**").hasRole("ADMIN") // Cambiado a hasRole
+                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                 .anyRequest().authenticated()
                 )
                 .sessionManagement(sessionManager ->

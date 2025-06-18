@@ -142,17 +142,26 @@
                             <input type="number" class="form-control" id="petAge" min="0">
                         </div>
                     </div>
+
                     <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="petSex" class="form-label">Sexo</label>
+                            <select class="form-select" id="petSex" required>
+                                <option value="" disabled selected>Seleccione una opción...</option>
+                                <option value="Macho">Macho</option>
+                                <option value="Hembra">Hembra</option>
+                            </select>
+                        </div>
                         <div class="col-md-6 mb-3">
                             <label for="petWeight" class="form-label">Peso (kg)</label>
                             <input type="number" class="form-control" id="petWeight" min="0" step="0.1" placeholder="Ej: 5.5">
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="petColor" class="form-label">Color</label>
                             <input type="text" class="form-control" id="petColor" placeholder="Ej: Negro con blanco">
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="petBirthdate" class="form-label">Fecha de Nacimiento</label>
                             <input type="date" class="form-control" id="petBirthdate">
@@ -189,24 +198,20 @@
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
-
                 if (response.status === 204) {
-                    displayPets([]); // Llama a la función de renderizado con una lista vacía
+                    displayPets([]);
                     return;
                 }
 
-                // Si la respuesta no fue exitosa (ej: 401, 403, 500), lanzamos un error.
                 if (!response.ok) {
                     throw new Error(`Error del servidor: ${response.status}`);
                 }
 
-                // Solo si la respuesta es OK (200) y tiene contenido, la convertimos a JSON.
                 const pets = await response.json();
                 displayPets(pets);
 
             } catch (error) {
                 console.error("Error al cargar mascotas:", error);
-                // Opcional: Mostrar un mensaje de error en la página
                 document.getElementById('petsContainer').innerHTML = `<p class="text-center text-danger">No se pudieron cargar los datos de las mascotas.</p>`;
             }
         };
@@ -228,10 +233,14 @@
                             <p class="card-text text-muted">${pet.especie} - ${pet.raza || 'Sin raza'}</p>
                             <p><strong>Edad:</strong> ${pet.edad || 'N/A'} años</p>
                             <p><strong>Peso:</strong> ${pet.peso ? pet.peso + ' kg' : 'N/A'}</p>
+                            <p><strong>Sexo:</strong> ${pet.sexo || 'No especificado'}</p>
                         </div>
-                        <div class="pet-card-footer d-flex justify-content-end">
-                            <button class="btn btn-sm btn-outline-primary me-2" onclick="window.openEditModal(${pet.id})">Editar</button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="window.deletePet(${pet.id})">Eliminar</button>
+                        <div class="pet-card-footer d-flex justify-content-between">
+                             <div>
+                                <button class="btn btn-sm btn-outline-secondary me-2" onclick="window.openEditModal(${pet.id})">Editar</button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="window.deletePet(${pet.id})">Eliminar</button>
+                            </div>
+                            <a href="historial-clinico.html?id=${pet.id}" class="btn btn-sm btn-primary">Ver Historial</a>
                         </div>`;
                     container.appendChild(card);
                 });
@@ -252,34 +261,21 @@
             document.getElementById('imagePreview').innerHTML = '<i class="fas fa-camera fa-2x"></i>';
 
             if (petId) {
-                // Modo edición
                 document.getElementById('petModalTitle').textContent = 'Editar Mascota';
-
                 try {
-                    // --- ¡AQUÍ ESTÁ LA SOLUCIÓN! ---
                     const response = await fetch(`${apiBase}/mascotas/${petId}`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
-
-                    // Si la respuesta no es OK (ej: 404 No Encontrado, 500 Error de Servidor), lanza un error.
-                    if (!response.ok) {
-                        throw new Error(`No se pudo cargar la información de la mascota. Estado: ${response.status}`);
-                    }
-
-                    // Ahora que sabemos que la respuesta es buena, la convertimos a JSON.
+                    if (!response.ok) throw new Error(`No se pudo cargar la información de la mascota. Estado: ${response.status}`);
                     const pet = await response.json();
+                    if (!pet) throw new Error("La mascota no fue encontrada.");
 
-                    // Verificamos que pet no sea null (aunque con response.ok, es poco probable).
-                    if (!pet) {
-                        throw new Error("La mascota no fue encontrada.");
-                    }
-
-                    // Rellenamos el formulario.
                     document.getElementById('petName').value = pet.nombre;
                     document.getElementById('petSpecies').value = pet.especie;
                     document.getElementById('petBreed').value = pet.raza || '';
                     document.getElementById('petAge').value = pet.edad || '';
                     document.getElementById('petWeight').value = pet.peso || '';
+                    document.getElementById('petSex').value = pet.sexo || '';
                     document.getElementById('petColor').value = pet.color || '';
                     document.getElementById('petBirthdate').value = pet.fechaNacimiento || '';
 
@@ -291,14 +287,11 @@
                 } catch (error) {
                     console.error("Error al abrir el modal de edición:", error);
                     alert("Error: No se pudo cargar la información de la mascota para editar.");
-                    return; // Detenemos la ejecución para no mostrar un modal vacío.
+                    return;
                 }
-
             } else {
-                // Modo creación
                 document.getElementById('petModalTitle').textContent = 'Registrar Nueva Mascota';
             }
-
             petModal.show();
         };
 
@@ -314,9 +307,11 @@
             }
         });
 
+        // --- LÓGICA DE GUARDADO CORREGIDA ---
         document.getElementById('savePetBtn').addEventListener('click', async () => {
             const petId = document.getElementById('petId').value;
-            // --- ¡CORRECCIÓN CLAVE! La URL se ajusta aquí.
+
+            // ===== CORRECCIÓN 1: Generar URLs RESTful estándar =====
             const url = petId ? `${apiBase}/mascotas/${petId}` : `${apiBase}/mascotas`;
             const method = petId ? 'PUT' : 'POST';
 
@@ -325,14 +320,18 @@
                 especie: document.getElementById('petSpecies').value,
                 raza: document.getElementById('petBreed').value,
                 edad: document.getElementById('petAge').value,
+                sexo: document.getElementById('petSex').value,
                 peso: parseFloat(document.getElementById('petWeight').value) || null,
                 color: document.getElementById('petColor').value,
                 fechaNacimiento: document.getElementById('petBirthdate').value,
+                // Corregimos la estructura para que coincida con el backend
                 propietario: { id: propietarioId }
             };
 
             const formData = new FormData();
+            // El backend espera el JSON bajo la clave "mascota"
             formData.append('mascota', JSON.stringify(mascotaData));
+
             const imageFile = document.getElementById('petImage').files[0];
             if (imageFile) {
                 formData.append('file', imageFile);
@@ -341,14 +340,13 @@
             try {
                 const response = await fetch(url, {
                     method: method,
-                    headers: { 'Authorization': `Bearer ${token}` },
+                    headers: { 'Authorization': `Bearer ${token}` }, // No se necesita Content-Type con FormData
                     body: formData
                 });
                 if (!response.ok) {
                     const errorData = await response.text();
                     throw new Error(errorData || 'Error al guardar la mascota');
                 }
-
                 petModal.hide();
                 loadPets();
             } catch (error) {
@@ -356,21 +354,6 @@
                 alert('Hubo un error al guardar: ' + error.message);
             }
         });
-
-        window.deletePet = async (petId) => {
-            if (confirm('¿Estás seguro de que quieres eliminar esta mascota?')) {
-                try {
-                    const response = await fetch(`${apiBase}/mascotas/${petId}`, {
-                        method: 'DELETE',
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    if (!response.ok) throw new Error('Error al eliminar');
-                    loadPets();
-                } catch (error) {
-                    console.error('Error al eliminar:', error);
-                }
-            }
-        };
 
         // Carga inicial
         loadPets();

@@ -119,7 +119,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const statusBadge = user.enabled ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-danger">Inactivo</span>';
             const toggleButton = `<button class="btn btn-sm ${user.enabled ? 'btn-secondary' : 'btn-success'} btn-toggle-status" data-user-id="${user.id}" data-enabled="${user.enabled}" title="${user.enabled ? 'Desactivar' : 'Activar'}"><i class="fas fa-toggle-${user.enabled ? 'on' : 'off'}"></i></button>`;
             userTableBody.innerHTML += `<tr>
-                <td>${user.id}</td><td>${user.username}</td><td>${user.email}</td><td>${user.role}</td><td>${statusBadge}</td>
+                <td>${user.id}</td>
+                <td>${user.username}
+                </td><td>${user.role}</td>
+                <td>${statusBadge}</td>
                 <td><button class="btn btn-sm btn-warning btn-edit-role" data-user-id="${user.id}" data-current-role="${user.role}" title="Cambiar Rol"><i class="fas fa-user-shield"></i></button> ${toggleButton}</td>
             </tr>`;
         });
@@ -190,14 +193,11 @@ document.addEventListener('DOMContentLoaded', () => {
         mascotasTableBody.innerHTML = '';
 
         if (!mascotas || mascotas.length === 0) {
-            mascotasTableBody.innerHTML = `<tr><td colspan="10" class="text-center">No se encontraron mascotas.</td></tr>`;
+            mascotasTableBody.innerHTML = `<tr><td colspan="11" class="text-center">No se encontraron mascotas.</td></tr>`; // Aumentado a 11 columnas
             return;
         }
 
         mascotas.forEach(mascota => {
-
-            console.log('[DEBUG] Renderizando mascota en tabla:', mascota);
-
             const edadCalculada = calcularEdad(mascota.fechaNacimiento);
             const nombrePropietario = mascota.propietario ? mascota.propietario.nombre : 'No asignado';
 
@@ -207,6 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <button class="btn btn-sm btn-danger btn-delete-mascota" data-mascota-id="${mascota.id}" title="Eliminar Mascota"><i class="fas fa-trash"></i></button>
         `;
 
+            // Se añade la nueva celda <td> para el sexo
             mascotasTableBody.innerHTML += `<tr>
             <td>${mascota.id}</td>
             <td>${mascota.nombre}</td>
@@ -216,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <td>${mascota.fechaNacimiento || 'N/A'}</td>
             <td>${mascota.color || 'N/A'}</td>
             <td>${mascota.peso || 0} kg</td>
-            <td>${nombrePropietario}</td>
+            <td>${mascota.sexo || 'No especificado'}</td> <td>${nombrePropietario}</td>
             <td>${actionButtons}</td>
         </tr>`;
         });
@@ -284,39 +285,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     const applyMascotaFilters = () => {
-        // Se asume que existe una variable global 'allMascotas' con todas las mascotas.
         const searchValue = document.getElementById('mascota-search-input').value.toLowerCase();
         const speciesValue = document.getElementById('mascota-species-filter').value;
+        const genderValue = document.getElementById('mascota-gender-filter').value; // <-- Obtenemos el nuevo filtro
         const ageValue = document.getElementById('mascota-age-filter').value;
 
         const filteredMascotas = allMascotas.filter(mascota => {
-            // 1. Condición de Búsqueda (Nombre, Raza o Propietario)
             const ownerName = mascota.propietario ? mascota.propietario.nombre.toLowerCase() : '';
             const matchesSearch = mascota.nombre.toLowerCase().includes(searchValue) ||
                 mascota.raza.toLowerCase().includes(searchValue) ||
                 ownerName.includes(searchValue);
 
-            // 2. Condición de Especie
             const matchesSpecies = !speciesValue || mascota.especie === speciesValue;
+            const matchesGender = !genderValue || mascota.sexo === genderValue; // <-- Añadimos la condición de género
 
-            // 3. Condición de Edad
-            let matchesAge = true; // Por defecto es verdadero si no se selecciona filtro de edad
+            let matchesAge = true;
             if (ageValue) {
-                const ageInYears = getAgeInYears(mascota.fecha_nacimiento);
+                const ageInYears = getAgeInYears(mascota.fechaNacimiento); // El nombre del campo es fechaNacimiento en el DTO
                 switch (ageValue) {
-                    case 'cachorro':
-                        matchesAge = ageInYears >= 0 && ageInYears < 1;
-                        break;
-                    case 'adulto':
-                        matchesAge = ageInYears >= 1 && ageInYears <= 7;
-                        break;
-                    case 'senior':
-                        matchesAge = ageInYears > 7;
-                        break;
+                    case 'cachorro': matchesAge = ageInYears >= 0 && ageInYears < 1; break;
+                    case 'adulto': matchesAge = ageInYears >= 1 && ageInYears <= 7; break;
+                    case 'senior': matchesAge = ageInYears > 7; break;
                 }
             }
 
-            return matchesSearch && matchesSpecies && matchesAge;
+            return matchesSearch && matchesSpecies && matchesGender && matchesAge; // <-- Se añade matchesGender
         });
 
         renderMascotasTable(filteredMascotas);
@@ -328,6 +321,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const clearMascotaFilters = () => {
         document.getElementById('mascota-search-input').value = '';
         document.getElementById('mascota-species-filter').value = '';
+        document.getElementById('mascota-gender-filter').value = ''; // <-- Reseteamos el nuevo filtro
         document.getElementById('mascota-age-filter').value = '';
 
         // Vuelve a renderizar la tabla con la lista completa de mascotas
@@ -495,9 +489,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('mascota-nombre').value = mascota.nombre;
                 document.getElementById('mascota-especie').value = mascota.especie;
                 document.getElementById('mascota-raza').value = mascota.raza || '';
-                document.getElementById('mascota-fecha-nacimiento').value = mascota.fecha_nacimiento || '';
+                document.getElementById('mascota-fecha-nacimiento').value = mascota.fechaNacimiento || '';
                 document.getElementById('mascota-color').value = mascota.color || '';
                 document.getElementById('mascota-peso').value = mascota.peso || '';
+                document.getElementById('mascota-sexo').value = mascota.sexo || '';
+
 
 
                 // CORRECCIÓN: Comprobar si el propietario existe antes de acceder a su id
@@ -537,10 +533,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const mascotaId = form.querySelector('#mascota-id').value;
         const isEditing = !!mascotaId;
 
+        // Se añade 'sexo' a los datos que se envían
         const mascotaData = {
             nombre: form.querySelector('#mascota-nombre').value,
             especie: form.querySelector('#mascota-especie').value,
             raza: form.querySelector('#mascota-raza').value,
+            sexo: form.querySelector('#mascota-sexo').value, // <<< CAMPO AÑADIDO
             fechaNacimiento: form.querySelector('#mascota-fecha-nacimiento').value,
             color: form.querySelector('#mascota-color').value,
             peso: parseFloat(form.querySelector('#mascota-peso').value),
@@ -560,10 +558,9 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch(url, {
                 method: method,
-                headers: { 'Authorization': `Bearer ${token}` }, // No 'Content-Type' con FormData
+                headers: { 'Authorization': `Bearer ${token}` },
                 body: formData
             });
-
             if (!response.ok) {
                 const errorText = await response.text();
                 throw new Error(errorText || `Error del servidor: ${response.status}`);
@@ -612,7 +609,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             await loadModals();
 
-            // CORRECCIÓN: Cargar todos los datos y asignarlos correctamente
+
             const [usersData, productsData, mascotasData, categoriesData] = await Promise.all([
                 fetch(`${apiGatewayUrl}/api/admin/users`, { headers }).then(res => res.json()),
                 fetch(`${apiGatewayUrl}/productos`).then(res => res.json()),
