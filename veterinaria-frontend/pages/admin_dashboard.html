@@ -31,6 +31,52 @@
         </div>
     </div>
 
-
-
 </div>
+<div class="row mt-4">
+    <div class="col-12">
+        <h3 class="mb-3">Análisis de Ingresos y Ventas</h3>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card stat-card-income">
+            <h4>Ingresos del Día</h4>
+            <p id="ingresos-hoy">$0.00</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card stat-card-sales">
+            <h4>Ventas Totales</h4>
+            <p id="ventas-totales">$0.00</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card stat-card-orders">
+            <h4>Pedidos Completados</h4>
+            <p id="pedidos-totales">0</p>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-lg-7">
+        <div class="chart-container">
+            <h4 class="mb-3">Ventas de la Última Semana</h4>
+            <canvas id="ventasSemanalesChart"></canvas>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="top-products-container">
+            <h4 class="mb-3">Top 5 Productos Vendidos</h4>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Unidades Vendidas</th>
+                </tr>
+                </thead>
+                <tbody id="top-productos-body">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

@@ -44,3 +44,42 @@
 @media (max-width: 768px) {
     /* Podríamos añadir lógica para ocultar la barra en móviles */
 }
+
+.stat-card-income, .stat-card-sales, .stat-card-orders {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.stat-card-income h4 { color: #28a745; } /* Verde */
+.stat-card-sales h4 { color: #007bff; } /* Azul */
+.stat-card-orders h4 { color: #ffc107; } /* Amarillo */
+
+.stat-card p {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+.chart-container, .top-products-container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+
+
+.chart-container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+
+    position: relative;
+    height: 400px;
+    width: 100%;
+}

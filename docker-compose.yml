@@ -1,0 +1,109 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: vetcare_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    ports:
+      - "3307:3306"
+    volumes:
+      - vetcare_db_data:/var/lib/mysql
+    healthcheck:
+      # CORRECCIÓN: Hacemos el comando más robusto
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "--password=${DB_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 10s # Aumentamos un poco el timeout
+      retries: 10    # Aumentamos los reintentos para darle más tiempo en el primer arranque
+
+  # 2. API Gateway (no depende directamente de la BD, así que no necesita el healthcheck)
+  api-gateway:
+    build: ./api-gateway
+    container_name: vetcare_gateway
+    restart: always
+    ports:
+      - "8081:8081"
+    depends_on:
+      - authentication-service
+      - agendamiento-service
+      - perfil-service
+      - email-service
+      - product-service
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - AUTH_SERVICE_URL=${AUTH_SERVICE_URL}
+      - AGENDAMIENTO_SERVICE_URL=${AGENDAMIENTO_SERVICE_URL}
+      - PERFIL_SERVICE_URL=${PERFIL_SERVICE_URL}
+      - EMAIL_SERVICE_URL=${EMAIL_SERVICE_URL}
+      - PRODUCT_SERVICE_URL=${PRODUCT_SERVICE_URL}
+
+  # 3. Servicios de Aplicación (ahora esperan a que la BD esté saludable)
+  authentication-service:
+    build: ./authentication-service
+    container_name: vetcare_auth
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DB_URL_AUTH=jdbc:mysql://db:3306/userveterinarydb?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+      - DB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - EMAIL_SERVICE_URL=${EMAIL_SERVICE_URL}
+      - AGENDAMIENTO_SERVICE_URL=${AGENDAMIENTO_SERVICE_URL}
+
+  agendamiento-service:
+    build: ./agendamiento-service
+    container_name: vetcare_agendamiento
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy # <-- CAMBIO CLAVE
+    environment:
+      - DB_URL=jdbc:mysql://db:3306/agendamientodb?createDatabaseIfNotExist=true
+      - DB_USER=root
+      - DB_PASSWORD=${DB_ROOT_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - EMAIL_SERVICE_URL=${EMAIL_SERVICE_URL}
+
+  perfil-service:
+    build: ./perfil-service
+    container_name: vetcare_perfil
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy # <-- CAMBIO CLAVE
+    environment:
+      - DB_URL=jdbc:mysql://db:3306/perfildb?createDatabaseIfNotExist=true
+      - DB_USER=root
+      - DB_PASSWORD=${DB_ROOT_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - AGENDAMIENTO_SERVICE_URL=${AGENDAMIENTO_SERVICE_URL}
+
+  email-service:
+    build: ./email-service
+    container_name: vetcare_email
+    restart: always
+    environment:
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+
+  product-service:
+    build: ./product_service
+    container_name: vetcare_products
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy # <-- CAMBIO CLAVE
+    environment:
+      - DATABASE_URL=mysql+pymysql://root:${DB_ROOT_PASSWORD}@db:3306/veterinaria
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+    volumes:
+      - product_images:/app/static/uploads/products
+
+volumes:
+  vetcare_db_data:
+  product_images:

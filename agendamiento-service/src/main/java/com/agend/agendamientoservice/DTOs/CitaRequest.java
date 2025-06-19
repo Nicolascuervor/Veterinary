@@ -11,6 +11,6 @@ public class CitaRequest {
     public String hora;  // formato: HH:mm:ss
     public Long mascotaId;
     public Long veterinarioId;
-    public Long servicioId; // <<< AÑADIR ESTE CAMPO
+    public Long servicioId;
 
 }

@@ -22,7 +22,7 @@ public class MascotaResponseDTO {
     private String sexo;
 
     private String imageUrl;
-    private PropietarioSimpleDTO propietario; // <-- ¡La clave está aquí!
+    private PropietarioSimpleDTO propietario;
 
     // Constructor para facilitar la conversión
     public MascotaResponseDTO(Mascota mascota) {
