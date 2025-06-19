@@ -14,5 +14,5 @@ public class CitaHistorialDTO {
     private String motivoServicio;
     private String estadoCita;
     private String veterinarioNombre;
-    private EncuentroClinicoDTO encuentro; // Será null si la cita no se ha realizado
+    private EncuentroClinicoDTO encuentro;
 }

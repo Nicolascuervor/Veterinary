@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-@Data // O usa getters y setters manuales
+@Data
 public class PropietarioResponseDTO {
     private Long id;
     private String nombre;
@@ -18,7 +18,6 @@ public class PropietarioResponseDTO {
     private String direccion;
     private Long usuarioId;
 
-    // Constructor para facilitar la conversión desde la entidad
     public PropietarioResponseDTO(Propietario propietario) {
         this.id = propietario.getId();
         this.nombre = propietario.getNombre();

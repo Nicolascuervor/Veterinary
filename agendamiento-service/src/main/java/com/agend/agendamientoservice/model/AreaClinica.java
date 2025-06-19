@@ -16,7 +16,7 @@ public class AreaClinica {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nombreArea; // Ej. Consulta, Cirugía, Imagenología
+    private String nombreArea;
 
     private String descripcion;
 

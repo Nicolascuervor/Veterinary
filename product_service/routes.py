@@ -1,5 +1,4 @@
 from flask import Blueprint, request, jsonify, current_app
-# FIX: Se importa el modelo con el nombre correcto: 'Producto'
 from models import Producto, Category, Cart
 from database import db
 from werkzeug.utils import secure_filename
@@ -8,6 +7,15 @@ import uuid
 
 import stripe
 from models import Order, OrderItem
+
+from functools import wraps
+from datetime import datetime
+from sqlalchemy import func
+from datetime import timedelta
+
+import logging
+
+
 
 
 routes = Blueprint('routes', __name__)
@@ -468,3 +476,72 @@ def get_user_orders(user_id):
         result.append(order_data)
 
     return jsonify(result), 200
+
+
+# --- RUTAS DE ADMINISTRACIÓN ---
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        current_app.logger.info("--- Entrando al decorador @admin_required ---")
+        current_app.logger.info(f"Ruta solicitada: {request.path}")
+        current_app.logger.info(f"Headers recibidos: {dict(request.headers)}")
+
+        role_header = request.headers.get('role')
+        current_app.logger.info(f"Valor de la cabecera 'role': {role_header}")
+
+        if role_header != 'ROLE_ADMIN':
+            current_app.logger.warning(f"Acceso DENEGADO para el rol: '{role_header}'. Se requiere 'ADMIN'.")
+            return jsonify({"error": "Acceso no autorizado"}), 403
+
+        current_app.logger.info("Acceso PERMITIDO. El rol es 'ADMIN'.")
+        return f(*args, **kwargs)
+    return decorated_function
+
+@routes.route('/api/admin/ingresos/hoy', methods=['GET'])
+@admin_required
+def get_ingresos_hoy():
+    try:
+        today = datetime.utcnow().date()
+        ingresos = db.session.query(func.sum(Order.total_price)).filter(
+            func.date(Order.fecha_orden) == today,
+            Order.status == 'PAGADO'
+        ).scalar()
+        return jsonify({"ingresos_hoy": ingresos or 0})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@routes.route('/api/admin/estadisticas/ventas', methods=['GET'])
+@admin_required
+def get_estadisticas_ventas():
+    current_app.logger.info("--- Entrando a la ruta /api/admin/estadisticas/ventas ---")
+    try:
+        ventas_totales = db.session.query(func.sum(Order.total_price)).filter(Order.status == 'PAGADO').scalar() or 0
+        num_pedidos = db.session.query(func.count(Order.id)).filter(Order.status == 'PAGADO').scalar() or 0
+
+        productos_mas_vendidos = db.session.query(
+            Producto.name,
+            func.sum(OrderItem.quantity).label('total_vendido')
+        ).join(OrderItem).join(Order).filter(Order.status == 'PAGADO').group_by(Producto.name).order_by(func.sum(OrderItem.quantity).desc()).limit(5).all()
+
+        ventas_ultimos_7_dias = []
+        for i in range(7):
+            date = datetime.utcnow().date() - timedelta(days=i)
+            total_dia = db.session.query(func.sum(Order.total_price)).filter(
+                func.date(Order.order_date) == date,
+                Order.status == 'PAGADO'
+            ).scalar() or 0
+            ventas_ultimos_7_dias.append({"fecha": date.strftime('%Y-%m-%d'), "total": total_dia})
+
+        response_data = {
+            "ventas_totales": ventas_totales,
+            "numero_pedidos": num_pedidos,
+            "top_productos": [{"nombre": p[0], "total_vendido": int(p[1])} for p in productos_mas_vendidos],
+            "ventas_semanales": ventas_ultimos_7_dias
+        }
+
+        current_app.logger.info(f"Datos de estadísticas calculados para enviar: {response_data}")
+        return jsonify(response_data)
+    except Exception as e:
+        current_app.logger.error(f"Error en /api/admin/estadisticas/ventas: {e}", exc_info=True)
+        return jsonify({"error": str(e)}), 500

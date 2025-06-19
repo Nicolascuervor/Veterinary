@@ -18,10 +18,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity // Habilita la seguridad a nivel de método para @PreAuthorize
+@EnableMethodSecurity
 public class SecurityConfig {
 
-    // Se eliminan las dependencias del constructor para romper el ciclo.
 
     @Bean
     public SecurityFilterChain securityFilterChain(
@@ -39,8 +38,8 @@ public class SecurityConfig {
                 )
                 .sessionManagement(sessionManager ->
                         sessionManager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider) // Se usa el bean inyectado en el método
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // Se usa el bean inyectado
+                .authenticationProvider(authenticationProvider)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

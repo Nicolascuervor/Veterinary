@@ -16,6 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let allProducts = [];
     let allMascotas = []; // Variable para mascotas
     let allCategories = [];
+    let ventasChartInstance = null; // <-- AÑADE ESTA LÍNEA
+
 
 
     const contentArea = document.getElementById('admin-content-area');
@@ -64,6 +66,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('total-users-kpi').textContent = allUsers.length;
         document.getElementById('total-products-kpi').textContent = allProducts.length;
         document.getElementById('total-mascotas-kpi').textContent = allMascotas.length;
+
+        cargarEstadisticasVentas();
+
     };
 
 
@@ -641,6 +646,107 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Error de inicialización:", error);
         }
     };
+
+
+
+    async function cargarEstadisticasVentas() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            console.error("No se encontró token para las estadísticas de ventas.");
+            return;
+        }
+        const apiGatewayUrl = 'http://localhost:8081';
+
+        try {
+            const headers = { 'Authorization': `Bearer ${token}` };
+
+            // Llamamos al endpoint de estadísticas que devuelve todo
+            const resStats = await fetch(`${apiGatewayUrl}/api/admin/estadisticas/ventas`, { headers });
+
+            if (!resStats.ok) {
+                // Si falla, mostramos un error claro en la consola y en la UI
+                console.error(`Error ${resStats.status} al obtener estadísticas.`);
+                document.getElementById('ingresos-hoy').textContent = 'Error';
+                document.getElementById('ventas-totales').textContent = 'Error';
+                document.getElementById('pedidos-totales').textContent = 'Error';
+                return;
+            }
+
+            const dataStats = await resStats.json();
+
+            // Extraemos los ingresos de hoy de la respuesta completa
+            const ingresosHoy = dataStats.ventas_semanales.find(d => d.fecha === new Date().toISOString().split('T')[0])?.total || 0;
+
+            // Actualizar tarjetas del dashboard
+            document.getElementById('ingresos-hoy').textContent = `$${ingresosHoy.toLocaleString('es-CO')}`;
+            document.getElementById('ventas-totales').textContent = `$${dataStats.ventas_totales.toLocaleString('es-CO')}`;
+            document.getElementById('pedidos-totales').textContent = dataStats.numero_pedidos;
+
+            // Popular tabla de productos más vendidos
+            const topProductosBody = document.getElementById('top-productos-body');
+            topProductosBody.innerHTML = ''; // Limpiar
+            if (dataStats.top_productos.length > 0) {
+                dataStats.top_productos.forEach(p => {
+                    topProductosBody.innerHTML += `<tr><td>${p.nombre}</td><td>${p.total_vendido}</td></tr>`;
+                });
+            } else {
+                topProductosBody.innerHTML = '<tr><td colspan="2">No hay datos de ventas.</td></tr>';
+            }
+
+            // Renderizar el gráfico de ventas semanales
+            renderizarGraficoVentas(dataStats.ventas_semanales);
+
+        } catch (error) {
+            console.error('Error fatal al cargar estadísticas de ventas:', error);
+        }
+    }
+
+    function renderizarGraficoVentas(datosSemanales) {
+        const canvas = document.getElementById('ventasSemanalesChart');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+
+        // --- LA LÓGICA CLAVE DE LA SOLUCIÓN ---
+        // Si ya existe una instancia del gráfico, la destruimos antes de crear una nueva.
+        if (ventasChartInstance) {
+            ventasChartInstance.destroy();
+        }
+        // --- FIN DE LA LÓGICA CLAVE ---
+
+        const labels = datosSemanales.map(d => new Date(d.fecha + 'T00:00:00').toLocaleDateString('es-CO', { month: 'short', day: 'numeric' })).reverse();
+        const data = datosSemanales.map(d => d.total).reverse();
+
+        // Guardamos la nueva instancia del gráfico en nuestra variable
+        ventasChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Ingresos por día',
+                    data: data,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    fill: true,
+                    tension: 0.2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString('es-CO');
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
 
     initApp();
 });

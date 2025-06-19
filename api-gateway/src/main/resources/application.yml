@@ -2,8 +2,8 @@ server:
   port: 8081
 
 jwt:
-  secret: 845901478c39728dd8e43a08173831bccf0cc10a86e2d854de11bd1b4a8d0623
-
+  # Lee el secreto del JWT desde la variable de entorno
+  secret: ${JWT_SECRET:845901478c39728dd8e43a08173831bccf0cc10a86e2d854de11bd1b4a8d0623}
 
 spring:
   cloud:
@@ -11,117 +11,34 @@ spring:
       default-filters:
         - PreserveHostHeader
       routes:
+        # --- RUTA PARA AUTHENTICATION-SERVICE ---
         - id: authentication-service
-          uri: http://localhost:8082
+          # Lee la URL del servicio desde una variable de entorno
+          uri: ${AUTH_SERVICE_URL:http://localhost:8082}
           predicates:
-            - Path=/auth/**, /password/**, /api/admin/**
+            - Path=/auth/**, /password/**, /api/admin/users/**
 
-
-
+        # --- RUTA CONSOLIDADA PARA AGENDAMIENTO-SERVICE ---
         - id: agendamiento-service
-          uri: http://localhost:8083
+          uri: ${AGENDAMIENTO_SERVICE_URL:http://localhost:8083}
           predicates:
-            - Path=/servicios/**, /historial/**
+            - Path=/servicios/**, /historial/**, /veterinarios/**, /propietarios/**, /mascotas/**, /actualizar/**, /especialidad/**, /disponibilidad/**, /cita/**, /AreaClinica/**, /agenda/**, /imagenes/mascotas/**
 
-        - id: agendamiento-service
-          uri: http://localhost:8083
-          predicates:
-            - Path=/veterinarios/**
-
-
-        - id: agendamiento-service-propietarios
-          uri: http://localhost:8083
-          predicates:
-            - Path=/propietarios/**
-
-
-        - id: agendamiento-service-mascotas
-          uri: http://localhost:8083
-          predicates:
-            - Path=/mascotas/**, /actualizar/**
-
-
-        - id: agendamiento-service-especialidad
-          uri: http://localhost:8083
-          predicates:
-            - Path=/especialidad/**
-
-
-        - id: agendamiento-service-disponibilidad
-          uri: http://localhost:8083
-          predicates:
-            - Path=/disponibilidad/**
-
-
-        - id: agendamiento-service-citas
-          uri: http://localhost:8083
-          predicates:
-            - Path=/cita/**
-
-
-        - id: agendamiento-service-historial
-          uri: http://localhost:8083
-          predicates:
-            - Path=/historial/**
-
-
-        - id: agendamiento-service-areas-clinicas
-          uri: http://localhost:8083
-          predicates:
-            - Path=/AreaClinica/**
-
-
-        - id: agendamiento-service-agendas
-          uri: http://localhost:8083
-          predicates:
-            - Path=/agenda/**
-
-
-        - id: agendamiento-service-imagenes
-          uri: http://localhost:8083
-          predicates:
-            - Path=/imagenes/mascotas/**
-
-
-
-
+        # --- RUTA CONSOLIDADA PARA PERFIL-SERVICE ---
         - id: perfil-service
-          uri: http://localhost:8085
+          uri: ${PERFIL_SERVICE_URL:http://localhost:8085}
           predicates:
-              - Path=/perfil/**
+            - Path=/perfil/**
 
-
-
-
+        # --- RUTA PARA EMAIL-SERVICE ---
         - id: email-service
-          uri: http://localhost:8084
+          uri: ${EMAIL_SERVICE_URL:http://localhost:8084}
           predicates:
             - Path=/email-service/**
           filters:
             - StripPrefix=1
 
         - id: product-service
-          uri: http://localhost:5001
+          uri: ${PRODUCT_SERVICE_URL:http://localhost:5001}
           predicates:
-            - Path=/productos/**, /categorias/**, /cart/**, /orders/**, /checkout/**, /stripe-webhook
-
-
-
-        - id: product-static-images
-          uri: http://localhost:5001 # Apunta al servicio de Python
-          predicates:
-            - Path=/static/uploads/products/** # La ruta donde se guardan las imágenes
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            - Path=/productos/**, /categorias/**, /cart/**, /orders/**, /checkout/**, /stripe-webhook, /api/admin/**, /static/uploads/products/**
