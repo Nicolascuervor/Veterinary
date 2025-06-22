@@ -3,9 +3,9 @@ server:
 
 spring:
   datasource:
-    url: ${DB_URL_PERFIL:jdbc:mysql://localhost:3307/perfildb?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC}
+    url: ${DB_URL_PERFIL}
     username: root
-    password: ${DB_ROOT_PASSWORD:3712}
+    password: ${DB_ROOT_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:

@@ -1,32 +1,25 @@
 server:
   port: 8082
-
 spring:
+  application:
+    name: authentication-service
   datasource:
-    url: jdbc:mysql://localhost:3307/userveterinarydb?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+    url: ${DB_URL_AUTH}
     username: root
-    password: 3712
+    password: ${DB_ROOT_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
-
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
     properties:
       hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.MySQL8Dialect
-
-  application:
-    name: auth-service
-
+        dialect: org.hibernate.dialect.MySQLDialect
 jwt:
-  secret:  845901478c39728dd8e43a08173831bccf0cc10a86e2d854de11bd1b4a8d0623
-  expiration: 3600000 # 1 hora
-
-
+  secret: ${JWT_SECRET}
 email:
   service:
-    url: http://localhost:8081/email-service
-
-
+    url: ${EMAIL_SERVICE_URL}
+app:
+  gateway:
+    url: ${API_GATEWAY_URL}

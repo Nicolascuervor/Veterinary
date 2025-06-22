@@ -12,13 +12,11 @@ services:
     volumes:
       - vetcare_db_data:/var/lib/mysql
     healthcheck:
-      # CORRECCIÓN: Hacemos el comando más robusto
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "--password=${DB_ROOT_PASSWORD}"]
       interval: 10s
-      timeout: 10s # Aumentamos un poco el timeout
-      retries: 10    # Aumentamos los reintentos para darle más tiempo en el primer arranque
+      timeout: 10s
+      retries: 10
 
-  # 2. API Gateway (no depende directamente de la BD, así que no necesita el healthcheck)
   api-gateway:
     build: ./api-gateway
     container_name: vetcare_gateway
@@ -39,7 +37,6 @@ services:
       - EMAIL_SERVICE_URL=${EMAIL_SERVICE_URL}
       - PRODUCT_SERVICE_URL=${PRODUCT_SERVICE_URL}
 
-  # 3. Servicios de Aplicación (ahora esperan a que la BD esté saludable)
   authentication-service:
     build: ./authentication-service
     container_name: vetcare_auth
@@ -48,11 +45,11 @@ services:
       db:
         condition: service_healthy
     environment:
-      - DB_URL_AUTH=jdbc:mysql://db:3306/userveterinarydb?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+      - DB_URL_AUTH=${DB_URL_AUTH}
       - DB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
       - EMAIL_SERVICE_URL=${EMAIL_SERVICE_URL}
-      - AGENDAMIENTO_SERVICE_URL=${AGENDAMIENTO_SERVICE_URL}
+      - API_GATEWAY_URL=${API_GATEWAY_URL}
 
   agendamiento-service:
     build: ./agendamiento-service
@@ -60,13 +57,14 @@ services:
     restart: always
     depends_on:
       db:
-        condition: service_healthy # <-- CAMBIO CLAVE
+        condition: service_healthy
     environment:
-      - DB_URL=jdbc:mysql://db:3306/agendamientodb?createDatabaseIfNotExist=true
-      - DB_USER=root
-      - DB_PASSWORD=${DB_ROOT_PASSWORD}
+      - DB_URL_AGENDAMIENTO=${DB_URL_AGENDAMIENTO}
+      - DB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
       - EMAIL_SERVICE_URL=${EMAIL_SERVICE_URL}
+      - AUTH_SERVICE_URL=${AUTH_SERVICE_URL}
+      - API_GATEWAY_URL=${API_GATEWAY_URL}
 
   perfil-service:
     build: ./perfil-service
@@ -74,11 +72,10 @@ services:
     restart: always
     depends_on:
       db:
-        condition: service_healthy # <-- CAMBIO CLAVE
+        condition: service_healthy
     environment:
-      - DB_URL=jdbc:mysql://db:3306/perfildb?createDatabaseIfNotExist=true
-      - DB_USER=root
-      - DB_PASSWORD=${DB_ROOT_PASSWORD}
+      - DB_URL_PERFIL=${DB_URL_PERFIL}
+      - DB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
       - AGENDAMIENTO_SERVICE_URL=${AGENDAMIENTO_SERVICE_URL}
 
@@ -96,7 +93,7 @@ services:
     restart: always
     depends_on:
       db:
-        condition: service_healthy # <-- CAMBIO CLAVE
+        condition: service_healthy
     environment:
       - DATABASE_URL=mysql+pymysql://root:${DB_ROOT_PASSWORD}@db:3306/veterinaria
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}

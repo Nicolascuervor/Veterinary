@@ -15,7 +15,6 @@ public class MvcConfig implements WebMvcConfigurer {
 
     private static final Logger logger = LoggerFactory.getLogger(MvcConfig.class);
 
-    // --- CORRECCIÓN CLAVE AQUÍ ---
     @Value("${app.upload.dir}")
     private String uploadDir;
 
