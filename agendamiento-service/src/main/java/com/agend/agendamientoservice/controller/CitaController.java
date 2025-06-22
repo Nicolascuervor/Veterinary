@@ -15,6 +15,7 @@ import com.agend.agendamientoservice.Emails.EmailClient; // Asegúrate que esta 
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -37,6 +38,10 @@ public class CitaController {
     private final MascotaRepository mascotaRepository;
     private final VeterinarioRepository veterinarioRepository;
 
+
+    @Value("${app.auth.service.url}")
+    private String authServiceUrl;
+
     @PostMapping("/registrar")
     public ResponseEntity<CitaResponseDTO> guardarCita(@RequestBody CitaRequest request, HttpServletRequest httpRequest) {
 
@@ -44,7 +49,7 @@ public class CitaController {
         // Esto valida y guarda la cita en la base de datos.
         CitaResponseDTO nuevaCitaDTO = citaService.crearCitaDesdeRequest(request);
 
-        // 2. Obtener los datos necesarios para el email usando los IDs del 'request' original.
+
         try {
             final String authHeader = httpRequest.getHeader("Authorization");
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -100,7 +105,7 @@ public class CitaController {
     private UserDTO obtenerDatosDeUsuario(Long usuarioId, String token) {
         // 💡 CAMBIO CLAVE: Usamos 'localhost' en lugar de 'authentication-service'
         // Esto es para que funcione en un entorno de desarrollo local sin contenedores.
-        String url = "http://localhost:8082/auth/internal/user/" + usuarioId;
+        String url = authServiceUrl + "/auth/internal/user/" + usuarioId; // <-- ¡CORREGIDO!
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", token);

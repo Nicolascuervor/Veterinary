@@ -8,6 +8,7 @@ import com.gateway.authenticationservice.repository.PasswordResetTokenRepository
 import com.gateway.authenticationservice.repository.UserRepository;
 import com.gateway.authenticationservice.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,6 +20,10 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import jakarta.annotation.PostConstruct;
 
 @RestController
 @RequestMapping("/auth")
@@ -35,6 +40,17 @@ public class AuthController {
     private final EmailClient emailClient;
     private final PasswordEncoder passwordEncoder;
     private final RestTemplate restTemplate;
+
+    @Value("${app.gateway.url}") // <-- Inyecta el valor desde application.yml
+    private String gatewayUrl;
+
+    // --- AÑADE ESTAS LÍNEAS ---
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+
+    @PostConstruct
+    public void init() {
+        logger.info("✅ AuthController inicializado. El valor inyectado para 'gatewayUrl' es: '{}'", gatewayUrl);
+    }
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
@@ -165,7 +181,7 @@ public class AuthController {
             HttpEntity<PropietarioRequest> entity = new HttpEntity<>(propietario, headers);
 
             ResponseEntity<String> response = restTemplate.exchange(
-                    "http://localhost:8081/propietarios/registrar",
+                    gatewayUrl + "/propietarios/registrar", // <-- ¡CORREGIDO!
                     HttpMethod.POST,
                     entity,
                     String.class
@@ -210,7 +226,7 @@ public class AuthController {
             HttpEntity<Void> entity = new HttpEntity<>(headers);
 
             ResponseEntity<PropietarioResponse> response = restTemplate.exchange(
-                    "http://localhost:8081/propietarios/usuario/" + usuarioId,
+                    gatewayUrl + "/propietarios/usuario/" + usuarioId, // <-- ¡CORREGIDO!
                     HttpMethod.GET,
                     entity,
                     PropietarioResponse.class

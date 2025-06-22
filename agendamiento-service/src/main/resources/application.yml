@@ -1,13 +1,12 @@
 server:
   port: 8083
-
 spring:
+  application:
+    name: agendamiento-service
   datasource:
-    # Lee la URL de la BD desde la variable de entorno, con un valor por defecto para desarrollo local
-    url: ${DB_URL_AGENDAMIENTO:jdbc:mysql://localhost:3307/agendamientodb?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC}
+    url: ${DB_URL_AGENDAMIENTO}
     username: root
-    # Lee la contraseña de la BD desde la variable de entorno
-    password: ${DB_ROOT_PASSWORD:3712}
+    password: ${DB_ROOT_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -15,22 +14,16 @@ spring:
     show-sql: true
     properties:
       hibernate:
-        format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
-
-  application:
-    name: agendamiento-service
-
 jwt:
-  # Lee el secreto del JWT desde la variable de entorno
-  secret: ${JWT_SECRET:845901478c39728dd8e43a08173831bccf0cc10a86e2d854de11bd1b4a8d0623}
-  expiration: 3600000
-
-# Lee la URL del servicio de email desde la variable de entorno
+  secret: ${JWT_SECRET}
 email:
   service:
-    url: ${EMAIL_SERVICE_URL:http://localhost:8081/email-service}
-
+    url: ${EMAIL_SERVICE_URL}
 app:
-  upload:
-    dir: ./uploads/pet-images # Usar una ruta relativa es más portable
+  auth:
+    service:
+      url: ${AUTH_SERVICE_URL}
+file:
+  storage:
+    location: /uploads

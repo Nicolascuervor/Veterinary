@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -27,6 +28,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
+
 @RestController
 @RequestMapping("/mascotas")
 @RequiredArgsConstructor
@@ -34,12 +40,22 @@ public class MascotaController {
 
     private final EmailClient emailClient;
     private final RestTemplate restTemplate;
-    private static final Logger logger = LoggerFactory.getLogger(MascotaController.class);
+
 
     @Autowired private MascotaService mascotaService;
     @Autowired private FileStorageService fileStorageService;
     @Autowired private PropietarioRepository propietarioRepository;
     @Autowired private ObjectMapper objectMapper;
+
+    @Value("${app.auth.service.url}")
+    private String authServiceUrl;
+
+    private static final Logger logger = LoggerFactory.getLogger(MascotaController.class);
+
+    @PostConstruct
+    public void init() {
+        logger.info("✅ MascotaController inicializado. El valor inyectado para 'authServiceUrl' es: '{}'", authServiceUrl);
+    }
 
     @PostMapping
     public ResponseEntity<Mascota> guardarMascota(
@@ -161,7 +177,9 @@ public class MascotaController {
 
     private UserDTO obtenerDatosDeUsuario(Long usuarioId, String token) {
         // La URL debe apuntar al nombre del servicio si se usa Docker/Kubernetes
-        String url = "http://localhost:8082/auth/internal/user/" + usuarioId;
+        String url = authServiceUrl + "/auth/internal/user/" + usuarioId; // <-- ¡CORREGIDO!
+        logger.info("Intentando obtener datos del usuario desde: {}", url); // Log para ver la URL completa
+
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", token);
         HttpEntity<Void> entity = new HttpEntity<>(headers);

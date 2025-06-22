@@ -1,19 +1,20 @@
-# Usamos una imagen oficial de Java 21 como base, igual que los otros servicios.
+# ======================================================================
+# Fase 1: Construcción (si quisieras compilar dentro de Docker)
+# Para simplificar, asumiremos que ya has compilado el .jar con 'mvn package'
+# ======================================================================
+
+
 FROM eclipse-temurin:21-jdk-jammy
 
-# Etiqueta para describir al autor de la imagen (opcional)
-LABEL maintainer="tu-nombre@example.com"
+LABEL maintainer="nicocu1127@gmail.com"
 
-# Creamos un directorio de trabajo dentro del contenedor.
 WORKDIR /app
 
 
 COPY target/authentication-service-0.0.1-SNAPSHOT.jar app.jar
 
 
-# Exponemos el puerto 8084, que es el que usa este servicio según su 'application.properties'.
 EXPOSE 8082
 
-# Comando para ejecutar la aplicación cuando el contenedor se inicie.
-ENTRYPOINT ["java","-jar","app.jar"]
 
+ENTRYPOINT ["java","-jar","app.jar"]
